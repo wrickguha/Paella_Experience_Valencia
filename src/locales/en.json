@@ -1,0 +1,457 @@
+{
+  "nav": {
+    "home": "Home",
+    "experience": "The Experience",
+    "booking": "Book Now",
+    "contact": "Contact",
+    "bookNow": "Book Now"
+  },
+  "hero": {
+    "title": "The Authentic Paella Experience",
+    "subtitle": "Cook, Learn & Taste in the Heart of Valencia",
+    "cta": "Book Your Experience",
+    "scrollDown": "Discover More"
+  },
+  "socialProof": {
+    "title": "Loved by Thousands",
+    "subtitle": "Join over 5,000+ happy guests from around the world",
+    "rating": "4.9 out of 5",
+    "reviewCount": "2,400+ Reviews",
+    "platforms": "Rated on Google, TripAdvisor & Airbnb"
+  },
+  "highlights": {
+    "title": "Why This Experience?",
+    "subtitle": "More than a cooking class — it's a cultural journey",
+    "items": [
+      {
+        "icon": "chef",
+        "title": "Expert Local Chefs",
+        "description": "Learn from passionate Valencian chefs with decades of experience"
+      },
+      {
+        "icon": "market",
+        "title": "Market Visit Included",
+        "description": "Explore the famous Mercado Central and hand-pick your ingredients"
+      },
+      {
+        "icon": "fire",
+        "title": "Cook Over Open Fire",
+        "description": "Prepare authentic paella the traditional way — over wood fire"
+      },
+      {
+        "icon": "wine",
+        "title": "Wine & Tapas Included",
+        "description": "Enjoy local wines and tapas while your paella simmers"
+      },
+      {
+        "icon": "group",
+        "title": "Small Groups Only",
+        "description": "Intimate groups of max 12 people for a personal experience"
+      },
+      {
+        "icon": "camera",
+        "title": "Instagram-Worthy Setting",
+        "description": "Beautiful rooftop terrace with stunning views of Valencia"
+      }
+    ]
+  },
+  "gallery": {
+    "title": "A Taste of What Awaits",
+    "subtitle": "Moments from our unforgettable experiences"
+  },
+  "upcomingEvents": {
+    "title": "Upcoming Events",
+    "subtitle": "Grab a spot before they fill up — our sessions book out fast",
+    "open": "Open",
+    "slotsLeft": "slots left",
+    "noEvents": "No upcoming events at the moment. Check back soon!",
+    "viewAll": "View Full Calendar",
+    "bookNow": "Book",
+    "bloomGallery": "Bloom Gallery · Carrer de Lluís Oliag, 17, Valencia",
+    "casaMagnolia": "Casa Magnolia · Carrer del Pintor Salvador Abril, Valencia"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "From your first click to the last bite — it's simple, delicious, and unforgettable",
+    "steps": [
+      {
+        "number": "01",
+        "title": "Pick a Date",
+        "description": "Browse our live calendar and choose a date that suits you at Bloom Gallery or Casa Magnolia."
+      },
+      {
+        "number": "02",
+        "title": "Book Online",
+        "description": "Select the number of guests, fill in your details and confirm your spot in seconds — no phone calls needed."
+      },
+      {
+        "number": "03",
+        "title": "Cook & Eat",
+        "description": "Arrive, roll up your sleeves, cook an authentic Valencian paella alongside our chef, and enjoy every bite."
+      }
+    ],
+    "cta": "View Available Dates"
+  },
+  "pricing": {
+    "title": "Choose Your Experience",
+    "subtitle": "Every experience includes market visit, cooking class & full meal",
+    "perPerson": "per person",
+    "bookNow": "Book Now",
+    "mostPopular": "Most Popular",
+    "packages": [
+      {
+        "name": "Classic Paella",
+        "price": "79",
+        "duration": "3 hours",
+        "description": "The essential Valencian paella experience",
+        "features": [
+          "Guided market visit",
+          "Traditional paella cooking",
+          "Full meal with wine",
+          "Recipe booklet to take home"
+        ]
+      },
+      {
+        "name": "Premium Experience",
+        "price": "119",
+        "duration": "4.5 hours",
+        "description": "The complete culinary journey",
+        "features": [
+          "Everything in Classic",
+          "Tapas & sangria welcome",
+          "Two paella varieties",
+          "Dessert making class",
+          "Professional photos",
+          "Priority booking"
+        ],
+        "popular": true
+      },
+      {
+        "name": "Private Group",
+        "price": "149",
+        "duration": "5 hours",
+        "description": "Exclusive private experience for your group",
+        "features": [
+          "Everything in Premium",
+          "Private chef & venue",
+          "Custom menu options",
+          "Up to 12 guests",
+          "Champagne toast",
+          "Video recording"
+        ]
+      }
+    ]
+  },
+  "testimonials": {
+    "title": "What Our Guests Say",
+    "subtitle": "Real stories from real travelers",
+    "items": [
+      {
+        "name": "Sarah & James",
+        "location": "London, UK",
+        "rating": 5,
+        "text": "Absolutely the highlight of our trip to Valencia! The chef was incredibly warm, the food was divine, and the rooftop views were breathtaking. Worth every penny.",
+        "avatar": "couple1"
+      },
+      {
+        "name": "Marco Rossi",
+        "location": "Milan, Italy",
+        "rating": 5,
+        "text": "As an Italian, I know good food. This experience exceeded my expectations. The market tour was fascinating and cooking over open fire was unforgettable.",
+        "avatar": "man1"
+      },
+      {
+        "name": "Emily Chen",
+        "location": "San Francisco, USA",
+        "rating": 5,
+        "text": "I've done cooking classes worldwide — this is hands down the best. intimate setting, amazing instructor, and the paella was incredible. Already planning to come back!",
+        "avatar": "woman1"
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know",
+    "items": [
+      {
+        "question": "What is included in the experience?",
+        "answer": "Every experience includes a guided visit to Mercado Central, all ingredients, cooking instruction, a full meal with wine, and a recipe booklet to take home."
+      },
+      {
+        "question": "Do I need any cooking experience?",
+        "answer": "Not at all! Our experiences are designed for all skill levels. Our chefs guide you through every step in a fun, relaxed environment."
+      },
+      {
+        "question": "What languages are the classes offered in?",
+        "answer": "All classes are offered in English and Spanish. Private groups can request other languages with advance notice."
+      },
+      {
+        "question": "Can you accommodate dietary restrictions?",
+        "answer": "Yes! We offer vegetarian, vegan, gluten-free, and other dietary options. Please let us know when booking."
+      },
+      {
+        "question": "What is the cancellation policy?",
+        "answer": "Free cancellation up to 48 hours before the experience. Cancellations within 48 hours are eligible for a 50% refund or rescheduling."
+      },
+      {
+        "question": "How many people are in each group?",
+        "answer": "Our standard groups have a maximum of 12 people to ensure a personal, hands-on experience. Private groups can be arranged for larger parties."
+      }
+    ]
+  },
+  "finalCta": {
+    "title": "Ready for an Unforgettable Experience?",
+    "subtitle": "Spaces fill up fast — secure your spot today",
+    "cta": "Book Your Experience Now"
+  },
+  "experience": {
+    "hero": {
+      "title": "Authentic Paella Experience in Valencia",
+      "subtitle": "A hands-on culinary journey through Valencia's most iconic dish"
+    },
+    "intro": {
+      "title": "More Than a Cooking Class",
+      "subtitle": "An immersive cultural experience",
+      "paragraphs": [
+        "Valencia is the birthplace of paella — and there's no better way to connect with this city's soul than by cooking its most iconic dish over an open fire.",
+        "From hand-picking the freshest ingredients at local markets to mastering the art of socarrat, this is an experience that engages all your senses.",
+        "Whether you choose our urban art-gallery setting or a countryside villa, you'll leave with unforgettable memories, new skills, and a full heart."
+      ]
+    },
+    "keyInfo": {
+      "duration": "Duration",
+      "durationValue": "3-5 hours",
+      "location": "Location",
+      "locationValue": "Valencia & Alzira",
+      "groupSize": "Group Size",
+      "groupSizeValue": "Max 12 people",
+      "language": "Language",
+      "languageValue": "English & Spanish",
+      "price": "From",
+      "priceValue": "€59/person"
+    },
+    "locations": {
+      "bloom": {
+        "title": "Bloom Gallery — Ruzafa",
+        "subtitle": "Urban Art Meets Valencian Fire",
+        "description": "Nestled in the vibrant Ruzafa neighborhood, Bloom Gallery is a creative space where art and gastronomy collide. Cook authentic paella surrounded by local artwork in an intimate, urban setting perfect for culture lovers and foodies alike.",
+        "features": [
+          "Urban artistic environment in Ruzafa",
+          "Intimate Saturday-only experience",
+          "Small group setting (max 12)",
+          "Surrounded by local art"
+        ],
+        "location": "Ruzafa, Valencia",
+        "availability": "Saturdays",
+        "time": "12:00 – 16:00",
+        "price": "59",
+        "cta": "Book Bloom Experience"
+      },
+      "magnolia": {
+        "title": "Casa Magnolia — Alzira",
+        "subtitle": "Countryside Villa & Wood-Fire Cooking",
+        "description": "Escape the city to Casa Magnolia, a charming traditional Valencian villa surrounded by orange groves. Experience authentic wood-fire paella cooking in a lush garden setting — the ultimate countryside culinary retreat.",
+        "features": [
+          "Countryside villa with garden",
+          "Authentic wood-fire cooking",
+          "Nature & relaxation experience",
+          "Available most days of the week"
+        ],
+        "location": "Alzira (30 min from Valencia)",
+        "availability": "Most days",
+        "time": "13:00 – 18:00",
+        "price": "99",
+        "cta": "Book Casa Magnolia Experience"
+      }
+    },
+    "steps": {
+      "title": "What You'll Do",
+      "subtitle": "A step-by-step journey through the experience",
+      "items": [
+        {
+          "step": "1",
+          "title": "Meet & Greet",
+          "description": "Meet your chef at our beautiful venue. Enjoy a welcome drink and get to know your fellow foodies.",
+          "time": "Start"
+        },
+        {
+          "step": "2",
+          "title": "Market Tour",
+          "description": "Explore vibrant local markets and hand-pick the freshest produce for your paella.",
+          "time": "+30 min"
+        },
+        {
+          "step": "3",
+          "title": "Cooking Class",
+          "description": "Learn the secrets of authentic paella — from sofrito to socarrat — over traditional wood fire.",
+          "time": "+1 hour"
+        },
+        {
+          "step": "4",
+          "title": "Feast & Enjoy",
+          "description": "Sit down to enjoy the paella you've made, paired with local wines. Share stories and savor every bite.",
+          "time": "+2 hours"
+        }
+      ]
+    },
+    "description": {
+      "title": "About This Experience",
+      "paragraphs": [
+        "Step into the heart of Valencian culture with our signature paella experience. This isn't just a cooking class — it's an immersive journey through the flavors, traditions, and soul of Spain's most famous dish.",
+        "Your adventure begins at the legendary Mercado Central, where you'll wander through centuries-old stalls bursting with fresh seafood, vibrant vegetables, and aromatic spices. Your expert chef guides you as you select the perfect ingredients.",
+        "Back at our stunning venue, you'll master the art of paella over traditional wood fire. Learn the techniques passed down through generations — the perfect sofrito, the ideal rice-to-broth ratio, and the coveted socarrat."
+      ]
+    }
+  },
+  "booking": {
+    "title": "Book Your Experience",
+    "subtitle": "Pick a date, choose your experience, and reserve your spot",
+    "steps": {
+      "location": "Location",
+      "date": "Date",
+      "time": "Time",
+      "guests": "Guests",
+      "summary": "Summary",
+      "payment": "Payment"
+    },
+    "location": {
+      "title": "Select Your Location",
+      "subtitle": "Choose where you'd like your paella experience",
+      "bloomGallery": {
+        "name": "Bloom Gallery",
+        "availability": "Saturdays only",
+        "time": "12:00 – 16:00",
+        "area": "Ruzafa, Valencia",
+        "description": "A vibrant art gallery in the heart of Ruzafa — cook surrounded by local art and creative energy."
+      },
+      "casaMagnolia": {
+        "name": "Casa Magnolia",
+        "availability": "Most days available",
+        "time": "13:00 – 18:00",
+        "area": "Alzira",
+        "description": "A charming traditional Valencian house with a beautiful garden — the ultimate countryside escape."
+      }
+    },
+    "calendar": {
+      "title": "Choose Your Date",
+      "subtitle": "Select a date to see available experiences",
+      "noAvailability": "No availability for this date",
+      "spotsLeft": "Only {{count}} spots left",
+      "available": "Available",
+      "bloomLabel": "Bloom",
+      "magnoliaLabel": "Magnolia",
+      "bothLabel": "Both",
+      "filterAll": "All Locations",
+      "filterBloom": "Bloom Gallery",
+      "filterMagnolia": "Casa Magnolia",
+      "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    },
+    "eventCard": {
+      "at": "at",
+      "spotsLeft": "{{count}} spots left",
+      "onlyFewLeft": "Only {{count}} spots left — book now!",
+      "perPerson": "per person",
+      "bookNow": "Book Now",
+      "time": "Time",
+      "price": "Price",
+      "location": "Location"
+    },
+    "timeSlot": {
+      "title": "Select Your Time",
+      "subtitle": "Available time slots for {{date}}",
+      "noSlots": "No time slots available for this date"
+    },
+    "guests": {
+      "title": "How Many Guests?",
+      "subtitle": "Select the number of people joining",
+      "label": "guests",
+      "priceBreakdown": "€{{price}} × {{count}} = €{{total}}",
+      "perPerson": "per person"
+    },
+    "summary": {
+      "title": "Booking Summary",
+      "subtitle": "Review your booking before payment",
+      "location": "Location",
+      "date": "Date",
+      "time": "Time",
+      "guestCount": "Guests",
+      "pricePerPerson": "Price per person",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "edit": "Edit"
+    },
+    "next": "Continue",
+    "back": "Back",
+    "payNow": "Pay with PayPal",
+    "customerInfo": {
+      "title": "Your Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "firstNamePlaceholder": "Enter first name",
+      "lastNamePlaceholder": "Enter last name",
+      "emailPlaceholder": "Enter email",
+      "phonePlaceholder": "Enter phone",
+      "disclaimer": "Disclaimer",
+      "acceptTerms": "I have read and accept your terms and conditions and your privacy policy",
+      "isOver18": "I am over 18 years old",
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "disclaimerRequired": "Please accept all required disclaimers to continue",
+      "close": "Close",
+      "continue": "Continue"
+    }
+  },
+  "payment": {
+    "title": "Complete Your Payment",
+    "subtitle": "You're one step away from an unforgettable experience",
+    "bookingSummary": "Booking Summary",
+    "paypal": "Pay with PayPal",
+    "secure": "Secure payment via PayPal",
+    "redirecting": "Redirecting to PayPal...",
+    "success": {
+      "title": "Booking Confirmed!",
+      "subtitle": "We can't wait to welcome you to Valencia",
+      "message": "A confirmation email has been sent to your inbox. Please check your email for all the details about your upcoming experience.",
+      "bookingRef": "Booking Reference",
+      "backHome": "Back to Home"
+    },
+    "failure": {
+      "title": "Payment Failed",
+      "subtitle": "Something went wrong with your payment",
+      "message": "Please try again or contact our support team.",
+      "tryAgain": "Try Again",
+      "contactSupport": "Contact Support"
+    }
+  },
+  "contact": {
+    "title": "Get in Touch",
+    "subtitle": "We'd love to hear from you",
+    "form": {
+      "name": "Your Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send Message",
+      "success": "Message sent successfully! We'll get back to you within 24 hours."
+    },
+    "info": {
+      "address": "Calle de la Paz, 12\nValencia 46002, Spain",
+      "email": "hello@paellaexperience.com",
+      "phone": "+34 960 123 456",
+      "hours": "Mon-Sun: 9:00 AM - 8:00 PM"
+    }
+  },
+  "footer": {
+    "description": "The most authentic paella experience in Valencia. Cook, learn, and taste the flavors of Spain with our expert chefs.",
+    "quickLinks": "Quick Links",
+    "legal": "Legal",
+    "followUs": "Follow Us",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "cookies": "Cookie Policy",
+    "copyright": "© 2026 Paella Experience Valencia. All rights reserved."
+  }
+}
