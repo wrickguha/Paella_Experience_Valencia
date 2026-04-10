@@ -4,7 +4,6 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  // ⬇️ THE ONE LINE: '/frontend/' for localhost, '/' for production
   base: '/',
   build: {
     outDir: '../backend/public/frontend',
