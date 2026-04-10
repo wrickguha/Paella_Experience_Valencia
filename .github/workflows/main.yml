@@ -40,7 +40,7 @@ jobs:
           cd admin
           npm run build
 
-      # Deploy frontend
+      # Deploy frontend SPA
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -50,7 +50,7 @@ jobs:
           local-dir: backend/public/frontend/
           server-dir: /public_html/
 
-      # Deploy admin
+      # Deploy admin SPA
       - name: Deploy admin
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -59,3 +59,55 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: backend/public/admin/
           server-dir: /public_html/admin/
+
+      # Deploy .htaccess + api/ entry point
+      - name: Deploy public_html config
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: deploy/public_html/
+          server-dir: /public_html/
+
+      # Deploy Laravel backend (excluding vendor, built assets, env)
+      - name: Deploy backend
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: backend/
+          server-dir: /backend/
+          exclude: |
+            **/vendor/**
+            **/node_modules/**
+            **/.git*
+            **/.env
+            **/public/frontend/**
+            **/public/admin/**
+            **/public/storage
+            **/storage/logs/**
+            **/storage/framework/cache/**
+            **/storage/framework/sessions/**
+            **/storage/framework/views/**
+
+      # Run post-deploy commands on server via SSH
+      - name: Post-deploy (composer install + artisan)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd ~/backend
+            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
+            STORAGE_LINK=~/public_html/storage
+            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
+            ln -s ~/backend/storage/app/public "$STORAGE_LINK"
