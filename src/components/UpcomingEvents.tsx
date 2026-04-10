@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -113,38 +113,58 @@ function EventCard({ event, index }: EventCardProps) {
 
 export default function UpcomingEvents() {
   const { t, i18n } = useTranslation();
-  const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [monthIndex, setMonthIndex] = useState(today.getMonth());
-  const [direction, setDirection] = useState(1); // 1 = forward, -1 = backward
+
+  // Fixed window: today → today + 7 days (never changes during render)
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const cutoff = useMemo(() => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + 7);
+    return d;
+  }, [today]);
+
+  const todayStr  = today.toISOString().slice(0, 10);
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  // Always fetch current month; also fetch next month in case the 7-day
+  // window crosses a month boundary (e.g. Apr 28 → May 4).
+  const curYear   = today.getFullYear();
+  const curMonth  = today.getMonth();
+  const nextMonth = curMonth === 11 ? 0  : curMonth + 1;
+  const nextYear  = curMonth === 11 ? curYear + 1 : curYear;
+
+  const { events: curEvents,  loading: loadingCur  } = useCalendarMonth(curYear, curMonth);
+  const { events: nextEvents, loading: loadingNext } = useCalendarMonth(nextYear, nextMonth);
+  const loading = loadingCur || loadingNext;
 
   const monthNames = i18n.language.startsWith('es') ? MONTH_NAMES_ES : MONTH_NAMES;
 
-  const { events: rawEvents, loading } = useCalendarMonth(year, monthIndex);
+  const events = useMemo(() => {
+    const all = [...curEvents, ...nextEvents];
+    // Deduplicate by date+locationId in case months overlap
+    const seen = new Set<string>();
+    return all
+      .filter((e) => {
+        const key = `${e.date}-${e.locationId}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return e.date >= todayStr && e.date <= cutoffStr;
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [curEvents, nextEvents, todayStr, cutoffStr]);
 
-  const events = useMemo(
-    () => rawEvents
-      .filter((e) => new Date(e.date) >= today)
-      .sort((a, b) => a.date.localeCompare(b.date)),
-    [rawEvents],
-  );
+  // Human-readable date range label e.g. "10 May — 17 May"
+  const rangeLabel = useMemo(() => {
+    const fmt = (d: Date) =>
+      `${d.getDate()} ${monthNames[d.getMonth()]}`;
+    return `${fmt(today)} — ${fmt(cutoff)}`;
+  }, [today, cutoff, monthNames]);
 
-  const canGoPrev = !(year === today.getFullYear() && monthIndex === today.getMonth());
-
-  function prevMonth() {
-    if (!canGoPrev) return;
-    setDirection(-1);
-    if (monthIndex === 0) { setYear(y => y - 1); setMonthIndex(11); }
-    else setMonthIndex(m => m - 1);
-  }
-
-  function nextMonth() {
-    setDirection(1);
-    if (monthIndex === 11) { setYear(y => y + 1); setMonthIndex(0); }
-    else setMonthIndex(m => m + 1);
-  }
-
-  const monthKey = `${year}-${monthIndex}`;
+  const monthKey = `week-${todayStr}`;
 
   return (
     <SectionWrapper className="bg-white">
@@ -162,33 +182,11 @@ export default function UpcomingEvents() {
           </p>
         </div>
 
-        {/* Month navigation */}
-        <div className="flex items-center gap-3 shrink-0">
-          <span className="font-heading font-semibold text-neutral-dark text-base min-w-[120px] text-right">
-            {monthNames[monthIndex]} {year}
+        {/* Date range badge */}
+        <div className="shrink-0">
+          <span className="font-heading font-semibold text-neutral-dark text-base bg-neutral-cream px-4 py-2 rounded-full border border-neutral-sand/50">
+            {rangeLabel}
           </span>
-          <button
-            onClick={prevMonth}
-            disabled={!canGoPrev}
-            aria-label="Previous month"
-            className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-colors
-              ${canGoPrev
-                ? 'border-neutral-sand text-neutral-dark hover:border-primary hover:text-primary'
-                : 'border-neutral-sand/40 text-neutral-sand cursor-not-allowed'}`}
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-              <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-          </button>
-          <button
-            onClick={nextMonth}
-            aria-label="Next month"
-            className="w-9 h-9 rounded-lg border border-neutral-sand text-neutral-dark flex items-center justify-center hover:border-primary hover:text-primary transition-colors"
-          >
-            <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-            </svg>
-          </button>
         </div>
       </div>
 
@@ -213,9 +211,9 @@ export default function UpcomingEvents() {
       <AnimatePresence mode="wait">
         <motion.div
           key={monthKey}
-          initial={{ opacity: 0, x: direction * 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -direction * 40 }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -16 }}
           transition={{ duration: 0.3, ease: 'easeInOut' }}
         >
           {events.length === 0 ? (
