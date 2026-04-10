@@ -1,0 +1,1 @@
+import{r as e}from"./index-D4nQuqqK.js";import{a as c}from"./api-BbdadFrA.js";function p(a,r){const[l,o]=e.useState([]),[u,n]=e.useState(!0),[i,s]=e.useState(null);return e.useEffect(()=>{let t=!1;return n(!0),s(null),c(a,r).then(f=>{t||o(f)}).catch(()=>{t||s("Failed to load availability")}).finally(()=>{t||n(!1)}),()=>{t=!0}},[a,r]),{events:l,loading:u,error:i}}export{p as u};
