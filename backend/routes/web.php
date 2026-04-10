@@ -27,6 +27,16 @@ Route::get('/admin/{any?}', function () {
 |--------------------------------------------------------------------------
 */
 
+// Serve frontend built assets (js/css/images) from backend/public/frontend/assets/
+// This allows 127.0.0.1:8000 to work locally alongside localhost:5173
+Route::get('/assets/{path}', function ($path) {
+    $file = public_path('frontend/assets/' . $path);
+    if (! file_exists($file)) {
+        abort(404);
+    }
+    return response()->file($file);
+})->where('path', '.*');
+
 Route::get('/', function () {
     $frontendEntry = public_path('frontend/index.html');
 
@@ -49,5 +59,5 @@ Route::get('/{any}', function () {
     }
 
     return response()->file($frontendEntry);
-})->where('any', '^(?!api|admin|storage|_debugbar).*$');
+})->where('any', '^(?!api|admin|assets|storage|_debugbar).*$');
 
