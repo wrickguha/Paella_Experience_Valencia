@@ -3,11 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
+import { bookingApi, paymentApi } from '@/services/api';
 
 type PaymentState = 'review' | 'processing' | 'success' | 'failure';
 
 interface StoredBooking {
   locationId: string;
+  locationNumericId: number;
+  experienceId: number;
   date: string;
   time: string;
   guests: number;
@@ -28,6 +31,8 @@ export default function PaymentPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [state, setState] = useState<PaymentState>('review');
+  const [bookingRef, setBookingRef] = useState<string>('');
+  const [errorMsg, setErrorMsg] = useState<string>('');
   useScrollToTop();
 
   const stored = useMemo<StoredBooking | null>(() => {
@@ -52,16 +57,62 @@ export default function PaymentPage() {
     day: 'numeric',
   });
 
-  const handlePayPal = () => {
+  /**
+   * Full payment flow:
+   * 1. Create booking in DB  → returns booking.id
+   * 2. Create PayPal order   → returns approval_url
+   * 3. Redirect to PayPal    → user approves
+   * 4. PayPal returns here   → /payment/success route captures
+   */
+  const handlePayPal = async () => {
+    if (!stored) return;
     setState('processing');
-    // Simulate PayPal redirect + payment
-    setTimeout(() => {
-      setState('success');
-      sessionStorage.removeItem('booking');
-    }, 2200);
-  };
+    setErrorMsg('');
 
-  const bookingRef = `PEV-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`;
+    try {
+      // Step 1: Create booking
+      const bookingRes = await bookingApi.create({
+        first_name: stored.customerFirstName ?? '',
+        last_name: stored.customerLastName ?? '',
+        email: stored.customerEmail ?? '',
+        phone: stored.customerPhone ?? null,
+        location_id: stored.locationNumericId,
+        experience_id: stored.experienceId,
+        date: stored.date,
+        time: stored.time,
+        guests: stored.guests,
+      });
+
+      const bookingData = bookingRes.data?.data?.booking;
+      if (!bookingData?.id) throw new Error('Booking creation failed.');
+
+      const ref = bookingData.reference ?? '';
+      setBookingRef(ref);
+
+      // Step 2: Create PayPal order
+      const orderRes = await paymentApi.createOrder(bookingData.id);
+      const approvalUrl = orderRes.data?.data?.approval_url;
+      const orderId = orderRes.data?.data?.order_id;
+
+      if (approvalUrl) {
+        // Save order_id for capture on return
+        sessionStorage.setItem('paypal_order_id', orderId);
+        sessionStorage.setItem('booking_ref', ref);
+        // Redirect to PayPal
+        window.location.href = approvalUrl;
+      } else {
+        // PayPal order created but no approval URL (shouldn't happen)
+        throw new Error('No PayPal approval URL returned.');
+      }
+    } catch (err: unknown) {
+      console.error('Payment flow failed', err);
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message
+        || (err instanceof Error ? err.message : 'Something went wrong.');
+      setErrorMsg(msg);
+      setState('failure');
+    }
+  };
 
   return (
     <div className="section-padding bg-neutral-cream min-h-screen">
@@ -209,6 +260,9 @@ export default function PaymentPage() {
               <p className="text-lg text-neutral-gray font-body mb-4">
                 {t('payment.failure.subtitle')}
               </p>
+              {errorMsg && (
+                <p className="text-sm text-red-500 font-body mb-4">{errorMsg}</p>
+              )}
               <p className="text-sm text-neutral-gray font-body mb-8">
                 {t('payment.failure.message')}
               </p>

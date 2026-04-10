@@ -14,6 +14,8 @@ type PageStep = 'calendar' | 'guests';
 
 interface SelectedEvent {
   locationId: LocationId;
+  locationNumericId: number;
+  experienceId: number;
   date: string;
   time: string;
   pricePerPerson: number;
@@ -50,6 +52,8 @@ export default function BookingPage() {
   const handleBookEvent = useCallback((event: CalendarEvent) => {
     setSelectedEvent({
       locationId: event.locationId,
+      locationNumericId: event.locationNumericId,
+      experienceId: event.experienceId,
       date: event.date,
       time: event.time,
       pricePerPerson: event.pricePerPerson,
@@ -65,13 +69,14 @@ export default function BookingPage() {
     setCustomerInfoOpen(true);
   }, [selectedEvent]);
 
-  // Called when customer info modal is submitted
   const handleCustomerInfoContinue = useCallback((info: CustomerInfo) => {
     if (!selectedEvent) return;
     sessionStorage.setItem(
       'booking',
       JSON.stringify({
         locationId: selectedEvent.locationId,
+        locationNumericId: selectedEvent.locationNumericId,
+        experienceId: selectedEvent.experienceId,
         date: selectedEvent.date,
         time: selectedEvent.time,
         guests,

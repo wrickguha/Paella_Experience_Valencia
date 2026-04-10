@@ -24,6 +24,8 @@ export type LocationId = 'bloom' | 'magnolia';
 export interface CalendarEvent {
   date: string;
   locationId: LocationId;
+  locationNumericId: number;
+  experienceId: number;
   locationName: string;
   time: string;
   spotsLeft: number;
@@ -39,6 +41,11 @@ interface ApiLocation {
   price: number | null;
 }
 
+interface ApiExperience {
+  id: number;
+  location: { id: number } | null;
+}
+
 interface BackendCalendarEvent {
   date: string;
   location_id: number;
@@ -50,12 +57,20 @@ interface BackendCalendarEvent {
 
 // ── Location data cache (fetched once per session) ─────────────────
 let _locationCache: ApiLocation[] | null = null;
+let _experienceCache: ApiExperience[] | null = null;
 
 async function getLocations(): Promise<ApiLocation[]> {
   if (_locationCache) return _locationCache;
   const res = await apiClient.get('/locations', { params: { lang: 'en' } });
   _locationCache = res.data.data as ApiLocation[];
   return _locationCache;
+}
+
+async function getExperiences(): Promise<ApiExperience[]> {
+  if (_experienceCache) return _experienceCache;
+  const res = await apiClient.get('/experiences', { params: { lang: 'en' } });
+  _experienceCache = res.data.data as ApiExperience[];
+  return _experienceCache;
 }
 
 function slugFromName(name: string): LocationId {
@@ -67,9 +82,10 @@ function slugFromName(name: string): LocationId {
  * Fetch all available CalendarEvents for a given month (0-indexed, JS convention).
  */
 export async function fetchCalendarMonth(year: number, month: number): Promise<CalendarEvent[]> {
-  const [calRes, locations] = await Promise.all([
+  const [calRes, locations, experiences] = await Promise.all([
     apiClient.get('/calendar', { params: { year, month: month + 1 } }), // API uses 1-indexed months
     getLocations(),
+    getExperiences(),
   ]);
 
   const raw: BackendCalendarEvent[] = calRes.data.data.events ?? [];
@@ -78,9 +94,12 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
     .filter((e) => e.is_available)
     .map((e) => {
       const loc = locations.find((l) => l.id === e.location_id);
+      const exp = experiences.find((x) => x.location?.id === e.location_id);
       return {
         date: e.date,
         locationId: slugFromName(e.location),
+        locationNumericId: e.location_id,
+        experienceId: exp?.id ?? 1,
         locationName: e.location,
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
         spotsLeft: e.available_slots,
@@ -125,8 +144,10 @@ export const bookingApi = {
 };
 
 export const paymentApi = {
-  capturePayPal: (paypalOrderId: string) =>
-    apiClient.post('/payment/paypal', { paypal_order_id: paypalOrderId }),
+  createOrder: (bookingId: number) =>
+    apiClient.post('/payment/create-order', { booking_id: bookingId }),
+  capture: (orderId: string) =>
+    apiClient.post('/payment/capture', { order_id: orderId }),
 };
 
 export default apiClient;

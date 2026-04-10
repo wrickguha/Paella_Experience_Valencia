@@ -36,9 +36,11 @@ return [
     ],
 
     'paypal' => [
+        'mode' => env('PAYPAL_MODE', 'sandbox'),
         'client_id' => env('PAYPAL_CLIENT_ID', ''),
-        'client_secret' => env('PAYPAL_CLIENT_SECRET', ''),
-        'sandbox' => env('PAYPAL_SANDBOX', true),
+        'client_secret' => env('PAYPAL_SECRET', ''),
+        'currency' => env('PAYPAL_CURRENCY', 'EUR'),
+        'payee_email' => env('PAYPAL_PAYEE_EMAIL', 'joy97ta@gmail.com'),
     ],
 
 ];

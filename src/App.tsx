@@ -6,6 +6,8 @@ const HomePage = lazy(() => import('@/pages/HomePage'));
 const ExperiencePage = lazy(() => import('@/pages/ExperiencePage'));
 const BookingPage = lazy(() => import('@/pages/BookingPage'));
 const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
+const PaymentReturnPage = lazy(() => import('@/pages/PaymentReturnPage'));
+const PaymentCancelPage = lazy(() => import('@/pages/PaymentCancelPage'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
 
 function LoadingFallback() {
@@ -29,6 +31,8 @@ export default function App() {
             <Route path="/experience" element={<ExperiencePage />} />
             <Route path="/booking" element={<BookingPage />} />
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/payment/success" element={<PaymentReturnPage />} />
+            <Route path="/payment/cancel" element={<PaymentCancelPage />} />
             <Route path="/contact" element={<ContactPage />} />
           </Route>
         </Routes>

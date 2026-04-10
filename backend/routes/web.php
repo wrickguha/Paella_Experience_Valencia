@@ -2,6 +2,31 @@
 
 use Illuminate\Support\Facades\Route;
 
+/*
+|--------------------------------------------------------------------------
+| Admin SPA
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/admin/{any?}', function () {
+    $adminEntry = public_path('admin/index.html');
+
+    if (! file_exists($adminEntry)) {
+        return response()->json([
+            'message' => 'Admin build not found.',
+            'next_step' => 'Run npm run build from the admin/ directory.',
+        ], 503);
+    }
+
+    return response()->file($adminEntry);
+})->where('any', '.*');
+
+/*
+|--------------------------------------------------------------------------
+| Frontend SPA
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/', function () {
     $frontendEntry = public_path('frontend/index.html');
 
@@ -24,4 +49,4 @@ Route::get('/{any}', function () {
     }
 
     return response()->file($frontendEntry);
-})->where('any', '^(?!api|storage|_debugbar).*$');
+})->where('any', '^(?!api|admin|storage|_debugbar).*$');
