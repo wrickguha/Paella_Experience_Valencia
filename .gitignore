@@ -1,1 +1,22 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+admin/node_modules/
+backend/vendor/
+
+# Build outputs
+frontend/dist/
+admin/dist/
+
+# Environment files
 .env
+backend/.env
+frontend/.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

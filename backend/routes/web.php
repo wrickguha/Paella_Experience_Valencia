@@ -33,7 +33,7 @@ Route::get('/', function () {
     if (! file_exists($frontendEntry)) {
         return response()->json([
             'message' => 'Frontend build not found.',
-            'next_step' => 'Run npm run build from the project root to publish the React app into Laravel public/frontend.',
+            'next_step' => 'Run npm run build from the frontend/ directory.',
             'api_base_url' => url('/api'),
         ], 503);
     }
@@ -45,8 +45,9 @@ Route::get('/{any}', function () {
     $frontendEntry = public_path('frontend/index.html');
 
     if (! file_exists($frontendEntry)) {
-        abort(503, 'Frontend build not found. Run npm run build from the project root.');
+        abort(503, 'Frontend build not found. Run npm run build from the frontend/ directory.');
     }
 
     return response()->file($frontendEntry);
 })->where('any', '^(?!api|admin|storage|_debugbar).*$');
+

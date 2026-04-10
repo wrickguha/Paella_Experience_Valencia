@@ -1,0 +1,48 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # ── API & Backend routes → Laravel ──────────────────────────────
+    # Any request starting with /api goes to Laravel
+    RewriteCond %{REQUEST_URI} ^/api(/|$) [NC]
+    RewriteRule ^(.*)$ /api/index.php/$1 [L]
+
+    # ── Admin SPA ───────────────────────────────────────────────────
+    # Serve admin files if they exist, otherwise fall back to admin/index.html
+    RewriteCond %{REQUEST_URI} ^/admin
+    RewriteCond %{DOCUMENT_ROOT}/admin/%{REQUEST_FILENAME} !-f
+    RewriteCond %{DOCUMENT_ROOT}/admin/%{REQUEST_FILENAME} !-d
+    RewriteRule ^admin/(.*)$ /admin/index.html [L]
+
+    # ── Frontend SPA (catch-all) ────────────────────────────────────
+    # Serve files if they exist, otherwise fall back to index.html
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/admin
+    RewriteCond %{REQUEST_URI} !^/api
+    RewriteCond %{REQUEST_URI} !^/storage
+    RewriteRule ^(.*)$ /index.html [L]
+</IfModule>
+
+# ── Security headers ───────────────────────────────────────────────
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Disable directory listing ──────────────────────────────────────
+Options -Indexes
+
+# ── Cache static assets ───────────────────────────────────────────
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
