@@ -182,6 +182,7 @@ export interface AuthUser {
   id: number;
   name: string;
   email: string;
+  phone: string | null;
   role: string;
 }
 
@@ -204,7 +205,7 @@ export interface UserBooking {
 }
 
 export const authApi = {
-  register: (data: { name: string; email: string; password: string; password_confirmation: string }) =>
+  register: (data: { name: string; email: string; phone?: string; password: string; password_confirmation: string }) =>
     apiClient.post<AuthResponse>('/register', data),
   login: (data: { email: string; password: string }) =>
     apiClient.post<AuthResponse>('/login', data),

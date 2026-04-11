@@ -17,12 +17,14 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
+            'phone' => 'nullable|string|max:30',
             'password' => ['required', 'confirmed', Password::min(8)],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'phone' => $request->phone,
             'password' => Hash::make($request->password),
             'role' => 'user',
         ]);
@@ -35,6 +37,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role,
             ],
         ], 201);
@@ -64,6 +67,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role,
             ],
         ]);
@@ -77,6 +81,7 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
+            'phone' => $user->phone,
             'role' => $user->role,
             'created_at' => $user->created_at,
         ]);
@@ -115,6 +120,9 @@ class AuthController extends Controller
         if ($request->has('email')) {
             $user->email = $request->email;
         }
+        if ($request->has('phone')) {
+            $user->phone = $request->phone;
+        }
 
         $user->save();
 
@@ -124,6 +132,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
                 'role' => $user->role,
             ],
         ]);

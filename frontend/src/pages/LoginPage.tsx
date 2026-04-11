@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
 import { authApi } from '@/services/api';
@@ -8,6 +8,8 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const { refreshUser } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -32,7 +34,7 @@ export default function LoginPage() {
 
       // Regular user: load user into context, then navigate
       await refreshUser();
-      navigate('/profile');
+      navigate(redirectTo || '/profile');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
@@ -58,6 +60,12 @@ export default function LoginPage() {
               {t('auth.loginSubtitle')}
             </p>
           </div>
+
+          {redirectTo && !error && (
+            <div className="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-xl mb-6 text-sm">
+              {t('auth.loginToBook')}
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm">
@@ -107,7 +115,7 @@ export default function LoginPage() {
 
           <p className="text-center text-sm text-neutral-gray mt-6">
             {t('auth.noAccount')}{' '}
-            <Link to="/register" className="text-primary font-medium hover:underline">
+            <Link to={redirectTo ? `/register?redirect=${encodeURIComponent(redirectTo)}` : '/register'} className="text-primary font-medium hover:underline">
               {t('auth.registerLink')}
             </Link>
           </p>

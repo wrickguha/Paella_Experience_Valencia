@@ -9,9 +9,29 @@ export default function ProfilePage() {
 
   const [activeTab, setActiveTab] = useState<'profile' | 'bookings'>('profile');
 
+  const COUNTRY_CODES = [
+    { code: '+34', flag: '🇪🇸' }, { code: '+44', flag: '🇬🇧' }, { code: '+1', flag: '🇺🇸' },
+    { code: '+49', flag: '🇩🇪' }, { code: '+33', flag: '🇫🇷' }, { code: '+39', flag: '🇮🇹' },
+    { code: '+31', flag: '🇳🇱' }, { code: '+32', flag: '🇧🇪' }, { code: '+41', flag: '🇨🇭' },
+    { code: '+43', flag: '🇦🇹' }, { code: '+46', flag: '🇸🇪' }, { code: '+47', flag: '🇳🇴' },
+    { code: '+45', flag: '🇩🇰' }, { code: '+351', flag: '🇵🇹' }, { code: '+61', flag: '🇦🇺' },
+    { code: '+81', flag: '🇯🇵' }, { code: '+91', flag: '🇮🇳' }, { code: '+55', flag: '🇧🇷' },
+    { code: '+52', flag: '🇲🇽' },
+  ];
+
+  const parsePhone = (full: string | null) => {
+    if (!full) return { code: '+34', number: '' };
+    const match = COUNTRY_CODES.find((c) => full.startsWith(c.code));
+    return match ? { code: match.code, number: full.slice(match.code.length) } : { code: '+34', number: full };
+  };
+
+  const parsed = parsePhone(user?.phone ?? null);
+
   // Profile edit state
   const [name, setName] = useState(user?.name ?? '');
   const [email, setEmail] = useState(user?.email ?? '');
+  const [phoneCode, setPhoneCode] = useState(parsed.code);
+  const [phone, setPhone] = useState(parsed.number);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [passwordConfirmation, setPasswordConfirmation] = useState('');
@@ -27,6 +47,9 @@ export default function ProfilePage() {
     if (user) {
       setName(user.name);
       setEmail(user.email);
+      const p = parsePhone(user.phone);
+      setPhoneCode(p.code);
+      setPhone(p.number);
     }
   }, [user]);
 
@@ -49,6 +72,8 @@ export default function ProfilePage() {
     const data: Record<string, string> = {};
     if (name !== user?.name) data.name = name;
     if (email !== user?.email) data.email = email;
+    const fullPhone = phone ? phoneCode + phone : '';
+    if (fullPhone !== (user?.phone ?? '')) data.phone = fullPhone;
     if (newPassword) {
       data.current_password = currentPassword;
       data.password = newPassword;
@@ -198,6 +223,33 @@ export default function ProfilePage() {
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-primary
                              focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-neutral-dark mb-1.5">
+                  {t('auth.phone')}
+                </label>
+                <div className="flex gap-2">
+                  <select
+                    value={phoneCode}
+                    onChange={(e) => setPhoneCode(e.target.value)}
+                    className="px-2 py-3 rounded-xl border border-gray-200 focus:border-primary focus:outline-none text-sm bg-white"
+                  >
+                    {COUNTRY_CODES.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.code}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-primary
+                               focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+                    placeholder={t('auth.phonePlaceholder')}
+                  />
+                </div>
               </div>
 
               <hr className="border-gray-100" />

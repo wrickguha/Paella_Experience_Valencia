@@ -3,12 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
+import { useAuth } from '@/context/AuthContext';
 import type { CalendarEvent, LocationId } from '@/services/api';
 import AvailabilityCalendar from '@/components/booking/AvailabilityCalendar';
 import EventDetailModal from '@/components/booking/EventDetailModal';
 import GuestSelector from '@/components/booking/GuestSelector';
-import CustomerInfoModal from '@/components/booking/CustomerInfoModal';
-import type { CustomerInfo } from '@/components/booking/CustomerInfoModal';
 
 type PageStep = 'calendar' | 'guests';
 
@@ -26,6 +25,7 @@ export default function BookingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   useScrollToTop();
 
   // Pre-fill from URL params (from experience page CTAs)
@@ -37,7 +37,6 @@ export default function BookingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
   const [guests, setGuests] = useState(2);
-  const [customerInfoOpen, setCustomerInfoOpen] = useState(false);
 
   const handleDateSelect = useCallback((date: string, events: CalendarEvent[]) => {
     // If prefill location, filter events to that location
@@ -63,14 +62,10 @@ export default function BookingPage() {
     setStep('guests');
   }, []);
 
-  // Opens customer info modal before payment
+  // Go straight to payment using auth user data
   const handleProceedToPayment = useCallback(() => {
-    if (!selectedEvent) return;
-    setCustomerInfoOpen(true);
-  }, [selectedEvent]);
-
-  const handleCustomerInfoContinue = useCallback((info: CustomerInfo) => {
-    if (!selectedEvent) return;
+    if (!selectedEvent || !user) return;
+    const nameParts = (user.name || '').split(' ');
     sessionStorage.setItem(
       'booking',
       JSON.stringify({
@@ -82,15 +77,14 @@ export default function BookingPage() {
         guests,
         total: selectedEvent.pricePerPerson * guests,
         pricePerPerson: selectedEvent.pricePerPerson,
-        customerFirstName: info.firstName,
-        customerLastName: info.lastName,
-        customerEmail: info.email,
-        customerPhone: info.phoneCode + info.phone,
+        customerFirstName: nameParts[0] || '',
+        customerLastName: nameParts.slice(1).join(' ') || '',
+        customerEmail: user.email,
+        customerPhone: user.phone || '',
       }),
     );
-    setCustomerInfoOpen(false);
     navigate('/payment');
-  }, [selectedEvent, guests, navigate]);
+  }, [selectedEvent, guests, navigate, user]);
 
   const handleBackToCalendar = useCallback(() => {
     setStep('calendar');
@@ -226,13 +220,6 @@ export default function BookingPage() {
           isOpen={modalOpen}
           onClose={() => setModalOpen(false)}
           onBook={handleBookEvent}
-        />
-
-        {/* Customer information modal */}
-        <CustomerInfoModal
-          isOpen={customerInfoOpen}
-          onClose={() => setCustomerInfoOpen(false)}
-          onContinue={handleCustomerInfoContinue}
         />
       </div>
     </div>

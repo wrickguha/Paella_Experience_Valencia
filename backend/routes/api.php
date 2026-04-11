@@ -49,7 +49,7 @@ Route::get('/settings', [SettingController::class, 'index']);
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('throttle:10,1')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
     Route::post('/booking/create', [BookingController::class, 'create']);
     Route::post('/payment/create-order', [PaymentController::class, 'createOrder']);
     Route::post('/payment/capture', [PaymentController::class, 'capture']);

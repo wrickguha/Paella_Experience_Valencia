@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 export interface CustomerInfo {
   firstName: string;
@@ -44,6 +45,7 @@ const COUNTRY_CODES = [
 
 export default function CustomerInfoModal({ isOpen, onClose, onContinue }: Props) {
   const { t } = useTranslation();
+  const { user } = useAuth();
 
   const [firstName, setFirstName]     = useState('');
   const [lastName, setLastName]       = useState('');
@@ -53,6 +55,16 @@ export default function CustomerInfoModal({ isOpen, onClose, onContinue }: Props
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isOver18, setIsOver18]       = useState(false);
   const [errors, setErrors]           = useState<Record<string, string>>({});
+
+  // Auto-fill from logged-in user profile
+  useEffect(() => {
+    if (isOpen && user) {
+      const parts = (user.name || '').split(' ');
+      setFirstName(parts[0] || '');
+      setLastName(parts.slice(1).join(' ') || '');
+      setEmail(user.email || '');
+    }
+  }, [isOpen, user]);
 
   const clearError = (key: string) =>
     setErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });

@@ -459,6 +459,7 @@
     "loginTitle": "Welcome Back",
     "loginSubtitle": "Sign in to your account to manage bookings",
     "loginError": "Login failed. Please try again.",
+    "loginToBook": "Please log in or create an account to book an experience.",
     "loggingIn": "Signing in...",
     "register": "Create Account",
     "registerTitle": "Create Your Account",
@@ -498,6 +499,11 @@
     "time": "Time",
     "guests": "Guests",
     "total": "Total",
-    "reference": "Ref"
+    "reference": "Ref",
+    "phone": "Phone",
+    "phonePlaceholder": "Enter phone number",
+    "acceptTerms": "I have read and accept the terms and conditions and the privacy policy",
+    "isOver18": "I am over 18 years old",
+    "disclaimerRequired": "Please accept the terms and confirm you are over 18 to continue"
   }
 }
