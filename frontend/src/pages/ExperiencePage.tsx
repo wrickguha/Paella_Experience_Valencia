@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,39 +7,48 @@ import GalleryGrid from '@/components/GalleryGrid';
 import Testimonials from '@/components/Testimonials';
 import FAQSection from '@/components/FAQSection';
 import FinalCTA from '@/components/FinalCTA';
+import { fetchLocations, type FrontendLocation, type LocationSchedule } from '@/services/api';
 
+// ── Helpers ───────────────────────────────────────────────────────
+const BADGE_COLORS = ['bg-primary', 'bg-emerald-500', 'bg-blue-500', 'bg-purple-500'];
+
+function slugFromName(name: string): string {
+  return name.toLowerCase().includes('magnolia') ? 'magnolia' : 'bloom';
+}
+
+function formatAvailability(schedules: LocationSchedule[], availabilityType: string): string {
+  if (schedules.length === 0) return availabilityType || 'Available';
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const days = [...new Set(schedules.map((s) => s.day_of_week))].sort();
+  if (days.length === 1) return `${dayNames[days[0]]}s`;
+  if (days.length >= 5) return 'Most days';
+  return days.map((d) => dayNames[d]).join(', ');
+}
+
+function formatTime(schedules: LocationSchedule[]): string {
+  if (schedules.length === 0) return '';
+  const s = schedules[0];
+  const start = s.start_time.substring(0, 5);
+  const end = s.end_time.substring(0, 5);
+  return `${start} – ${end}`;
+}
+
+// ── LocationSection ───────────────────────────────────────────────
 function LocationSection({
+  location,
   side,
-  image,
-  titleKey,
-  subtitleKey,
-  descriptionKey,
-  featuresKey,
-  locationKey,
-  availabilityKey,
-  timeKey,
-  priceKey,
-  ctaKey,
-  locationId,
   badgeColor,
 }: {
+  location: FrontendLocation;
   side: 'left' | 'right';
-  image: string;
-  titleKey: string;
-  subtitleKey: string;
-  descriptionKey: string;
-  featuresKey: string;
-  locationKey: string;
-  availabilityKey: string;
-  timeKey: string;
-  priceKey: string;
-  ctaKey: string;
-  locationId: string;
   badgeColor: string;
 }) {
   const { t } = useTranslation();
   const { ref, isInView } = useScrollReveal();
-  const features = t(featuresKey, { returnObjects: true }) as string[];
+  const locationSlug = slugFromName(location.name);
+  const availability = formatAvailability(location.schedules, location.availability_type);
+  const time = formatTime(location.schedules);
+  const image = location.hero_image || location.image || '';
 
   return (
     <motion.section
@@ -58,62 +68,72 @@ function LocationSection({
           >
             <img
               src={image}
-              alt={t(titleKey)}
+              alt={location.name}
               className="w-full h-72 sm:h-96 lg:h-[480px] object-cover"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-            <span className={`absolute top-4 left-4 ${badgeColor} text-white text-xs font-semibold px-3 py-1.5 rounded-full`}>
-              {t(availabilityKey)}
-            </span>
+            {availability && (
+              <span className={`absolute top-4 left-4 ${badgeColor} text-white text-xs font-semibold px-3 py-1.5 rounded-full`}>
+                {availability}
+              </span>
+            )}
           </motion.div>
 
           {/* Content */}
           <div className={side === 'right' ? 'lg:order-1' : ''}>
             <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-dark mb-2">
-              {t(titleKey)}
+              {location.name}
             </h3>
-            <p className="text-primary font-heading font-semibold text-sm mb-4">{t(subtitleKey)}</p>
+            {location.subtitle && (
+              <p className="text-primary font-heading font-semibold text-sm mb-4">{location.subtitle}</p>
+            )}
             <p className="text-neutral-gray font-body leading-relaxed mb-6">
-              {t(descriptionKey)}
+              {location.description}
             </p>
 
             {/* Details */}
             <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="bg-neutral-cream rounded-xl p-3">
                 <p className="text-xs text-neutral-gray uppercase tracking-wider">📍 {t('booking.eventCard.location')}</p>
-                <p className="font-heading font-semibold text-sm text-neutral-dark">{t(locationKey)}</p>
+                <p className="font-heading font-semibold text-sm text-neutral-dark">{location.address}</p>
               </div>
-              <div className="bg-neutral-cream rounded-xl p-3">
-                <p className="text-xs text-neutral-gray uppercase tracking-wider">⏱ {t('booking.eventCard.time')}</p>
-                <p className="font-heading font-semibold text-sm text-neutral-dark">{t(timeKey)}</p>
-              </div>
+              {time && (
+                <div className="bg-neutral-cream rounded-xl p-3">
+                  <p className="text-xs text-neutral-gray uppercase tracking-wider">⏱ {t('booking.eventCard.time')}</p>
+                  <p className="font-heading font-semibold text-sm text-neutral-dark">{time}</p>
+                </div>
+              )}
             </div>
 
             {/* Features */}
-            <ul className="space-y-2 mb-8">
-              {features.map((feat, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-neutral-dark font-body">
-                  <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {feat}
-                </li>
-              ))}
-            </ul>
+            {location.features.length > 0 && (
+              <ul className="space-y-2 mb-8">
+                {location.features.map((feat, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-neutral-dark font-body">
+                    <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {/* Price + CTA */}
             <div className="flex items-center gap-4 flex-wrap">
               <Link
-                to={`/booking?location=${locationId}`}
+                to={`/booking?location=${locationSlug}`}
                 className="btn-primary !px-8 !py-3.5"
               >
-                {t(ctaKey)}
+                Book {location.name} Experience
               </Link>
-              <p className="font-display text-2xl font-bold text-neutral-dark">
-                €{t(priceKey)}
-                <span className="text-sm font-normal text-neutral-gray"> /{t('booking.eventCard.perPerson')}</span>
-              </p>
+              {location.price != null && (
+                <p className="font-display text-2xl font-bold text-neutral-dark">
+                  €{location.price}
+                  <span className="text-sm font-normal text-neutral-gray"> /{t('booking.eventCard.perPerson')}</span>
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -122,10 +142,22 @@ function LocationSection({
   );
 }
 
+// ── Page ──────────────────────────────────────────────────────────
 export default function ExperiencePage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   useScrollToTop();
   const introParagraphs = t('experience.intro.paragraphs', { returnObjects: true }) as string[];
+
+  const [locations, setLocations] = useState<FrontendLocation[]>([]);
+  const [locLoading, setLocLoading] = useState(true);
+
+  useEffect(() => {
+    setLocLoading(true);
+    fetchLocations(i18n.language)
+      .then(setLocations)
+      .catch(() => setLocations([]))
+      .finally(() => setLocLoading(false));
+  }, [i18n.language]);
 
   return (
     <>
@@ -206,40 +238,30 @@ export default function ExperiencePage() {
         </div>
       </section>
 
-      {/* ── Location: Bloom Gallery (left image) ─────── */}
+      {/* ── Location Sections ─────────────────────────── */}
       <div id="locations" />
-      <LocationSection
-        side="left"
-        image="https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=900&q=80"
-        titleKey="experience.locations.bloom.title"
-        subtitleKey="experience.locations.bloom.subtitle"
-        descriptionKey="experience.locations.bloom.description"
-        featuresKey="experience.locations.bloom.features"
-        locationKey="experience.locations.bloom.location"
-        availabilityKey="experience.locations.bloom.availability"
-        timeKey="experience.locations.bloom.time"
-        priceKey="experience.locations.bloom.price"
-        ctaKey="experience.locations.bloom.cta"
-        locationId="bloom"
-        badgeColor="bg-primary"
-      />
-
-      {/* ── Location: Casa Magnolia (right image) ────── */}
-      <LocationSection
-        side="right"
-        image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=900&q=80"
-        titleKey="experience.locations.magnolia.title"
-        subtitleKey="experience.locations.magnolia.subtitle"
-        descriptionKey="experience.locations.magnolia.description"
-        featuresKey="experience.locations.magnolia.features"
-        locationKey="experience.locations.magnolia.location"
-        availabilityKey="experience.locations.magnolia.availability"
-        timeKey="experience.locations.magnolia.time"
-        priceKey="experience.locations.magnolia.price"
-        ctaKey="experience.locations.magnolia.cta"
-        locationId="magnolia"
-        badgeColor="bg-emerald-500"
-      />
+      {locLoading ? (
+        <div className="flex justify-center py-24">
+          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+      ) : locations.length === 0 ? (
+        <div className="section-padding">
+          <div className="container-max">
+            <div className="mx-auto max-w-3xl rounded-3xl border border-primary/10 bg-neutral-cream px-6 py-12 text-center">
+              <p className="font-heading text-xl font-semibold text-neutral-dark">No Locations Found</p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        locations.map((loc, index) => (
+          <LocationSection
+            key={loc.id}
+            location={loc}
+            side={index % 2 === 0 ? 'left' : 'right'}
+            badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]}
+          />
+        ))
+      )}
 
       {/* ── Testimonials ─────────────────────────────── */}
       <Testimonials />

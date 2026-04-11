@@ -109,6 +109,32 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
     });
 }
 
+// ── Locations API (public) ────────────────────────────────────────
+export interface LocationSchedule {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+}
+
+export interface FrontendLocation {
+  id: number;
+  name: string;
+  subtitle: string | null;
+  description: string;
+  address: string;
+  image: string | null;
+  hero_image: string | null;
+  availability_type: string;
+  price: number | null;
+  features: string[];
+  schedules: LocationSchedule[];
+}
+
+export async function fetchLocations(lang = 'en'): Promise<FrontendLocation[]> {
+  const res = await apiClient.get('/locations', { params: { lang } });
+  return res.data.data as FrontendLocation[];
+}
+
 // ── Testimonials API ──────────────────────────────────────────────
 export interface Testimonial {
   id: number;
