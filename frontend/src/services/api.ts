@@ -109,6 +109,33 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
     });
 }
 
+// ── Testimonials API ──────────────────────────────────────────────
+export interface Testimonial {
+  id: number;
+  name: string;
+  location: string;
+  review: string;
+  rating: number;
+  avatar: string | null;
+}
+
+export async function fetchTestimonials(lang = 'en'): Promise<Testimonial[]> {
+  const res = await apiClient.get('/testimonials', { params: { lang } });
+  return res.data.data as Testimonial[];
+}
+
+// ── FAQ API ───────────────────────────────────────────────────────
+export interface FaqItem {
+  id: number;
+  question: string;
+  answer: string;
+}
+
+export async function fetchFaqs(lang = 'en'): Promise<FaqItem[]> {
+  const res = await apiClient.get('/faqs', { params: { lang } });
+  return res.data.data as FaqItem[];
+}
+
 // ── Gallery API ────────────────────────────────────────────────────
 export interface GalleryImage {
   src: string;
