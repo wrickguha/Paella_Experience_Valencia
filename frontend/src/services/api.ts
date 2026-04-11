@@ -177,6 +177,43 @@ export async function fetchGallery(type = 'homepage', lang = 'en'): Promise<Gall
   }));
 }
 
+// ── User Auth API ──────────────────────────────────────────────────
+export interface AuthUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: AuthUser;
+}
+
+export interface UserBooking {
+  id: number;
+  reference: string;
+  date: string;
+  time: string;
+  location: string;
+  experience: string;
+  guests: number;
+  total_price: string;
+  payment_status: string;
+  created_at: string;
+}
+
+export const authApi = {
+  register: (data: { name: string; email: string; password: string; password_confirmation: string }) =>
+    apiClient.post<AuthResponse>('/register', data),
+  login: (data: { email: string; password: string }) =>
+    apiClient.post<AuthResponse>('/login', data),
+  getUser: () => apiClient.get<AuthUser>('/user'),
+  logout: () => apiClient.post('/logout'),
+  updateProfile: (data: Record<string, string>) => apiClient.put('/profile/update', data),
+  getBookings: () => apiClient.get<{ data: UserBooking[] }>('/user/bookings'),
+};
+
 // ── Legacy typed API methods ───────────────────────────────────────
 export interface Experience {
   id: number;

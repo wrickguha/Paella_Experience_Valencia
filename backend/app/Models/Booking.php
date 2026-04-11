@@ -14,6 +14,7 @@ class Booking extends Model
 
     protected $fillable = [
         'reference',
+        'user_id',
         'first_name',
         'last_name',
         'email',
@@ -46,6 +47,11 @@ class Booking extends Model
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class);
     }
 
     public function experience(): BelongsTo

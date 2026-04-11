@@ -21,7 +21,14 @@ class BookingController extends Controller
     public function create(CreateBookingRequest $request): JsonResponse
     {
         try {
-            $booking = $this->bookingService->createBooking($request->validated());
+            $data = $request->validated();
+
+            // Associate booking with authenticated user if logged in
+            if ($request->user()) {
+                $data['user_id'] = $request->user()->id;
+            }
+
+            $booking = $this->bookingService->createBooking($data);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
 
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\EnsureAdmin::class,
+        ]);
+
         $middleware->throttleApi('60,1');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

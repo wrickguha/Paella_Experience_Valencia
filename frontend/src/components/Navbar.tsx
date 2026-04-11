@@ -1,15 +1,37 @@
-import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/context/AuthContext';
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === 'en' ? 'es' : 'en');
+  };
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleLogout = async () => {
+    setUserMenuOpen(false);
+    await logout();
+    navigate('/');
   };
 
   const navLinks = [
@@ -60,9 +82,64 @@ export default function Navbar() {
               <span className="text-base">{i18n.language === 'en' ? '🇬🇧' : '🇪🇸'}</span>
               <span className="uppercase">{i18n.language}</span>
             </button>
-            <Link to="/booking" className="btn-primary !py-3 !px-6 !text-sm">
-              {t('nav.bookNow')}
-            </Link>
+
+            {user ? (
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
+                             text-neutral-dark hover:bg-neutral-beige transition-all"
+                >
+                  <span className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                  <span className="max-w-[120px] truncate">{user.name}</span>
+                  <svg className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100
+                                 py-2 z-50"
+                    >
+                      <Link
+                        to="/profile"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="block px-4 py-2 text-sm text-neutral-dark hover:bg-neutral-beige transition-colors"
+                      >
+                        {t('auth.myProfile')}
+                      </Link>
+                      <Link
+                        to="/profile"
+                        onClick={() => { setUserMenuOpen(false); }}
+                        state={{ tab: 'bookings' }}
+                        className="block px-4 py-2 text-sm text-neutral-dark hover:bg-neutral-beige transition-colors"
+                      >
+                        {t('auth.myBookings')}
+                      </Link>
+                      <hr className="my-1 border-gray-100" />
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        {t('auth.logout')}
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link to="/login" className="btn-primary !py-3 !px-6 !text-sm">
+                {t('auth.login')}
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -125,13 +202,32 @@ export default function Navbar() {
                   <span>{i18n.language === 'en' ? '🇬🇧' : '🇪🇸'}</span>
                   <span className="uppercase">{i18n.language}</span>
                 </button>
-                <Link
-                  to="/booking"
-                  onClick={() => setIsOpen(false)}
-                  className="btn-primary !py-3 !px-6 !text-sm flex-1 text-center"
-                >
-                  {t('nav.bookNow')}
-                </Link>
+
+                {user ? (
+                  <div className="flex-1 flex flex-col gap-2">
+                    <Link
+                      to="/profile"
+                      onClick={() => setIsOpen(false)}
+                      className="block text-sm font-medium text-neutral-dark hover:text-primary"
+                    >
+                      {t('auth.myProfile')}
+                    </Link>
+                    <button
+                      onClick={() => { setIsOpen(false); handleLogout(); }}
+                      className="text-left text-sm font-medium text-red-600"
+                    >
+                      {t('auth.logout')}
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    to="/login"
+                    onClick={() => setIsOpen(false)}
+                    className="btn-primary !py-3 !px-6 !text-sm flex-1 text-center"
+                  >
+                    {t('auth.login')}
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
