@@ -16,9 +16,9 @@ class LocationController extends Controller
 
         $locations = Cache::remember("locations_{$lang}", 3600, function () use ($lang) {
             return Location::active()
-                ->with(['schedules', 'experiences'])
+                ->with(['schedules', 'experiences.features'])
                 ->get()
-                ->map(fn ($loc) => $this->formatLocation($loc, $lang));
+                ->map(fn (Location $loc): array => $this->formatLocation($loc, $lang));
         });
 
         return response()->json([
@@ -41,16 +41,23 @@ class LocationController extends Controller
 
     private function formatLocation(Location $loc, string $lang, bool $includeExperiences = false): array
     {
+        $firstExp = $loc->experiences->where('is_active', true)->sortBy('sort_order')->first();
+
         $data = [
             'id' => $loc->id,
             'name' => $loc->getLocalizedName($lang),
+            'subtitle' => $firstExp ? ($lang === 'es' ? $firstExp->title_es : $firstExp->title_en) : null,
             'description' => $loc->getLocalizedDescription($lang),
             'address' => $loc->address,
             'image' => $loc->image,
+            'hero_image' => $firstExp?->hero_image ?? $loc->image,
             'availability_type' => $loc->availability_type,
-            'price' => $loc->experiences->where('is_active', true)->sortBy('sort_order')->first()?->price
-                ? (float) $loc->experiences->where('is_active', true)->sortBy('sort_order')->first()->price
+            'price' => $firstExp
+                ? (float) $firstExp->price
                 : null,
+            'features' => $firstExp
+                ? $firstExp->features->map(fn ($f) => $lang === 'es' ? ($f->feature_es ?: $f->feature_en) : $f->feature_en)->filter()->values()
+                : [],
             'schedules' => $loc->schedules->where('is_active', true)->map(fn ($s) => [
                 'day_of_week' => $s->day_of_week,
                 'start_time' => $s->start_time,

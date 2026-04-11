@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Location;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
@@ -75,6 +76,7 @@ class LocationController extends Controller
         }
 
         $location = Location::create($data);
+        $this->clearCache();
 
         return response()->json($location, 201);
     }
@@ -103,6 +105,7 @@ class LocationController extends Controller
         }
 
         $location->update($data);
+        $this->clearCache();
 
         return response()->json($location);
     }
@@ -114,7 +117,14 @@ class LocationController extends Controller
             Storage::disk('public')->delete($location->image);
         }
         $location->delete();
+        $this->clearCache();
 
         return response()->json(['message' => 'Deleted']);
+    }
+
+    private function clearCache(): void
+    {
+        Cache::forget('locations_en');
+        Cache::forget('locations_es');
     }
 }
