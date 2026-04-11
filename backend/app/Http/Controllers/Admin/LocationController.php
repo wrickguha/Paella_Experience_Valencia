@@ -192,12 +192,12 @@ class LocationController extends Controller
         $experience = $location->experiences()->where('is_active', true)->orderBy('sort_order')->first();
 
         $expData = [
-            'title_en' => $request->input('subtitle_en', $experience?->title_en ?? ''),
-            'title_es' => $request->input('subtitle_es', $experience?->title_es ?? ''),
+            'title_en' => $request->input('subtitle_en') ?? $experience?->title_en ?? '',
+            'title_es' => $request->input('subtitle_es') ?? $experience?->title_es ?? '',
             'description_en' => $experience?->description_en ?? $location->description_en ?? '',
             'description_es' => $experience?->description_es ?? $location->description_es ?? '',
-            'price' => $request->input('price', $experience?->price ?? 0),
-            'duration' => $request->input('duration', $experience?->duration ?? ''),
+            'price' => $request->input('price') ?? $experience?->price ?? 0,
+            'duration' => $request->input('duration') ?? $experience?->duration ?? '',
             'is_active' => true,
             'sort_order' => $experience?->sort_order ?? 0,
         ];

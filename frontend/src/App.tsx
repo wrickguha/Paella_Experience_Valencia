@@ -25,16 +25,20 @@ function LoadingFallback() {
   );
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { isLoading } = useAuth();
   if (isLoading) return <LoadingFallback />;
+  return <>{children}</>;
+}
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
 function GuestRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
-  if (isLoading) return <LoadingFallback />;
+  const { user } = useAuth();
   if (user) return <Navigate to="/profile" replace />;
   return <>{children}</>;
 }
@@ -43,6 +47,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <AuthGate>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route element={<MainLayout />}>
@@ -59,6 +64,7 @@ export default function App() {
             </Route>
           </Routes>
         </Suspense>
+        </AuthGate>
       </AuthProvider>
     </BrowserRouter>
   );
