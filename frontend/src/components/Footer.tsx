@@ -20,7 +20,7 @@ export default function Footer() {
               {t('footer.description')}
             </p>
             <a
-              href="/admin"
+              href={import.meta.env.VITE_ADMIN_URL ?? '/admin'}
               className="inline-flex items-center justify-center mt-6 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
             >
               Admin Panel
