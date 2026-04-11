@@ -1,11 +1,27 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, MapPin } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { Plus, Pencil, Trash2, MapPin, Clock, X, Star } from 'lucide-react';
 import { locationsApi } from '@/services/api';
+import { formatCurrency } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
 import DataTable, { Pagination } from '@/components/DataTable';
 import { Modal, ConfirmDialog } from '@/components/Modal';
 import { FormInput, FormTextarea, FormSelect, ImageUpload, FormToggle } from '@/components/FormFields';
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+interface ScheduleEntry {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_active: boolean;
+}
+
+interface FeatureEntry {
+  feature_en: string;
+  feature_es: string;
+}
 
 interface Location {
   id: number;
@@ -17,12 +33,23 @@ interface Location {
   image: string;
   availability_type: string;
   is_active: boolean;
+  schedules?: ScheduleEntry[];
+  // Experience fields
+  subtitle_en?: string;
+  subtitle_es?: string;
+  price?: number | null;
+  duration?: string;
+  hero_image?: string;
+  features?: FeatureEntry[];
 }
 
 const EMPTY: Partial<Location> = {
   name_en: '', name_es: '', description_en: '', description_es: '',
-  address: '', availability_type: 'weekly', is_active: true,
+  address: '', availability_type: 'weekly', is_active: true, schedules: [],
+  subtitle_en: '', subtitle_es: '', price: null, duration: '', features: [],
 };
+
+const EMPTY_SCHEDULE: ScheduleEntry = { day_of_week: 1, start_time: '12:00', end_time: '16:00', is_active: true };
 
 export default function LocationsPage() {
   const [data, setData] = useState<Location[]>([]);
@@ -36,6 +63,9 @@ export default function LocationsPage() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Location | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [heroFile, setHeroFile] = useState<File | null>(null);
+  const [heroPreview, setHeroPreview] = useState<string | null>(null);
+  const [features, setFeatures] = useState<FeatureEntry[]>([]);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -50,16 +80,22 @@ export default function LocationsPage() {
   useEffect(() => { fetch(); }, [fetch]);
 
   const openCreate = () => {
-    setEditing({ ...EMPTY });
+    setEditing({ ...EMPTY, schedules: [], features: [] });
     setImageFile(null);
     setImagePreview(null);
+    setHeroFile(null);
+    setHeroPreview(null);
+    setFeatures([]);
     setModalOpen(true);
   };
 
   const openEdit = (loc: Location) => {
-    setEditing(loc);
+    setEditing({ ...loc, schedules: loc.schedules || [] });
     setImageFile(null);
     setImagePreview(loc.image || null);
+    setHeroFile(null);
+    setHeroPreview(loc.hero_image || null);
+    setFeatures(loc.features || []);
     setModalOpen(true);
   };
 
@@ -74,6 +110,17 @@ export default function LocationsPage() {
     }
   };
 
+  const handleHeroChange = (file: File | null) => {
+    setHeroFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setHeroPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setHeroPreview(null);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -85,16 +132,28 @@ export default function LocationsPage() {
       fd.append('address', editing.address || '');
       fd.append('availability_type', editing.availability_type || 'weekly');
       fd.append('is_active', editing.is_active ? '1' : '0');
+      fd.append('schedules', JSON.stringify(editing.schedules || []));
+      // Experience fields
+      fd.append('subtitle_en', editing.subtitle_en || '');
+      fd.append('subtitle_es', editing.subtitle_es || '');
+      fd.append('price', String(editing.price ?? ''));
+      fd.append('duration', editing.duration || '');
+      fd.append('features', JSON.stringify(features));
       if (imageFile) fd.append('image', imageFile);
+      if (heroFile) fd.append('hero_image', heroFile);
       if (editing.id) {
-        fd.append('_method', 'PUT');
         await locationsApi.update(editing.id, fd);
+        toast.success('Location updated successfully!');
       } else {
         await locationsApi.create(fd);
+        toast.success('Location created successfully!');
       }
       setModalOpen(false);
       fetch();
-    } catch { /* empty */ }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save location';
+      toast.error(msg);
+    }
     setSaving(false);
   };
 
@@ -104,8 +163,12 @@ export default function LocationsPage() {
     try {
       await locationsApi.delete(deleteTarget.id);
       setDeleteTarget(null);
+      toast.success('Location deleted successfully!');
       fetch();
-    } catch { /* empty */ }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to delete location';
+      toast.error(msg);
+    }
     setDeleting(false);
   };
 
@@ -130,10 +193,22 @@ export default function LocationsPage() {
     },
     { key: 'address', header: 'Address' },
     {
+      key: 'price',
+      header: 'Price',
+      render: (r: Location) => r.price != null ? formatCurrency(r.price) : '—',
+    },
+    {
       key: 'availability_type',
-      header: 'Schedule Type',
+      header: 'Schedule',
       render: (r: Location) => (
-        <Badge variant="info">{r.availability_type}</Badge>
+        <div>
+          <Badge variant="info">{r.availability_type}</Badge>
+          {r.schedules && r.schedules.length > 0 && (
+            <p className="text-xs text-neutral-gray mt-0.5">
+              {r.schedules.map((s) => DAY_NAMES[s.day_of_week]?.slice(0, 3)).join(', ')}
+            </p>
+          )}
+        </div>
       ),
     },
     {
@@ -201,8 +276,163 @@ export default function LocationsPage() {
           <div className="flex items-end">
             <FormToggle label="Active" checked={editing.is_active ?? true} onChange={(v) => setEditing({ ...editing, is_active: v })} />
           </div>
-          <div className="md:col-span-2">
-            <ImageUpload label="Location Image" preview={imagePreview} onChange={handleImageChange} />
+
+          {/* ── Weekly Schedule Section ── */}
+          {editing.availability_type === 'weekly' && (
+            <div className="md:col-span-2 border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-primary" />
+                  <p className="text-sm font-semibold text-neutral-dark">Weekly Schedule</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEditing({
+                      ...editing,
+                      schedules: [...(editing.schedules || []), { ...EMPTY_SCHEDULE }],
+                    })
+                  }
+                  className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Day
+                </button>
+              </div>
+
+              {(!editing.schedules || editing.schedules.length === 0) ? (
+                <p className="text-sm text-neutral-gray text-center py-4">
+                  No schedule days added. Click "Add Day" to set availability.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {editing.schedules.map((sched, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2.5">
+                      <select
+                        value={sched.day_of_week}
+                        onChange={(e) => {
+                          const updated = [...(editing.schedules || [])];
+                          updated[idx] = { ...updated[idx], day_of_week: parseInt(e.target.value) };
+                          setEditing({ ...editing, schedules: updated });
+                        }}
+                        className="flex-1 min-w-30 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                      >
+                        {DAY_NAMES.map((name, i) => (
+                          <option key={i} value={i}>{name}</option>
+                        ))}
+                      </select>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="time"
+                          value={sched.start_time}
+                          onChange={(e) => {
+                            const updated = [...(editing.schedules || [])];
+                            updated[idx] = { ...updated[idx], start_time: e.target.value };
+                            setEditing({ ...editing, schedules: updated });
+                          }}
+                          className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
+                        <span className="text-xs text-neutral-gray">to</span>
+                        <input
+                          type="time"
+                          value={sched.end_time}
+                          onChange={(e) => {
+                            const updated = [...(editing.schedules || [])];
+                            updated[idx] = { ...updated[idx], end_time: e.target.value };
+                            setEditing({ ...editing, schedules: updated });
+                          }}
+                          className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = (editing.schedules || []).filter((_, i) => i !== idx);
+                          setEditing({ ...editing, schedules: updated });
+                        }}
+                        className="p-1 rounded-lg hover:bg-red-50 text-neutral-gray hover:text-danger shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Experience / Pricing Section ── */}
+          <div className="md:col-span-2 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Star className="w-4 h-4 text-primary" />
+              <p className="text-sm font-semibold text-neutral-dark">Experience &amp; Pricing</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput label="Subtitle (EN)" value={editing.subtitle_en || ''} onChange={(e) => setEditing({ ...editing, subtitle_en: e.target.value })} placeholder="e.g. Authentic Paella Experience" />
+              <FormInput label="Subtitle (ES)" value={editing.subtitle_es || ''} onChange={(e) => setEditing({ ...editing, subtitle_es: e.target.value })} placeholder="e.g. Experiencia de Paella Auténtica" />
+              <FormInput label="Price (€ per person)" type="number" value={editing.price ?? ''} onChange={(e) => setEditing({ ...editing, price: e.target.value ? parseFloat(e.target.value) : null })} placeholder="e.g. 99" />
+              <FormInput label="Duration" value={editing.duration || ''} onChange={(e) => setEditing({ ...editing, duration: e.target.value })} placeholder="e.g. 3 hours" />
+            </div>
+          </div>
+
+          {/* ── Features / Facilities ── */}
+          <div className="md:col-span-2 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-neutral-dark">Features / Facilities</p>
+              <button
+                type="button"
+                onClick={() => setFeatures([...features, { feature_en: '', feature_es: '' }])}
+                className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Feature
+              </button>
+            </div>
+            {features.length === 0 ? (
+              <p className="text-sm text-neutral-gray text-center py-4">
+                No features added yet. Click "Add Feature" to list facilities.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {features.map((feat, idx) => (
+                  <div key={idx} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2.5">
+                    <input
+                      type="text"
+                      value={feat.feature_en}
+                      onChange={(e) => {
+                        const updated = [...features];
+                        updated[idx] = { ...updated[idx], feature_en: e.target.value };
+                        setFeatures(updated);
+                      }}
+                      placeholder="Feature (EN)"
+                      className="flex-1 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                    />
+                    <input
+                      type="text"
+                      value={feat.feature_es}
+                      onChange={(e) => {
+                        const updated = [...features];
+                        updated[idx] = { ...updated[idx], feature_es: e.target.value };
+                        setFeatures(updated);
+                      }}
+                      placeholder="Feature (ES)"
+                      className="flex-1 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFeatures(features.filter((_, i) => i !== idx))}
+                      className="p-1 rounded-lg hover:bg-red-50 text-neutral-gray hover:text-danger shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* ── Images ── */}
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <ImageUpload label="Location Image (Card)" preview={imagePreview} onChange={handleImageChange} />
+            <ImageUpload label="Hero Image (Detail Page)" preview={heroPreview} onChange={handleHeroChange} />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">

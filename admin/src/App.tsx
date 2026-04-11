@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { useAuth } from '@/context/AuthContext';
 import AdminLayout from '@/layouts/AdminLayout';
 import { Spinner } from '@/components/ui';
@@ -49,6 +50,7 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/admin" replace />} />
       </Routes>
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
     </Suspense>
   );
 }
