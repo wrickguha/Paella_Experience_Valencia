@@ -7,6 +7,7 @@ use App\Models\Location;
 use App\Models\Experience;
 use App\Models\ExperienceFeature;
 use App\Models\Schedule;
+use App\Models\LocationImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
@@ -37,9 +38,18 @@ class LocationController extends Controller
         ];
     }
 
+    private function galleryData(Location $l): array
+    {
+        return $l->images->map(fn ($img) => [
+            'id' => $img->id,
+            'image' => $this->imageUrl($img->image),
+            'sort_order' => $img->sort_order,
+        ])->values()->toArray();
+    }
+
     public function index()
     {
-        return Location::with(['schedules', 'experiences.features'])
+        return Location::with(['schedules', 'experiences.features', 'images'])
             ->orderBy('name_en')
             ->paginate(15)
             ->through(fn ($l) => array_merge([
@@ -52,6 +62,7 @@ class LocationController extends Controller
                 'image' => $this->imageUrl($l->image),
                 'availability_type' => $l->availability_type,
                 'is_active' => $l->is_active,
+                'gallery' => $this->galleryData($l),
                 'schedules' => $l->schedules->map(fn ($s) => [
                     'id' => $s->id,
                     'day_of_week' => $s->day_of_week,
@@ -71,7 +82,7 @@ class LocationController extends Controller
 
     public function show($id)
     {
-        $l = Location::with(['schedules', 'experiences.features'])->findOrFail($id);
+        $l = Location::with(['schedules', 'experiences.features', 'images'])->findOrFail($id);
 
         return response()->json(array_merge([
             'id' => $l->id,
@@ -83,6 +94,7 @@ class LocationController extends Controller
             'image' => $this->imageUrl($l->image),
             'availability_type' => $l->availability_type,
             'is_active' => $l->is_active,
+            'gallery' => $this->galleryData($l),
             'schedules' => $l->schedules->map(fn ($s) => [
                 'id' => $s->id,
                 'day_of_week' => $s->day_of_week,
@@ -115,9 +127,10 @@ class LocationController extends Controller
 
         $this->syncSchedules($location, $request->input('schedules'));
         $this->syncExperience($location, $request);
+        $this->syncGallery($location, $request);
         $this->clearCache();
 
-        return response()->json($location->load(['schedules', 'experiences.features']), 201);
+        return response()->json($location->load(['schedules', 'experiences.features', 'images']), 201);
     }
 
     public function update(Request $request, $id)
@@ -147,16 +160,20 @@ class LocationController extends Controller
 
         $this->syncSchedules($location, $request->input('schedules'));
         $this->syncExperience($location, $request);
+        $this->syncGallery($location, $request);
         $this->clearCache();
 
-        return response()->json($location->load(['schedules', 'experiences.features']));
+        return response()->json($location->load(['schedules', 'experiences.features', 'images']));
     }
 
     public function destroy($id)
     {
-        $location = Location::findOrFail($id);
+        $location = Location::with('images')->findOrFail($id);
         if ($location->image) {
             Storage::disk('public')->delete($location->image);
+        }
+        foreach ($location->images as $img) {
+            Storage::disk('public')->delete($img->image);
         }
         $location->delete();
         $this->clearCache();
@@ -232,6 +249,30 @@ class LocationController extends Controller
                 'end_time' => $s['end_time'],
                 'is_active' => filter_var($s['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             ]);
+        }
+    }
+
+    private function syncGallery(Location $location, Request $request): void
+    {
+        // Remove images marked for deletion
+        $removeIds = json_decode($request->input('remove_gallery_ids', '[]'), true);
+        if (is_array($removeIds) && count($removeIds) > 0) {
+            $toDelete = $location->images()->whereIn('id', $removeIds)->get();
+            foreach ($toDelete as $img) {
+                Storage::disk('public')->delete($img->image);
+                $img->delete();
+            }
+        }
+
+        // Add newly uploaded gallery images
+        if ($request->hasFile('gallery')) {
+            $currentMax = $location->images()->max('sort_order') ?? -1;
+            foreach ($request->file('gallery') as $i => $file) {
+                $location->images()->create([
+                    'image' => $file->store('locations/gallery', 'public'),
+                    'sort_order' => $currentMax + $i + 1,
+                ]);
+            }
         }
     }
 

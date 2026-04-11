@@ -124,6 +124,7 @@ export interface FrontendLocation {
   address: string;
   image: string | null;
   hero_image: string | null;
+  gallery: string[];
   availability_type: string;
   price: number | null;
   features: string[];

@@ -16,7 +16,7 @@ class LocationController extends Controller
 
         $locations = Cache::remember("locations_{$lang}", 3600, function () use ($lang) {
             return Location::active()
-                ->with(['schedules', 'experiences.features'])
+                ->with(['schedules', 'experiences.features', 'images'])
                 ->get()
                 ->map(fn (Location $loc): array => $this->formatLocation($loc, $lang));
         });
@@ -57,6 +57,7 @@ class LocationController extends Controller
             'address' => $loc->address,
             'image' => $this->imageUrl($loc->image),
             'hero_image' => $this->imageUrl($firstExp?->hero_image ?? $loc->image),
+            'gallery' => $loc->images->map(fn ($img) => $this->imageUrl($img->image))->values()->toArray(),
             'availability_type' => $loc->availability_type,
             'price' => $firstExp
                 ? (float) $firstExp->price

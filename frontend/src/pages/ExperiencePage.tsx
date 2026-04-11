@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
 import GalleryGrid from '@/components/GalleryGrid';
 import Testimonials from '@/components/Testimonials';
@@ -48,7 +48,21 @@ function LocationSection({
   const locationSlug = slugFromName(location.name);
   const availability = formatAvailability(location.schedules, location.availability_type);
   const time = formatTime(location.schedules);
-  const image = location.hero_image || location.image || '';
+  const fallbackImage = location.hero_image || location.image || '';
+  const images = location.gallery && location.gallery.length > 0
+    ? location.gallery
+    : fallbackImage ? [fallbackImage] : [];
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % images.length);
+  }, [images.length]);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, [images.length, nextSlide]);
 
   return (
     <motion.section
@@ -60,23 +74,48 @@ function LocationSection({
     >
       <div className="container-max">
         <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center ${side === 'right' ? 'lg:flex-row-reverse' : ''}`}>
-          {/* Image */}
+          {/* Image Slideshow */}
           <motion.div
             className={`relative rounded-2xl overflow-hidden shadow-elevated ${side === 'right' ? 'lg:order-2' : ''}`}
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.4 }}
           >
-            <img
-              src={image}
-              alt={location.name}
-              className="w-full h-72 sm:h-96 lg:h-[480px] object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            <div className="relative w-full h-72 sm:h-96 lg:h-[480px]">
+              <AnimatePresence mode="wait">
+                {images.length > 0 && (
+                  <motion.img
+                    key={currentSlide}
+                    src={images[currentSlide]}
+                    alt={`${location.name} ${currentSlide + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.6 }}
+                    loading="lazy"
+                  />
+                )}
+              </AnimatePresence>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
             {availability && (
               <span className={`absolute top-4 left-4 ${badgeColor} text-white text-xs font-semibold px-3 py-1.5 rounded-full`}>
                 {availability}
               </span>
+            )}
+            {/* Dots indicator */}
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                {images.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`w-2 h-2 rounded-full transition-all ${
+                      idx === currentSlide ? 'bg-white w-5' : 'bg-white/50'
+                    }`}
+                  />
+                ))}
+              </div>
             )}
           </motion.div>
 
