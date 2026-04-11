@@ -183,13 +183,13 @@ class LocationController extends Controller
 
     private function syncExperience(Location $location, Request $request): void
     {
-        // Only sync if any experience field was sent
-        if (!$request->has('subtitle_en') && !$request->has('price') && !$request->has('features')) {
-            return;
-        }
-
         // Get or create the primary experience for this location
         $experience = $location->experiences()->where('is_active', true)->orderBy('sort_order')->first();
+
+        // If no experience fields sent and one already exists, nothing to do
+        if (!$request->has('subtitle_en') && !$request->has('price') && !$request->has('features') && $experience) {
+            return;
+        }
 
         $expData = [
             'title_en' => $request->input('subtitle_en') ?? $experience?->title_en ?? '',
