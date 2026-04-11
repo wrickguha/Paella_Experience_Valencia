@@ -37,6 +37,7 @@ class BookingService
 
             // Create booking
             $booking = Booking::create([
+                'user_id' => $data['user_id'] ?? null,
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],

@@ -25,6 +25,12 @@ class AuthController extends Controller
             ]);
         }
 
+        if ($user->role !== 'admin') {
+            throw ValidationException::withMessages([
+                'email' => ['Access denied. Admin credentials required.'],
+            ]);
+        }
+
         $token = $user->createToken('admin-token')->plainTextToken;
 
         return response()->json([

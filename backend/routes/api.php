@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\CalendarController;
 use App\Http\Controllers\API\ExperienceController;
@@ -59,6 +60,28 @@ Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
 
 /*
 |--------------------------------------------------------------------------
+| User Auth (public)
+|--------------------------------------------------------------------------
+*/
+
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+
+/*
+|--------------------------------------------------------------------------
+| User API (Sanctum-protected, role: user)
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', [AuthController::class, 'user']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/profile/update', [AuthController::class, 'updateProfile']);
+    Route::get('/user/bookings', [AuthController::class, 'bookings']);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Admin Auth (public)
 |--------------------------------------------------------------------------
 */
@@ -71,7 +94,7 @@ Route::post('/admin/login', [AdminAuthController::class, 'login']);
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function () {
     // Auth
     Route::post('/logout', [AdminAuthController::class, 'logout']);
     Route::get('/me', [AdminAuthController::class, 'me']);
