@@ -51,6 +51,7 @@ interface BackendCalendarEvent {
   location_id: number;
   location: string;
   experience_id: number | null;
+  experience_price: number;
   start_time: string;
   available_slots: number;
   is_available: boolean;
@@ -102,7 +103,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         locationName: e.location,
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
         spotsLeft: e.available_slots,
-        pricePerPerson: loc?.price ?? 59,
+        pricePerPerson: e.experience_price || loc?.price || 59,
         image: loc?.image ?? '',
       };
     });

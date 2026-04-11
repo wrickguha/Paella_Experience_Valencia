@@ -27,6 +27,7 @@ class CalendarService
         // Get the primary experience for this location
         $experience = $location->experiences()->where('is_active', true)->orderBy('sort_order')->first();
         $experienceId = $experience?->id;
+        $experiencePrice = $experience ? (float) $experience->price : 0;
 
         // Fetch existing availability_slots for this range
         $existingSlots = AvailabilitySlot::forLocation($locationId)
@@ -62,6 +63,7 @@ class CalendarService
                         'location_id' => $locationId,
                         'location' => $location->name_en,
                         'experience_id' => $experienceId,
+                        'experience_price' => $experiencePrice,
                         'start_time' => $slot->start_time,
                         'end_time' => $slot->end_time,
                         'total_slots' => $slot->total_slots,
@@ -77,6 +79,7 @@ class CalendarService
                         'location_id' => $locationId,
                         'location' => $location->name_en,
                         'experience_id' => $experienceId,
+                        'experience_price' => $experiencePrice,
                         'start_time' => $schedule->start_time,
                         'end_time' => $schedule->end_time,
                         'total_slots' => 12,
