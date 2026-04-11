@@ -50,6 +50,7 @@ interface BackendCalendarEvent {
   date: string;
   location_id: number;
   location: string;
+  experience_id: number | null;
   start_time: string;
   available_slots: number;
   is_available: boolean;
@@ -82,10 +83,9 @@ function slugFromName(name: string): LocationId {
  * Fetch all available CalendarEvents for a given month (0-indexed, JS convention).
  */
 export async function fetchCalendarMonth(year: number, month: number): Promise<CalendarEvent[]> {
-  const [calRes, locations, experiences] = await Promise.all([
+  const [calRes, locations] = await Promise.all([
     apiClient.get('/calendar', { params: { year, month: month + 1 } }), // API uses 1-indexed months
     getLocations(),
-    getExperiences(),
   ]);
 
   const raw: BackendCalendarEvent[] = calRes.data.data.events ?? [];
@@ -94,12 +94,11 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
     .filter((e) => e.is_available)
     .map((e) => {
       const loc = locations.find((l) => l.id === e.location_id);
-      const exp = experiences.find((x) => x.location?.id === e.location_id);
       return {
         date: e.date,
         locationId: slugFromName(e.location),
         locationNumericId: e.location_id,
-        experienceId: exp?.id ?? 1,
+        experienceId: e.experience_id ?? 0,
         locationName: e.location,
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
         spotsLeft: e.available_slots,

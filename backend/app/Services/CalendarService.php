@@ -24,6 +24,10 @@ class CalendarService
         $end = $start->copy()->endOfMonth();
         $today = Carbon::today();
 
+        // Get the primary experience for this location
+        $experience = $location->experiences()->where('is_active', true)->orderBy('sort_order')->first();
+        $experienceId = $experience?->id;
+
         // Fetch existing availability_slots for this range
         $existingSlots = AvailabilitySlot::forLocation($locationId)
             ->whereBetween('date', [$start, $end])
@@ -57,6 +61,7 @@ class CalendarService
                         'date' => $date->format('Y-m-d'),
                         'location_id' => $locationId,
                         'location' => $location->name_en,
+                        'experience_id' => $experienceId,
                         'start_time' => $slot->start_time,
                         'end_time' => $slot->end_time,
                         'total_slots' => $slot->total_slots,
@@ -71,6 +76,7 @@ class CalendarService
                         'date' => $date->format('Y-m-d'),
                         'location_id' => $locationId,
                         'location' => $location->name_en,
+                        'experience_id' => $experienceId,
                         'start_time' => $schedule->start_time,
                         'end_time' => $schedule->end_time,
                         'total_slots' => 12,
