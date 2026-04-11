@@ -2,10 +2,11 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/context/AuthContext';
+import { authApi } from '@/services/api';
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { refreshUser } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -18,13 +19,20 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      const user = await login(email, password);
-      if (user?.role === 'admin') {
+      const res = await authApi.login({ email, password });
+      localStorage.setItem('auth_token', res.data.token);
+
+      if (res.data.user.role === 'admin') {
+        // Redirect immediately without updating auth context state.
+        // This avoids GuestRoute flashing /profile before the browser navigates.
         const adminUrl = import.meta.env.VITE_ADMIN_URL ?? '/admin';
         window.location.href = adminUrl;
-      } else {
-        navigate('/profile');
+        return; // keep loading spinner visible until browser navigates
       }
+
+      // Regular user: load user into context, then navigate
+      await refreshUser();
+      navigate('/profile');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })
