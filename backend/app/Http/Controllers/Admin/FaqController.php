@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Faq;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class FaqController extends Controller
 {
@@ -26,7 +27,10 @@ class FaqController extends Controller
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
 
-        return response()->json(Faq::create($data), 201);
+        $faq = Faq::create($data);
+        $this->clearCache();
+
+        return response()->json($faq, 201);
     }
 
     public function update(Request $request, $id)
@@ -45,6 +49,7 @@ class FaqController extends Controller
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
 
         $faq->update($data);
+        $this->clearCache();
 
         return response()->json($faq);
     }
@@ -52,7 +57,14 @@ class FaqController extends Controller
     public function destroy($id)
     {
         Faq::findOrFail($id)->delete();
+        $this->clearCache();
 
         return response()->json(['message' => 'Deleted']);
+    }
+
+    private function clearCache(): void
+    {
+        Cache::forget('faqs_en');
+        Cache::forget('faqs_es');
     }
 }
