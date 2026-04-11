@@ -39,6 +39,12 @@ class LocationController extends Controller
         ]);
     }
 
+    private function imageUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+        return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+    }
+
     private function formatLocation(Location $loc, string $lang, bool $includeExperiences = false): array
     {
         $firstExp = $loc->experiences->where('is_active', true)->sortBy('sort_order')->first();
@@ -49,8 +55,8 @@ class LocationController extends Controller
             'subtitle' => $firstExp ? ($lang === 'es' ? $firstExp->title_es : $firstExp->title_en) : null,
             'description' => $loc->getLocalizedDescription($lang),
             'address' => $loc->address,
-            'image' => $loc->image,
-            'hero_image' => $firstExp?->hero_image ?? $loc->image,
+            'image' => $this->imageUrl($loc->image),
+            'hero_image' => $this->imageUrl($firstExp?->hero_image ?? $loc->image),
             'availability_type' => $loc->availability_type,
             'price' => $firstExp
                 ? (float) $firstExp->price
@@ -71,7 +77,7 @@ class LocationController extends Controller
                 'title' => $lang === 'es' ? $exp->title_es : $exp->title_en,
                 'price' => (float) $exp->price,
                 'duration' => $exp->duration,
-                'hero_image' => $exp->hero_image,
+                'hero_image' => $this->imageUrl($exp->hero_image),
             ])->values();
         }
 
