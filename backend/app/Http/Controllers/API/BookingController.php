@@ -23,10 +23,8 @@ class BookingController extends Controller
         try {
             $data = $request->validated();
 
-            // Associate booking with authenticated user if logged in
-            if ($request->user()) {
-                $data['user_id'] = $request->user()->id;
-            }
+            // Associate booking with authenticated user
+            $data['user_id'] = $request->user()->id;
 
             $booking = $this->bookingService->createBooking($data);
         } catch (\Exception $e) {

@@ -459,6 +459,7 @@
     "loginTitle": "Bienvenido de nuevo",
     "loginSubtitle": "Inicia sesión en tu cuenta para gestionar tus reservas",
     "loginError": "Error al iniciar sesión. Inténtalo de nuevo.",
+    "loginToBook": "Inicia sesión o crea una cuenta para reservar una experiencia.",
     "loggingIn": "Iniciando sesión...",
     "register": "Crear Cuenta",
     "registerTitle": "Crea tu Cuenta",
@@ -498,6 +499,11 @@
     "time": "Hora",
     "guests": "Invitados",
     "total": "Total",
-    "reference": "Ref"
+    "reference": "Ref",
+    "phone": "Teléfono",
+    "phonePlaceholder": "Introduce tu teléfono",
+    "acceptTerms": "He leído y acepto los términos y condiciones y la política de privacidad",
+    "isOver18": "Tengo más de 18 años",
+    "disclaimerRequired": "Por favor, acepta los términos y confirma que eres mayor de 18 años para continuar"
   }
 }
