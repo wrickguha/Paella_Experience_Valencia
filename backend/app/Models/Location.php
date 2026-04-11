@@ -35,6 +35,11 @@ class Location extends Model
         return $this->hasMany(Schedule::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(LocationImage::class)->orderBy('sort_order');
+    }
+
     public function availabilitySlots(): HasMany
     {
         return $this->hasMany(AvailabilitySlot::class);

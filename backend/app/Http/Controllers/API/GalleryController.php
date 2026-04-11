@@ -9,6 +9,12 @@ use Illuminate\Http\Request;
 
 class GalleryController extends Controller
 {
+    private function imageUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+        return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $lang = $request->query('lang', 'en');
@@ -22,7 +28,7 @@ class GalleryController extends Controller
 
         $images = $query->get()->map(fn ($img) => [
             'id' => $img->id,
-            'image' => $img->image,
+            'image' => $this->imageUrl($img->image),
             'alt' => $lang === 'es' ? ($img->alt_es ?? $img->alt_en) : $img->alt_en,
             'type' => $img->type,
         ]);

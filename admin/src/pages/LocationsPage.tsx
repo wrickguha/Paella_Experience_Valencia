@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, MapPin, Clock, X, Star } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, Clock, X, Star, ImagePlus } from 'lucide-react';
 import { locationsApi } from '@/services/api';
 import { formatCurrency } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
 import DataTable, { Pagination } from '@/components/DataTable';
 import { Modal, ConfirmDialog } from '@/components/Modal';
-import { FormInput, FormTextarea, FormSelect, ImageUpload, FormToggle } from '@/components/FormFields';
+import { FormInput, FormTextarea, FormSelect, FormToggle } from '@/components/FormFields';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -21,6 +21,12 @@ interface ScheduleEntry {
 interface FeatureEntry {
   feature_en: string;
   feature_es: string;
+}
+
+interface GalleryImage {
+  id: number;
+  image: string;
+  sort_order: number;
 }
 
 interface Location {
@@ -41,6 +47,7 @@ interface Location {
   duration?: string;
   hero_image?: string;
   features?: FeatureEntry[];
+  gallery?: GalleryImage[];
 }
 
 const EMPTY: Partial<Location> = {
@@ -58,14 +65,13 @@ export default function LocationsPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<Location>>(EMPTY);
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Location | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [heroFile, setHeroFile] = useState<File | null>(null);
-  const [heroPreview, setHeroPreview] = useState<string | null>(null);
   const [features, setFeatures] = useState<FeatureEntry[]>([]);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<{ id?: number; url: string; isNew?: boolean }[]>([]);
+  const [removeGalleryIds, setRemoveGalleryIds] = useState<number[]>([]);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -81,44 +87,22 @@ export default function LocationsPage() {
 
   const openCreate = () => {
     setEditing({ ...EMPTY, schedules: [], features: [] });
-    setImageFile(null);
-    setImagePreview(null);
-    setHeroFile(null);
-    setHeroPreview(null);
     setFeatures([]);
+    setGalleryFiles([]);
+    setGalleryPreviews([]);
+    setRemoveGalleryIds([]);
     setModalOpen(true);
   };
 
   const openEdit = (loc: Location) => {
     setEditing({ ...loc, schedules: loc.schedules || [] });
-    setImageFile(null);
-    setImagePreview(loc.image || null);
-    setHeroFile(null);
-    setHeroPreview(loc.hero_image || null);
     setFeatures(loc.features || []);
+    setGalleryFiles([]);
+    setGalleryPreviews(
+      (loc.gallery || []).map((g) => ({ id: g.id, url: g.image }))
+    );
+    setRemoveGalleryIds([]);
     setModalOpen(true);
-  };
-
-  const handleImageChange = (file: File | null) => {
-    setImageFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setImagePreview(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
-  };
-
-  const handleHeroChange = (file: File | null) => {
-    setHeroFile(file);
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setHeroPreview(reader.result as string);
-      reader.readAsDataURL(file);
-    } else {
-      setHeroPreview(null);
-    }
   };
 
   const handleSave = async () => {
@@ -139,8 +123,8 @@ export default function LocationsPage() {
       fd.append('price', String(editing.price ?? ''));
       fd.append('duration', editing.duration || '');
       fd.append('features', JSON.stringify(features));
-      if (imageFile) fd.append('image', imageFile);
-      if (heroFile) fd.append('hero_image', heroFile);
+      fd.append('remove_gallery_ids', JSON.stringify(removeGalleryIds));
+      galleryFiles.forEach((f) => fd.append('gallery[]', f));
       if (editing.id) {
         await locationsApi.update(editing.id, fd);
         toast.success('Location updated successfully!');
@@ -429,10 +413,63 @@ export default function LocationsPage() {
             )}
           </div>
 
-          {/* ── Images ── */}
-          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <ImageUpload label="Location Image (Card)" preview={imagePreview} onChange={handleImageChange} />
-            <ImageUpload label="Hero Image (Detail Page)" preview={heroPreview} onChange={handleHeroChange} />
+          {/* ── Gallery Images ── */}
+          <div className="md:col-span-2 border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <ImagePlus className="w-4 h-4 text-primary" />
+                <p className="text-sm font-semibold text-neutral-dark">Gallery Images (Slideshow)</p>
+              </div>
+              <label className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 cursor-pointer">
+                <Plus className="w-3.5 h-3.5" /> Add Images
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []);
+                    setGalleryFiles((prev) => [...prev, ...files]);
+                    files.forEach((file) => {
+                      const reader = new FileReader();
+                      reader.onloadend = () =>
+                        setGalleryPreviews((prev) => [...prev, { url: reader.result as string, isNew: true }]);
+                      reader.readAsDataURL(file);
+                    });
+                    e.target.value = '';
+                  }}
+                />
+              </label>
+            </div>
+            {galleryPreviews.length === 0 ? (
+              <p className="text-sm text-neutral-gray text-center py-4">
+                No gallery images. Add images to show a slideshow on the website.
+              </p>
+            ) : (
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                {galleryPreviews.map((img, idx) => (
+                  <div key={idx} className="relative group rounded-lg overflow-hidden border border-gray-200">
+                    <img src={img.url} alt="" className="w-full h-24 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (img.id) {
+                          setRemoveGalleryIds((prev) => [...prev, img.id!]);
+                        } else {
+                          // Find corresponding new file index
+                          const newIdx = galleryPreviews.slice(0, idx).filter((p) => p.isNew).length;
+                          setGalleryFiles((prev) => prev.filter((_, i) => i !== newIdx));
+                        }
+                        setGalleryPreviews((prev) => prev.filter((_, i) => i !== idx));
+                      }}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
