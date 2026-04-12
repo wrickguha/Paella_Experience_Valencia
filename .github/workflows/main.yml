@@ -45,7 +45,7 @@ jobs:
           port: 21
           security: loose
           local-dir: backend/public/frontend/
-          server-dir: /
+          server-dir: /public_html/
       - name: Deploy admin
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -56,7 +56,7 @@ jobs:
           port: 21
           security: loose
           local-dir: backend/public/admin/
-          server-dir: /admin/
+          server-dir: /public_html/admin/
       - name: Deploy public_html config
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -67,7 +67,7 @@ jobs:
           port: 21
           security: loose
           local-dir: deploy/public_html/
-          server-dir: /
+          server-dir: /public_html/
       - name: Deploy backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -99,8 +99,18 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            echo "=== Checking all possible backend locations ==="
-            ls -la ~/public_html/backend/ 2>/dev/null || echo "NOT AT ~/public_html/backend"
-            ls -la ~/backend/ 2>/dev/null || echo "NOT AT ~/backend"
-            find ~/ -name "artisan" 2>/dev/null || echo "artisan not found anywhere"
-            find ~/ -name "composer.json" 2>/dev/null | grep -v vendor || echo "composer.json not found"
+            cd /home/u679970628/backend
+            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
+            STORAGE_LINK=/home/u679970628/public_html/storage
+            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
+            ln -s /home/u679970628/backend/storage/app/public "$STORAGE_LINK"
+            echo "=== Verifying public_html contents ==="
+            ls -la /home/u679970628/public_html/
+            echo "=== Backend artisan check ==="
+            ls /home/u679970628/backend/artisan
