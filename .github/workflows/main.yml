@@ -16,24 +16,16 @@ jobs:
           node-version: 20
 
       - name: Install frontend deps
-        run: |
-          cd frontend
-          npm install
+        run: cd frontend && npm install
 
       - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
+        run: cd frontend && npm run build
 
       - name: Install admin deps
-        run: |
-          cd admin
-          npm install
+        run: cd admin && npm install
 
       - name: Build admin
-        run: |
-          cd admin
-          npm run build
+        run: cd admin && npm run build
 
       - name: Check build output
         run: |
@@ -42,20 +34,6 @@ jobs:
           echo "=== Admin ==="
           ls -la backend/public/admin/ || echo "MISSING"
 
-      - name: Deploy everything via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 65002
-          timeout: 60s
-          command_timeout: 30m
-          script: |
-            BASE=/home/u679970628/domains/magenta-newt-861501.hostingersite.com
-            mkdir -p $BASE/backend
-            mkdir -p $BASE/public_html/admin
-
       - name: Upload backend via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -63,7 +41,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
-          timeout: 60s
+          timeout: 120s
           command_timeout: 30m
           source: "backend/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/backend/"
@@ -76,7 +54,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
-          timeout: 60s
+          timeout: 120s
           command_timeout: 30m
           source: "backend/public/frontend/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
@@ -89,7 +67,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
-          timeout: 60s
+          timeout: 120s
           command_timeout: 30m
           source: "backend/public/admin/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/admin/"
@@ -102,7 +80,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
-          timeout: 60s
+          timeout: 120s
           command_timeout: 30m
           source: "deploy/public_html/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
@@ -115,20 +93,20 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
-          timeout: 60s
+          timeout: 120s
           command_timeout: 30m
           script: |
             BASE=/home/u679970628/domains/magenta-newt-861501.hostingersite.com
+            mkdir -p $BASE/backend $BASE/public_html/admin
             cd $BASE/backend
             php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan migrate --force
-            chmod -R 775 storage
-            chmod -R 775 bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
             STORAGE_LINK=$BASE/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
             ln -s $BASE/backend/storage/app/public "$STORAGE_LINK"
-            echo "=== Done! public_html contents ==="
+            echo "=== Done ==="
             ls -la $BASE/public_html/
