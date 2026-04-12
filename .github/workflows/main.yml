@@ -48,7 +48,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: backend/public/frontend/
-          server-dir: /
+          server-dir: /public_html/
 
       # Deploy admin SPA
       - name: Deploy admin
@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: backend/public/admin/
-          server-dir: /admin
+          server-dir: /public_html/admin/
 
       # Deploy .htaccess + api/ entry point
       - name: Deploy public_html config
