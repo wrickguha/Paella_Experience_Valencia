@@ -40,7 +40,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
+          port: 65002
           timeout: 120s
           command_timeout: 30m
           source: "backend/"
@@ -53,7 +53,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
+          port: 65002
           timeout: 120s
           command_timeout: 30m
           source: "backend/public/frontend/"
@@ -66,7 +66,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
+          port: 65002
           timeout: 120s
           command_timeout: 30m
           source: "backend/public/admin/"
@@ -79,7 +79,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
+          port: 65002
           timeout: 120s
           command_timeout: 30m
           source: "deploy/public_html/"
@@ -92,7 +92,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
+          port: 65002
           timeout: 120s
           command_timeout: 30m
           script: |
