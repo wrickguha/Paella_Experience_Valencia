@@ -35,7 +35,6 @@ jobs:
           ls -la backend/public/frontend/ || echo "MISSING"
           echo "=== Admin ==="
           ls -la backend/public/admin/ || echo "MISSING"
-      # Deploy frontend SPA — FTP root IS public_html, so / = public_html/
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -47,7 +46,6 @@ jobs:
           security: loose
           local-dir: backend/public/frontend/
           server-dir: /
-      # Deploy admin SPA
       - name: Deploy admin
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -59,7 +57,6 @@ jobs:
           security: loose
           local-dir: backend/public/admin/
           server-dir: /admin/
-      # Deploy .htaccess + api/ entry point
       - name: Deploy public_html config
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -71,7 +68,6 @@ jobs:
           security: loose
           local-dir: deploy/public_html/
           server-dir: /
-      # Deploy Laravel backend
       - name: Deploy backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -95,8 +91,8 @@ jobs:
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
             **/storage/framework/views/**
-      # Post-deploy via SSH
-      - name: Post-deploy (composer install + artisan)
+      # DEBUG ONLY - find exact paths
+      - name: Debug server paths
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -104,14 +100,13 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd /home/u679970628/public_html/backend
-            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan migrate --force
-            chmod -R 775 storage
-            chmod -R 775 bootstrap/cache
-            STORAGE_LINK=/home/u679970628/public_html/storage
-            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s /home/u679970628/public_html/backend/storage/app/public "$STORAGE_LINK"
+            echo "=== HOME ==="
+            ls -la ~/
+            echo "=== PUBLIC_HTML ==="
+            ls -la ~/public_html/
+            echo "=== HOME/BACKEND (if exists) ==="
+            ls -la ~/backend/ 2>/dev/null || echo "NOT FOUND"
+            echo "=== PUBLIC_HTML/BACKEND (if exists) ==="
+            ls -la ~/public_html/backend/ 2>/dev/null || echo "NOT FOUND"
+            echo "=== FIND ARTISAN ==="
+            find ~/ -name "artisan" 2>/dev/null
