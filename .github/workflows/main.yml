@@ -50,7 +50,8 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp
+          port: 21
           security: loose
           local-dir: backend/public/admin/
           server-dir: /public_html/admin/
@@ -61,7 +62,8 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp
+          port: 21
           security: loose
           local-dir: deploy/public_html/
           server-dir: /public_html/
@@ -72,7 +74,8 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
+          protocol: ftp
+          port: 21
           security: loose
           local-dir: backend/
           server-dir: /public_html/backend/
@@ -88,8 +91,8 @@ jobs:
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
             **/storage/framework/views/**
-      # Run post-deploy commands on server via SSH
-      - name: Post-deploy (composer install + artisan)
+      # Debug: find where files actually landed
+      - name: Debug server paths
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -97,14 +100,11 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd /home/u679970628/public_html/backend
-            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan migrate --force
-            chmod -R 775 storage
-            chmod -R 775 bootstrap/cache
-            STORAGE_LINK=/home/u679970628/public_html/storage
-            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s /home/u679970628/public_html/backend/storage/app/public "$STORAGE_LINK"
+            echo "=== HOME DIR ==="
+            ls -la ~/
+            echo "=== PUBLIC_HTML ==="
+            ls -la ~/public_html/
+            echo "=== FINDING artisan ==="
+            find ~/ -name "artisan" 2>/dev/null
+            echo "=== FINDING composer.json ==="
+            find ~/ -name "composer.json" 2>/dev/null | grep -v vendor
