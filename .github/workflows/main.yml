@@ -91,8 +91,7 @@ jobs:
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
             **/storage/framework/views/**
-      # DEBUG ONLY - find exact paths
-      - name: Debug server paths
+      - name: Post-deploy (composer install + artisan)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -100,13 +99,14 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            echo "=== HOME ==="
-            ls -la ~/
-            echo "=== PUBLIC_HTML ==="
-            ls -la ~/public_html/
-            echo "=== HOME/BACKEND (if exists) ==="
-            ls -la ~/backend/ 2>/dev/null || echo "NOT FOUND"
-            echo "=== PUBLIC_HTML/BACKEND (if exists) ==="
-            ls -la ~/public_html/backend/ 2>/dev/null || echo "NOT FOUND"
-            echo "=== FIND ARTISAN ==="
-            find ~/ -name "artisan" 2>/dev/null
+            cd /home/u679970628/public_html/backend
+            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
+            STORAGE_LINK=/home/u679970628/public_html/storage
+            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
+            ln -s /home/u679970628/public_html/backend/storage/app/public "$STORAGE_LINK"
