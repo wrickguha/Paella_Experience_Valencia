@@ -39,6 +39,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
+          security: loose
           local-dir: backend/public/frontend/
           server-dir: /public_html/
       # Deploy admin SPA
@@ -49,6 +50,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
+          security: loose
           local-dir: backend/public/admin/
           server-dir: /public_html/admin/
       # Deploy .htaccess + api/ entry point
@@ -59,6 +61,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
+          security: loose
           local-dir: deploy/public_html/
           server-dir: /public_html/
       # Deploy Laravel backend (excluding vendor, built assets, env)
@@ -69,6 +72,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
+          security: loose
           local-dir: backend/
           server-dir: /public_html/backend/
           exclude: |
