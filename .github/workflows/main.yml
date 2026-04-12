@@ -99,14 +99,8 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd /home/u679970628/public_html/backend
-            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan migrate --force
-            chmod -R 775 storage
-            chmod -R 775 bootstrap/cache
-            STORAGE_LINK=/home/u679970628/public_html/storage
-            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s /home/u679970628/public_html/backend/storage/app/public "$STORAGE_LINK"
+            echo "=== Checking all possible backend locations ==="
+            ls -la ~/public_html/backend/ 2>/dev/null || echo "NOT AT ~/public_html/backend"
+            ls -la ~/backend/ 2>/dev/null || echo "NOT AT ~/backend"
+            find ~/ -name "artisan" 2>/dev/null || echo "artisan not found anywhere"
+            find ~/ -name "composer.json" 2>/dev/null | grep -v vendor || echo "composer.json not found"
