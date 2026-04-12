@@ -108,6 +108,14 @@ jobs:
             php artisan migrate --force
             chmod -R 775 storage
             chmod -R 775 bootstrap/cache
+            echo "=== Copying frontend build to public_html ==="
+            cp -r $BASE/backend/public/frontend/. $BASE/public_html/
+            echo "=== Copying admin build to public_html/admin ==="
+            mkdir -p $BASE/public_html/admin
+            cp -r $BASE/backend/public/admin/. $BASE/public_html/admin/
+            echo "=== Fixing storage symlink ==="
             STORAGE_LINK=$BASE/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
             ln -s $BASE/backend/storage/app/public "$STORAGE_LINK"
+            echo "=== public_html contents ==="
+            ls -la $BASE/public_html/
