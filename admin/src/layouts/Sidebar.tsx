@@ -11,6 +11,7 @@ import {
   MessageSquareQuote,
   HelpCircle,
   FileText,
+  MessageSquare,
   Settings,
   X,
 } from 'lucide-react';
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { to: '/admin/testimonials', icon: MessageSquareQuote, label: 'Testimonials' },
   { to: '/admin/faqs', icon: HelpCircle, label: 'FAQs' },
   { to: '/admin/about', icon: FileText, label: 'About Page' },
+  { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 

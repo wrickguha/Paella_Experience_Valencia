@@ -1,17 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
+import { fetchContactSettings, sendContactMessage } from '@/services/api';
 
 export default function ContactPage() {
   const { t } = useTranslation();
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [contact, setContact] = useState<Record<string, string>>({});
   useScrollToTop();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchContactSettings()
+      .then(setContact)
+      .catch(() => {});
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setSending(true);
+    setError('');
+    try {
+      await sendContactMessage(form);
+      setSent(true);
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (err: any) {
+      setError(err?.response?.data?.message || t('contact.form.error'));
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -45,6 +65,11 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="card space-y-5">
+                {error && (
+                  <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm font-body">
+                    {error}
+                  </div>
+                )}
                 <div>
                   <label className="block text-sm font-heading font-medium text-neutral-dark mb-2">
                     {t('contact.form.name')}
@@ -101,8 +126,8 @@ export default function ContactPage() {
                   />
                 </div>
 
-                <button type="submit" className="btn-primary w-full">
-                  {t('contact.form.send')}
+                <button type="submit" disabled={sending} className="btn-primary w-full disabled:opacity-60">
+                  {sending ? t('contact.form.sending') : t('contact.form.send')}
                 </button>
               </form>
             )}
@@ -117,27 +142,39 @@ export default function ContactPage() {
           >
             <div className="card">
               <h3 className="font-heading font-semibold text-lg text-neutral-dark mb-6">
-                Valencia, Spain
+                {contact.contact_city || 'Valencia, Spain'}
               </h3>
               <div className="space-y-5">
-                <div className="flex items-start gap-4">
-                  <span className="text-xl mt-0.5">📍</span>
-                  <p className="text-sm text-neutral-gray font-body whitespace-pre-line">
-                    {t('contact.info.address')}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xl">📧</span>
-                  <p className="text-sm text-neutral-gray font-body">{t('contact.info.email')}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xl">📞</span>
-                  <p className="text-sm text-neutral-gray font-body">{t('contact.info.phone')}</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xl">🕐</span>
-                  <p className="text-sm text-neutral-gray font-body">{t('contact.info.hours')}</p>
-                </div>
+                {contact.contact_address && (
+                  <div className="flex items-start gap-4">
+                    <span className="text-xl mt-0.5">📍</span>
+                    <p className="text-sm text-neutral-gray font-body whitespace-pre-line">
+                      {contact.contact_address}
+                    </p>
+                  </div>
+                )}
+                {contact.contact_email && (
+                  <div className="flex items-center gap-4">
+                    <span className="text-xl">📧</span>
+                    <a href={`mailto:${contact.contact_email}`} className="text-sm text-neutral-gray font-body hover:text-primary transition-colors">
+                      {contact.contact_email}
+                    </a>
+                  </div>
+                )}
+                {contact.contact_phone && (
+                  <div className="flex items-center gap-4">
+                    <span className="text-xl">📞</span>
+                    <a href={`tel:${contact.contact_phone}`} className="text-sm text-neutral-gray font-body hover:text-primary transition-colors">
+                      {contact.contact_phone}
+                    </a>
+                  </div>
+                )}
+                {contact.contact_hours && (
+                  <div className="flex items-center gap-4">
+                    <span className="text-xl">🕐</span>
+                    <p className="text-sm text-neutral-gray font-body">{contact.contact_hours}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -147,7 +184,7 @@ export default function ContactPage() {
                 <div className="text-center">
                   <span className="text-4xl block mb-2">🗺</span>
                   <p className="text-sm text-neutral-gray font-body">
-                    Map — Calle de la Paz, 12, Valencia
+                    Map — {contact.contact_address || 'Valencia, Spain'}
                   </p>
                 </div>
               </div>

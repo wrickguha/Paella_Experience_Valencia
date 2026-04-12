@@ -22,7 +22,9 @@ use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialControll
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\ContactController;
 use App\Http\Controllers\Admin\AboutController as AdminAboutController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,6 +47,7 @@ Route::get('/testimonials', [TestimonialController::class, 'index']);
 Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/about', [AboutController::class, 'index']);
+Route::post('/contact', [ContactController::class, 'store']);
 
 /*
 |--------------------------------------------------------------------------
@@ -169,4 +172,12 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/about/{id}', [AdminAboutController::class, 'update']);
     Route::delete('/about/{id}', [AdminAboutController::class, 'destroy']);
     Route::post('/about/reorder', [AdminAboutController::class, 'reorder']);
+
+    // Contact Messages
+    Route::get('/messages', [AdminContactMessageController::class, 'index']);
+    Route::get('/messages/unread-count', [AdminContactMessageController::class, 'unreadCount']);
+    Route::get('/messages/{contactMessage}', [AdminContactMessageController::class, 'show']);
+    Route::put('/messages/{contactMessage}/read', [AdminContactMessageController::class, 'markRead']);
+    Route::put('/messages/{contactMessage}/unread', [AdminContactMessageController::class, 'markUnread']);
+    Route::delete('/messages/{contactMessage}', [AdminContactMessageController::class, 'destroy']);
 });

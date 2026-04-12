@@ -41,6 +41,8 @@ const GROUPS: GroupConfig[] = [
       { key: 'contact_phone', label: 'Phone Number', type: 'text' },
       { key: 'contact_whatsapp', label: 'WhatsApp', type: 'text' },
       { key: 'contact_address', label: 'Address', type: 'textarea' },
+      { key: 'contact_city', label: 'City / Region', type: 'text' },
+      { key: 'contact_hours', label: 'Business Hours', type: 'text' },
     ],
   },
   {

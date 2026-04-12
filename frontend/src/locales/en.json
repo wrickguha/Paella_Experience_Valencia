@@ -446,6 +446,8 @@
       "subject": "Subject",
       "message": "Message",
       "send": "Send Message",
+      "sending": "Sending...",
+      "error": "Failed to send message. Please try again.",
       "success": "Message sent successfully! We'll get back to you within 24 hours."
     },
     "info": {

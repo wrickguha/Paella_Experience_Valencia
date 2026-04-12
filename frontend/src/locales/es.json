@@ -446,6 +446,8 @@
       "subject": "Asunto",
       "message": "Mensaje",
       "send": "Enviar Mensaje",
+      "sending": "Enviando...",
+      "error": "Error al enviar el mensaje. Inténtalo de nuevo.",
       "success": "¡Mensaje enviado con éxito! Te responderemos en 24 horas."
     },
     "info": {
