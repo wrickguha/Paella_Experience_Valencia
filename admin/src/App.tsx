@@ -15,6 +15,7 @@ const PaymentsPage = lazy(() => import('@/pages/PaymentsPage'));
 const GalleryPage = lazy(() => import('@/pages/GalleryPage'));
 const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
 const FaqsPage = lazy(() => import('@/pages/FaqsPage'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="gallery" element={<GalleryPage />} />
           <Route path="testimonials" element={<TestimonialsPage />} />
           <Route path="faqs" element={<FaqsPage />} />
+          <Route path="about" element={<AboutPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/admin" replace />} />

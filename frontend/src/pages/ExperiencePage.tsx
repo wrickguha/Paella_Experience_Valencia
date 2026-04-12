@@ -218,14 +218,7 @@ export default function ExperiencePage() {
             transition={{ duration: 0.8 }}
             className="text-center max-w-3xl mx-auto"
           >
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="inline-block bg-white/20 backdrop-blur-sm text-white text-sm font-medium px-4 py-1.5 rounded-full mb-6"
-            >
-              ⭐ 4.9/5 — 2,400+ {t('socialProof.reviewCount').split(' ')[0]} reviews
-            </motion.span>
+            {/* Review section removed as requested */}
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
               {t('experience.hero.title')}
             </h1>

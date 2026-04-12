@@ -13,6 +13,7 @@ const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
+const AboutPage = lazy(() => import('@/pages/AboutPage'));
 
 function LoadingFallback() {
   return (
@@ -61,6 +62,7 @@ export default function App() {
               <Route path="/payment/success" element={<ProtectedRoute><PaymentReturnPage /></ProtectedRoute>} />
               <Route path="/payment/cancel" element={<ProtectedRoute><PaymentCancelPage /></ProtectedRoute>} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
               <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

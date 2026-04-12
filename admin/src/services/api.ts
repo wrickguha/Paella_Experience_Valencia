@@ -116,3 +116,12 @@ export const settingsApi = {
   list: (group?: string) => api.get('/admin/settings', { params: { group } }),
   update: (settings: Record<string, string>) => api.put('/admin/settings', { settings }),
 };
+
+// ── About Sections ──
+export const aboutApi = {
+  list: (page = 1) => api.get(`/admin/about?page=${page}`),
+  create: (data: FormData) => api.post('/admin/about', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id: number, data: FormData) => api.post(`/admin/about/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  delete: (id: number) => api.delete(`/admin/about/${id}`),
+  reorder: (ids: number[]) => api.post('/admin/about/reorder', { ids }),
+};

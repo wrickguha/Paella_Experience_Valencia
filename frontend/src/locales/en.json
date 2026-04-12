@@ -4,6 +4,7 @@
     "experience": "The Experience",
     "booking": "Book Now",
     "contact": "Contact",
+    "about": "About",
     "bookNow": "Book Now"
   },
   "hero": {
@@ -25,13 +26,13 @@
     "items": [
       {
         "icon": "chef",
-        "title": "Expert Local Chefs",
-        "description": "Learn from passionate Valencian chefs with decades of experience"
+        "title": "Cook With Culinary Legends",
+        "description": "Step into the kitchen with Valencia’s most celebrated chefs and unlock the secrets of authentic paella."
       },
       {
         "icon": "market",
-        "title": "Market Visit Included",
-        "description": "Explore the famous Mercado Central and hand-pick your ingredients"
+        "title": "Savor the City’s Flavors",
+        "description": "Embark on a guided market adventure—discover, taste, and select the freshest local ingredients like a true Valencian."
       },
       {
         "icon": "fire",
@@ -203,6 +204,16 @@
     "title": "Ready for an Unforgettable Experience?",
     "subtitle": "Spaces fill up fast — secure your spot today",
     "cta": "Book Your Experience Now"
+  },
+  "about": {
+    "valuesTitle": "What We Stand For",
+    "valuesSubtitle": "The principles that guide everything we do",
+    "differentTitle": "The Difference",
+    "differentHeading": "What Makes Us Different",
+    "differentSubtitle": "Not just another cooking class — this is something you'll feel in your bones",
+    "whyloveTag": "The Outcome",
+    "whyloveHeading": "Why People Love This",
+    "whyloveSubtitle": "It's not about the recipe — it's about what you take home in your heart"
   },
   "experience": {
     "hero": {

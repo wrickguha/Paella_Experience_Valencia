@@ -4,6 +4,7 @@
     "experience": "La Experiencia",
     "booking": "Reservar",
     "contact": "Contacto",
+    "about": "Nosotros",
     "bookNow": "Reservar Ahora"
   },
   "hero": {
@@ -25,13 +26,13 @@
     "items": [
       {
         "icon": "chef",
-        "title": "Chefs Locales Expertos",
-        "description": "Aprende de apasionados chefs valencianos con décadas de experiencia"
+        "title": "Cocina con Leyendas Culinarias",
+        "description": "Entra en la cocina con los chefs más reconocidos de Valencia y descubre los secretos de la auténtica paella."
       },
       {
         "icon": "market",
-        "title": "Visita al Mercado Incluida",
-        "description": "Explora el famoso Mercado Central y elige tus ingredientes a mano"
+        "title": "Saborea los Sabores de la Ciudad",
+        "description": "Embárcate en una aventura guiada por el mercado: descubre, prueba y selecciona los ingredientes más frescos como un verdadero valenciano."
       },
       {
         "icon": "fire",
@@ -203,6 +204,16 @@
     "title": "¿Listo para una Experiencia Inolvidable?",
     "subtitle": "Las plazas se agotan rápido — asegura tu lugar hoy",
     "cta": "Reserva Tu Experiencia Ahora"
+  },
+  "about": {
+    "valuesTitle": "Lo Que Nos Define",
+    "valuesSubtitle": "Los principios que guían todo lo que hacemos",
+    "differentTitle": "La Diferencia",
+    "differentHeading": "Qué Nos Hace Diferentes",
+    "differentSubtitle": "No es solo una clase de cocina — es algo que sentirás en lo más profundo",
+    "whyloveTag": "El Resultado",
+    "whyloveHeading": "Por Qué la Gente Ama Esto",
+    "whyloveSubtitle": "No se trata de la receta — se trata de lo que te llevas en el corazón"
   },
   "experience": {
     "hero": {

@@ -242,4 +242,33 @@ export const paymentApi = {
     apiClient.post('/payment/capture', { order_id: orderId }),
 };
 
+// ── About API ──────────────────────────────────────────────────────
+export interface AboutSection {
+  id: number;
+  section_key: string;
+  title: string | null;
+  subtitle: string | null;
+  content: string | null;
+  image: string | null;
+  cta_text: string | null;
+  cta_link: string | null;
+  sort_order: number;
+}
+
+export interface AboutData {
+  hero?: AboutSection;
+  story?: AboutSection;
+  philosophy?: AboutSection;
+  differentiators?: AboutSection[];
+  team?: AboutSection;
+  whylove?: AboutSection[];
+  cta?: AboutSection;
+  [key: string]: AboutSection | AboutSection[] | undefined;
+}
+
+export async function fetchAbout(lang = 'en'): Promise<AboutData> {
+  const res = await apiClient.get('/about', { params: { lang } });
+  return res.data.data as AboutData;
+}
+
 export default apiClient;

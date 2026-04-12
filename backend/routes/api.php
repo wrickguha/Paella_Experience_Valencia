@@ -21,6 +21,8 @@ use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
 use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialController;
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
+use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\Admin\AboutController as AdminAboutController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -42,6 +44,7 @@ Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
 Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/settings', [SettingController::class, 'index']);
+Route::get('/about', [AboutController::class, 'index']);
 
 /*
 |--------------------------------------------------------------------------
@@ -159,4 +162,11 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Settings
     Route::get('/settings', [AdminSettingController::class, 'index']);
     Route::put('/settings', [AdminSettingController::class, 'update']);
+
+    // About
+    Route::get('/about', [AdminAboutController::class, 'index']);
+    Route::post('/about', [AdminAboutController::class, 'store']);
+    Route::post('/about/{id}', [AdminAboutController::class, 'update']);
+    Route::delete('/about/{id}', [AdminAboutController::class, 'destroy']);
+    Route::post('/about/reorder', [AdminAboutController::class, 'reorder']);
 });

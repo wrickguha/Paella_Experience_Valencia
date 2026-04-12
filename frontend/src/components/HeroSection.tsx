@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 
 export default function HeroSection() {
   const { t } = useTranslation();
@@ -23,37 +23,50 @@ export default function HeroSection() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
           className="max-w-3xl"
         >
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="inline-block bg-primary/90 text-white text-sm font-heading font-semibold
-                       px-4 py-2 rounded-full mb-6"
-          >
-            ⭐ 4.9/5 — 2,400+ Reviews
-          </motion.span>
-
+          {/* Star rating badge removed as requested */}
           <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
-            {t('hero.title')}
+            {t("hero.title")}
           </h1>
 
           <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl leading-relaxed">
-            {t('hero.subtitle')}
+            {t("hero.subtitle")}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link to="/booking" className="btn-primary !text-lg !px-10 !py-5 text-center">
-              {t('hero.cta')}
+            <Link
+              to="/booking"
+              className="btn-primary !text-lg !px-10 !py-5 text-center"
+            >
+              {t("hero.cta")}
             </Link>
             <Link
               to="/experience"
-              className="btn-secondary !border-white !text-white hover:!bg-white hover:!text-neutral-dark
-                         !text-lg !px-10 !py-5 text-center"
+              className="
+    relative inline-flex items-center justify-center
+    text-lg font-semibold px-10 py-5
+    text-white rounded-xl
+    bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500
+    shadow-lg shadow-orange-500/30
+    transition-all duration-300 ease-in-out
+    hover:scale-105 hover:shadow-purple-500/40
+    active:scale-95
+    overflow-hidden
+  "
             >
-              {t('hero.scrollDown')}
+              <span className="relative z-10">{t("hero.scrollDown")}</span>
+
+              {/* Shine effect */}
+              <span
+                className="
+    absolute inset-0
+    bg-white/10 opacity-0
+    hover:opacity-100
+    transition duration-300
+  "
+              ></span>
             </Link>
           </div>
         </motion.div>
