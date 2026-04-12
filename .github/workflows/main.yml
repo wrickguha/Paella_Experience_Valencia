@@ -1,45 +1,36 @@
 name: Deploy to Hostinger
-
 on:
   push:
     branches:
       - main
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
-
       # Build frontend
       - name: Install frontend deps
         run: |
           cd frontend
           npm install
-
       - name: Build frontend
         run: |
           cd frontend
           npm run build
-
       # Build admin
       - name: Install admin deps
         run: |
           cd admin
           npm install
-
       - name: Build admin
         run: |
           cd admin
           npm run build
-
       # Deploy frontend SPA
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -49,7 +40,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: backend/public/frontend/
           server-dir: /public_html/
-
       # Deploy admin SPA
       - name: Deploy admin
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -59,7 +49,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: backend/public/admin/
           server-dir: /public_html/admin/
-
       # Deploy .htaccess + api/ entry point
       - name: Deploy public_html config
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -69,7 +58,6 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: deploy/public_html/
           server-dir: /public_html/
-
       # Deploy Laravel backend (excluding vendor, built assets, env)
       - name: Deploy backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -91,7 +79,6 @@ jobs:
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
             **/storage/framework/views/**
-
       # Run post-deploy commands on server via SSH
       - name: Post-deploy (composer install + artisan)
         uses: appleboy/ssh-action@v1.0.3
