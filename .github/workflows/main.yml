@@ -99,18 +99,9 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd /home/u679970628/backend
-            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan migrate --force
-            chmod -R 775 storage
-            chmod -R 775 bootstrap/cache
-            STORAGE_LINK=/home/u679970628/public_html/storage
-            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s /home/u679970628/backend/storage/app/public "$STORAGE_LINK"
-            echo "=== Verifying public_html contents ==="
-            ls -la /home/u679970628/public_html/
-            echo "=== Backend artisan check ==="
-            ls /home/u679970628/backend/artisan
+            echo "=== REAL HOME DIR ==="
+            echo $HOME
+            pwd
+            ls -la ~/
+            echo "=== FIND BACKEND ==="
+            find / -name "artisan" -not -path "*/vendor/*" 2>/dev/null
