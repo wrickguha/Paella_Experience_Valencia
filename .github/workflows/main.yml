@@ -31,6 +31,13 @@ jobs:
         run: |
           cd admin
           npm run build
+
+      - name: Check frontend build output
+        run: |
+          echo "=== Frontend build output ==="
+          ls -la backend/public/frontend/ || echo "FOLDER DOES NOT EXIST"
+          echo "=== Admin build output ==="
+          ls -la backend/public/admin/ || echo "FOLDER DOES NOT EXIST"
       # Deploy frontend SPA
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
