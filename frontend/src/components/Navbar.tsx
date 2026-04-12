@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/context/AuthContext';
+import { useState, useRef, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/context/AuthContext";
+import { FiGlobe } from "react-icons/fi";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
@@ -14,31 +15,35 @@ export default function Navbar() {
   const userMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'en' ? 'es' : 'en');
+    i18n.changeLanguage(i18n.language === "en" ? "es" : "en");
   };
 
   // Close user dropdown when clicking outside
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(e.target as Node)
+      ) {
         setUserMenuOpen(false);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const handleLogout = async () => {
     setUserMenuOpen(false);
     await logout();
-    navigate('/');
+    navigate("/");
   };
 
   const navLinks = [
-    { to: '/', label: t('nav.home') },
-    { to: '/experience', label: t('nav.experience') },
-    { to: '/booking', label: t('nav.booking') },
-    { to: '/contact', label: t('nav.contact') },
+    { to: "/", label: t("nav.home") },
+    { to: "/experience", label: t("nav.experience") },
+    { to: "/booking", label: t("nav.booking") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/contact", label: t("nav.contact") },
   ];
 
   return (
@@ -63,8 +68,8 @@ export default function Navbar() {
                 to={link.to}
                 className={`font-body text-sm font-medium transition-colors hover:text-primary ${
                   location.pathname === link.to
-                    ? 'text-primary'
-                    : 'text-neutral-gray'
+                    ? "text-primary"
+                    : "text-neutral-gray"
                 }`}
               >
                 {link.label}
@@ -79,8 +84,12 @@ export default function Navbar() {
               className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium
                          text-neutral-gray hover:text-neutral-dark hover:bg-neutral-beige transition-all"
             >
-              <span className="text-base">{i18n.language === 'en' ? '🇬🇧' : '🇪🇸'}</span>
-              <span className="uppercase">{i18n.language}</span>
+              <span className="flex items-center gap-2 text-sm font-medium text-neutral-700">
+                <span className="text-lg opacity-80">
+                  <FiGlobe />
+                </span>
+                {i18n.language.toUpperCase()}
+              </span>
             </button>
 
             {user ? (
@@ -94,8 +103,18 @@ export default function Navbar() {
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                   <span className="max-w-[120px] truncate">{user.name}</span>
-                  <svg className={`w-4 h-4 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <svg
+                    className={`w-4 h-4 transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
@@ -114,22 +133,24 @@ export default function Navbar() {
                         onClick={() => setUserMenuOpen(false)}
                         className="block px-4 py-2 text-sm text-neutral-dark hover:bg-neutral-beige transition-colors"
                       >
-                        {t('auth.myProfile')}
+                        {t("auth.myProfile")}
                       </Link>
                       <Link
                         to="/profile"
-                        onClick={() => { setUserMenuOpen(false); }}
-                        state={{ tab: 'bookings' }}
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                        }}
+                        state={{ tab: "bookings" }}
                         className="block px-4 py-2 text-sm text-neutral-dark hover:bg-neutral-beige transition-colors"
                       >
-                        {t('auth.myBookings')}
+                        {t("auth.myBookings")}
                       </Link>
                       <hr className="my-1 border-gray-100" />
                       <button
                         onClick={handleLogout}
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
-                        {t('auth.logout')}
+                        {t("auth.logout")}
                       </button>
                     </motion.div>
                   )}
@@ -137,7 +158,7 @@ export default function Navbar() {
               </div>
             ) : (
               <Link to="/login" className="btn-primary !py-3 !px-6 !text-sm">
-                {t('auth.login')}
+                {t("auth.login")}
               </Link>
             )}
           </div>
@@ -151,17 +172,17 @@ export default function Navbar() {
             <div className="w-6 h-5 relative flex flex-col justify-between">
               <span
                 className={`block h-0.5 w-6 bg-neutral-dark rounded transition-all ${
-                  isOpen ? 'rotate-45 translate-y-2' : ''
+                  isOpen ? "rotate-45 translate-y-2" : ""
                 }`}
               />
               <span
                 className={`block h-0.5 w-6 bg-neutral-dark rounded transition-all ${
-                  isOpen ? 'opacity-0' : ''
+                  isOpen ? "opacity-0" : ""
                 }`}
               />
               <span
                 className={`block h-0.5 w-6 bg-neutral-dark rounded transition-all ${
-                  isOpen ? '-rotate-45 -translate-y-2' : ''
+                  isOpen ? "-rotate-45 -translate-y-2" : ""
                 }`}
               />
             </div>
@@ -174,7 +195,7 @@ export default function Navbar() {
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-white border-t border-neutral-beige overflow-hidden"
           >
@@ -186,8 +207,8 @@ export default function Navbar() {
                   onClick={() => setIsOpen(false)}
                   className={`block py-2 font-body text-base font-medium transition-colors ${
                     location.pathname === link.to
-                      ? 'text-primary'
-                      : 'text-neutral-gray'
+                      ? "text-primary"
+                      : "text-neutral-gray"
                   }`}
                 >
                   {link.label}
@@ -199,7 +220,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
                              text-neutral-gray hover:bg-neutral-beige transition-all"
                 >
-                  <span>{i18n.language === 'en' ? '🇬🇧' : '🇪🇸'}</span>
+                  <span>{i18n.language === "en" ? "🇬🇧" : "🇪🇸"}</span>
                   <span className="uppercase">{i18n.language}</span>
                 </button>
 
@@ -210,13 +231,16 @@ export default function Navbar() {
                       onClick={() => setIsOpen(false)}
                       className="block text-sm font-medium text-neutral-dark hover:text-primary"
                     >
-                      {t('auth.myProfile')}
+                      {t("auth.myProfile")}
                     </Link>
                     <button
-                      onClick={() => { setIsOpen(false); handleLogout(); }}
+                      onClick={() => {
+                        setIsOpen(false);
+                        handleLogout();
+                      }}
                       className="text-left text-sm font-medium text-red-600"
                     >
-                      {t('auth.logout')}
+                      {t("auth.logout")}
                     </button>
                   </div>
                 ) : (
@@ -225,7 +249,7 @@ export default function Navbar() {
                     onClick={() => setIsOpen(false)}
                     className="btn-primary !py-3 !px-6 !text-sm flex-1 text-center"
                   >
-                    {t('auth.login')}
+                    {t("auth.login")}
                   </Link>
                 )}
               </div>

@@ -10,6 +10,7 @@ import {
   Image,
   MessageSquareQuote,
   HelpCircle,
+  FileText,
   Settings,
   X,
 } from 'lucide-react';
@@ -25,6 +26,7 @@ const NAV_ITEMS = [
   { to: '/admin/gallery', icon: Image, label: 'Gallery' },
   { to: '/admin/testimonials', icon: MessageSquareQuote, label: 'Testimonials' },
   { to: '/admin/faqs', icon: HelpCircle, label: 'FAQs' },
+  { to: '/admin/about', icon: FileText, label: 'About Page' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 
