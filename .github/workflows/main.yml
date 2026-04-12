@@ -9,89 +9,96 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: 20
+
       - name: Install frontend deps
         run: |
           cd frontend
           npm install
+
       - name: Build frontend
         run: |
           cd frontend
           npm run build
+
       - name: Install admin deps
         run: |
           cd admin
           npm install
+
       - name: Build admin
         run: |
           cd admin
           npm run build
+
       - name: Check build output
         run: |
           echo "=== Frontend ==="
           ls -la backend/public/frontend/ || echo "MISSING"
           echo "=== Admin ==="
           ls -la backend/public/admin/ || echo "MISSING"
-      - name: Deploy frontend
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+
+      - name: Deploy everything via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          local-dir: backend/public/frontend/
-          server-dir: /public_html/
-      - name: Deploy admin
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 65002
+          script: |
+            BASE=/home/u679970628/domains/magenta-newt-861501.hostingersite.com
+            mkdir -p $BASE/backend
+            mkdir -p $BASE/public_html/admin
+
+      - name: Upload backend via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          local-dir: backend/public/admin/
-          server-dir: /public_html/admin/
-      - name: Deploy public_html config
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 65002
+          source: "backend/"
+          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/backend/"
+          strip_components: 1
+
+      - name: Upload frontend via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          local-dir: deploy/public_html/
-          server-dir: /public_html/
-      - name: Deploy backend
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 65002
+          source: "backend/public/frontend/"
+          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
+          strip_components: 3
+
+      - name: Upload admin via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          security: loose
-          local-dir: backend/
-          server-dir: /backend/
-          exclude: |
-            **/vendor/**
-            **/node_modules/**
-            **/.git*
-            **/.env
-            **/public/frontend/**
-            **/public/admin/**
-            **/public/storage
-            **/storage/logs/**
-            **/storage/framework/cache/**
-            **/storage/framework/sessions/**
-            **/storage/framework/views/**
-      - name: Post-deploy (composer install + artisan)
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 65002
+          source: "backend/public/admin/"
+          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/admin/"
+          strip_components: 3
+
+      - name: Upload public_html config via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 65002
+          source: "deploy/public_html/"
+          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
+          strip_components: 2
+
+      - name: Post-deploy (composer + artisan + symlink)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -108,14 +115,8 @@ jobs:
             php artisan migrate --force
             chmod -R 775 storage
             chmod -R 775 bootstrap/cache
-            echo "=== Copying frontend build to public_html ==="
-            cp -r $BASE/backend/public/frontend/. $BASE/public_html/
-            echo "=== Copying admin build to public_html/admin ==="
-            mkdir -p $BASE/public_html/admin
-            cp -r $BASE/backend/public/admin/. $BASE/public_html/admin/
-            echo "=== Fixing storage symlink ==="
             STORAGE_LINK=$BASE/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
             ln -s $BASE/backend/storage/app/public "$STORAGE_LINK"
-            echo "=== public_html contents ==="
+            echo "=== Done! public_html contents ==="
             ls -la $BASE/public_html/
