@@ -38,6 +38,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps 
           local-dir: backend/public/frontend/
           server-dir: /public_html/
       # Deploy admin SPA
