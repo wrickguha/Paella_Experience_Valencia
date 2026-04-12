@@ -38,7 +38,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps 
+          protocol: ftps
           local-dir: backend/public/frontend/
           server-dir: /public_html/
       # Deploy admin SPA
@@ -48,6 +48,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
           local-dir: backend/public/admin/
           server-dir: /public_html/admin/
       # Deploy .htaccess + api/ entry point
@@ -57,6 +58,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
           local-dir: deploy/public_html/
           server-dir: /public_html/
       # Deploy Laravel backend (excluding vendor, built assets, env)
@@ -66,6 +68,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
           local-dir: backend/
           server-dir: /backend/
           exclude: |
@@ -89,7 +92,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd ~/domains/magenta-newt-861501.hostingersite.com/backend || cd ~/backend || { echo "backend dir not found"; exit 1; }
+            cd /home/u679970628/backend
             php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
             php artisan config:cache
             php artisan route:cache
@@ -97,6 +100,6 @@ jobs:
             php artisan migrate --force
             chmod -R 775 storage
             chmod -R 775 bootstrap/cache
-            STORAGE_LINK=~/domains/magenta-newt-861501.hostingersite.com/public_html/storage
+            STORAGE_LINK=/home/u679970628/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s ~/domains/magenta-newt-861501.hostingersite.com/backend/storage/app/public "$STORAGE_LINK"
+            ln -s /home/u679970628/backend/storage/app/public "$STORAGE_LINK"
