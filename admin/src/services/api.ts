@@ -125,3 +125,13 @@ export const aboutApi = {
   delete: (id: number) => api.delete(`/admin/about/${id}`),
   reorder: (ids: number[]) => api.post('/admin/about/reorder', { ids }),
 };
+
+// ── Contact Messages ──
+export const messagesApi = {
+  list: (params?: Record<string, string | number>) => api.get('/admin/messages', { params }),
+  get: (id: number) => api.get(`/admin/messages/${id}`),
+  markRead: (id: number) => api.put(`/admin/messages/${id}/read`),
+  markUnread: (id: number) => api.put(`/admin/messages/${id}/unread`),
+  delete: (id: number) => api.delete(`/admin/messages/${id}`),
+  unreadCount: () => api.get('/admin/messages/unread-count'),
+};

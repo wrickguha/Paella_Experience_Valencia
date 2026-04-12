@@ -271,4 +271,20 @@ export async function fetchAbout(lang = 'en'): Promise<AboutData> {
   return res.data.data as AboutData;
 }
 
+// ── Contact ────────────────────────────────────────────────────────
+
+export async function fetchContactSettings(): Promise<Record<string, string>> {
+  const res = await apiClient.get('/settings', { params: { group: 'contact' } });
+  return res.data.data as Record<string, string>;
+}
+
+export async function sendContactMessage(data: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}): Promise<void> {
+  await apiClient.post('/contact', data);
+}
+
 export default apiClient;
