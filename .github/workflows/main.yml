@@ -99,9 +99,15 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            echo "=== REAL HOME DIR ==="
-            echo $HOME
-            pwd
-            ls -la ~/
-            echo "=== FIND BACKEND ==="
-            find / -name "artisan" -not -path "*/vendor/*" 2>/dev/null
+            BASE=/home/u679970628/domains/magenta-newt-861501.hostingersite.com
+            cd $BASE/backend
+            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
+            STORAGE_LINK=$BASE/public_html/storage
+            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
+            ln -s $BASE/backend/storage/app/public "$STORAGE_LINK"
