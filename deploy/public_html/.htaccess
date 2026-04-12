@@ -10,8 +10,8 @@
     # ── Admin SPA ───────────────────────────────────────────────────
     # Serve admin files if they exist, otherwise fall back to admin/index.html
     RewriteCond %{REQUEST_URI} ^/admin
-    RewriteCond %{DOCUMENT_ROOT}/admin/%{REQUEST_FILENAME} !-f
-    RewriteCond %{DOCUMENT_ROOT}/admin/%{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^admin/(.*)$ /admin/index.html [L]
 
     # ── Frontend SPA (catch-all) ────────────────────────────────────
