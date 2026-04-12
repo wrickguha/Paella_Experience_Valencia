@@ -89,7 +89,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd ~/backend
+            cd ~/domains/magenta-newt-861501.hostingersite.com/backend || cd ~/backend || { echo "backend dir not found"; exit 1; }
             php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
             php artisan config:cache
             php artisan route:cache
@@ -97,6 +97,6 @@ jobs:
             php artisan migrate --force
             chmod -R 775 storage
             chmod -R 775 bootstrap/cache
-            STORAGE_LINK=~/public_html/storage
+            STORAGE_LINK=~/domains/magenta-newt-861501.hostingersite.com/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s ~/backend/storage/app/public "$STORAGE_LINK"
+            ln -s ~/domains/magenta-newt-861501.hostingersite.com/backend/storage/app/public "$STORAGE_LINK"
