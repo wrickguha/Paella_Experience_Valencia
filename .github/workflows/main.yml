@@ -70,7 +70,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: backend/
-          server-dir: /backend/
+          server-dir: /public_html/backend/
           exclude: |
             **/vendor/**
             **/node_modules/**
@@ -92,7 +92,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            cd /home/u679970628/backend
+            cd /home/u679970628/public_html/backend
             php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
             php artisan config:cache
             php artisan route:cache
@@ -102,4 +102,4 @@ jobs:
             chmod -R 775 bootstrap/cache
             STORAGE_LINK=/home/u679970628/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s /home/u679970628/backend/storage/app/public "$STORAGE_LINK"
+            ln -s /home/u679970628/public_html/backend/storage/app/public "$STORAGE_LINK"
