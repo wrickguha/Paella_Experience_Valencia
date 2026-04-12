@@ -4,7 +4,8 @@
     # ── API & Backend routes → Laravel ──────────────────────────────
     # Any request starting with /api goes to Laravel
     RewriteCond %{REQUEST_URI} ^/api(/|$) [NC]
-    RewriteRule ^(.*)$ /api/index.php/$1 [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ /api/index.php [L]
 
     # ── Admin SPA ───────────────────────────────────────────────────
     # Serve admin files if they exist, otherwise fall back to admin/index.html
