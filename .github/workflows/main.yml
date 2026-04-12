@@ -13,7 +13,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
-      # Build frontend
       - name: Install frontend deps
         run: |
           cd frontend
@@ -22,7 +21,6 @@ jobs:
         run: |
           cd frontend
           npm run build
-      # Build admin
       - name: Install admin deps
         run: |
           cd admin
@@ -31,14 +29,13 @@ jobs:
         run: |
           cd admin
           npm run build
-
-      - name: Check frontend build output
+      - name: Check build output
         run: |
-          echo "=== Frontend build output ==="
-          ls -la backend/public/frontend/ || echo "FOLDER DOES NOT EXIST"
-          echo "=== Admin build output ==="
-          ls -la backend/public/admin/ || echo "FOLDER DOES NOT EXIST"
-      # Deploy frontend SPA
+          echo "=== Frontend ==="
+          ls -la backend/public/frontend/ || echo "MISSING"
+          echo "=== Admin ==="
+          ls -la backend/public/admin/ || echo "MISSING"
+      # Deploy frontend SPA — FTP root IS public_html, so / = public_html/
       - name: Deploy frontend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -49,7 +46,7 @@ jobs:
           port: 21
           security: loose
           local-dir: backend/public/frontend/
-          server-dir: /public_html/
+          server-dir: /
       # Deploy admin SPA
       - name: Deploy admin
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -61,7 +58,7 @@ jobs:
           port: 21
           security: loose
           local-dir: backend/public/admin/
-          server-dir: /public_html/admin/
+          server-dir: /admin/
       # Deploy .htaccess + api/ entry point
       - name: Deploy public_html config
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
@@ -73,8 +70,8 @@ jobs:
           port: 21
           security: loose
           local-dir: deploy/public_html/
-          server-dir: /public_html/
-      # Deploy Laravel backend (excluding vendor, built assets, env)
+          server-dir: /
+      # Deploy Laravel backend
       - name: Deploy backend
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
@@ -85,7 +82,7 @@ jobs:
           port: 21
           security: loose
           local-dir: backend/
-          server-dir: /public_html/backend/
+          server-dir: /backend/
           exclude: |
             **/vendor/**
             **/node_modules/**
@@ -98,8 +95,8 @@ jobs:
             **/storage/framework/cache/**
             **/storage/framework/sessions/**
             **/storage/framework/views/**
-      # Debug: find where files actually landed
-      - name: Debug server paths
+      # Post-deploy via SSH
+      - name: Post-deploy (composer install + artisan)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -107,11 +104,14 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: 65002
           script: |
-            echo "=== HOME DIR ==="
-            ls -la ~/
-            echo "=== PUBLIC_HTML ==="
-            ls -la ~/public_html/
-            echo "=== FINDING artisan ==="
-            find ~/ -name "artisan" 2>/dev/null
-            echo "=== FINDING composer.json ==="
-            find ~/ -name "composer.json" 2>/dev/null | grep -v vendor
+            cd /home/u679970628/public_html/backend
+            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan migrate --force
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
+            STORAGE_LINK=/home/u679970628/public_html/storage
+            if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
+            ln -s /home/u679970628/public_html/backend/storage/app/public "$STORAGE_LINK"
