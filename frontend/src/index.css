@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --color-primary: #032451;
+  --color-primary-light: #0a3a75;
+  --color-primary-dark: #021a3a;
+  --color-bg-main: #f5efe6;
+  --color-bg-secondary: #e8ceb0;
+  --color-accent: #f4a261;
+  --color-accent-alt: #d4a373;
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #6b7280;
+  --color-white: #ffffff;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -10,23 +23,31 @@
   }
 
   body {
-    @apply font-body text-neutral-dark bg-white;
+    @apply font-modern text-text-primary bg-bg-main;
   }
 
   h1, h2, h3, h4 {
-    @apply font-display;
+    @apply font-modern text-primary;
   }
 }
 
 @layer components {
+  .font-script {
+    @apply font-script-family;
+  }
+  
+  .font-modern {
+    @apply font-modern-family;
+  }
+
   .btn-primary {
-    @apply bg-primary text-white font-heading font-semibold px-8 py-4 rounded-xl
-           hover:bg-primary-600 transition-all duration-300 shadow-soft hover:shadow-card
+    @apply bg-accent text-white font-modern font-semibold px-8 py-4 rounded-xl
+           hover:bg-accent-alt transition-all duration-300 shadow-soft hover:shadow-card
            active:scale-[0.98] text-lg;
   }
 
   .btn-secondary {
-    @apply bg-white text-primary border-2 border-primary font-heading font-semibold px-8 py-4 rounded-xl
+    @apply bg-white text-primary border-2 border-primary font-modern font-semibold px-8 py-4 rounded-xl
            hover:bg-primary hover:text-white transition-all duration-300
            active:scale-[0.98] text-lg;
   }

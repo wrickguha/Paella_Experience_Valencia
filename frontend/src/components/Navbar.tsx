@@ -47,16 +47,14 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-soft">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-primary shadow-soft">
       <div className="container-max px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <span className="text-white text-xl">🥘</span>
-            </div>
-            <span className="font-display text-xl font-bold text-neutral-dark hidden sm:block">
-              Paella Experience
+            <img src="/speakeasylogo.jpeg" alt="Speakeasy Valencia Logo" className="w-12 h-12 object-cover rounded-xl" />
+            <span className="font-script text-3xl font-bold text-white hidden sm:block">
+              Speakeasy Valencia
             </span>
           </Link>
 
@@ -66,10 +64,10 @@ export default function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-body text-sm font-medium transition-colors hover:text-primary ${
+                className={`font-modern text-sm font-medium transition-colors hover:text-accent ${
                   location.pathname === link.to
-                    ? "text-primary"
-                    : "text-neutral-gray"
+                    ? "text-accent"
+                    : "text-gray-300"
                 }`}
               >
                 {link.label}
@@ -82,9 +80,9 @@ export default function Navbar() {
             <button
               onClick={toggleLanguage}
               className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium
-                         text-neutral-gray hover:text-neutral-dark hover:bg-neutral-beige transition-all"
+                         text-gray-300 hover:text-white hover:bg-white/10 transition-all"
             >
-              <span className="flex items-center gap-2 text-sm font-medium text-neutral-700">
+              <span className="flex items-center gap-2 text-sm font-medium">
                 <span className="text-lg opacity-80">
                   <FiGlobe />
                 </span>
@@ -97,9 +95,9 @@ export default function Navbar() {
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
-                             text-neutral-dark hover:bg-neutral-beige transition-all"
+                             text-white hover:bg-white/10 transition-all"
                 >
-                  <span className="w-8 h-8 bg-primary/10 text-primary rounded-full flex items-center justify-center text-sm font-bold">
+                  <span className="w-8 h-8 bg-accent/20 text-accent rounded-full flex items-center justify-center text-sm font-bold">
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                   <span className="max-w-[120px] truncate">{user.name}</span>
@@ -166,22 +164,22 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-neutral-beige transition-colors"
+            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors"
             aria-label="Toggle menu"
           >
             <div className="w-6 h-5 relative flex flex-col justify-between">
               <span
-                className={`block h-0.5 w-6 bg-neutral-dark rounded transition-all ${
+                className={`block h-0.5 w-6 bg-white rounded transition-all ${
                   isOpen ? "rotate-45 translate-y-2" : ""
                 }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-neutral-dark rounded transition-all ${
+                className={`block h-0.5 w-6 bg-white rounded transition-all ${
                   isOpen ? "opacity-0" : ""
                 }`}
               />
               <span
-                className={`block h-0.5 w-6 bg-neutral-dark rounded transition-all ${
+                className={`block h-0.5 w-6 bg-white rounded transition-all ${
                   isOpen ? "-rotate-45 -translate-y-2" : ""
                 }`}
               />
@@ -197,7 +195,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white border-t border-neutral-beige overflow-hidden"
+            className="md:hidden bg-primary border-t border-white/10 overflow-hidden"
           >
             <div className="px-4 py-6 space-y-4">
               {navLinks.map((link) => (
@@ -205,20 +203,20 @@ export default function Navbar() {
                   key={link.to}
                   to={link.to}
                   onClick={() => setIsOpen(false)}
-                  className={`block py-2 font-body text-base font-medium transition-colors ${
+                  className={`block py-2 font-modern text-base font-medium transition-colors ${
                     location.pathname === link.to
-                      ? "text-primary"
-                      : "text-neutral-gray"
+                      ? "text-accent"
+                      : "text-gray-300"
                   }`}
                 >
                   {link.label}
                 </Link>
               ))}
-              <div className="flex items-center gap-4 pt-4 border-t border-neutral-beige">
+              <div className="flex items-center gap-4 pt-4 border-t border-white/10">
                 <button
                   onClick={toggleLanguage}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium
-                             text-neutral-gray hover:bg-neutral-beige transition-all"
+                             text-gray-300 hover:bg-white/10 transition-all"
                 >
                   <span>{i18n.language === "en" ? "🇬🇧" : "🇪🇸"}</span>
                   <span className="uppercase">{i18n.language}</span>
@@ -229,7 +227,7 @@ export default function Navbar() {
                     <Link
                       to="/profile"
                       onClick={() => setIsOpen(false)}
-                      className="block text-sm font-medium text-neutral-dark hover:text-primary"
+                      className="block text-sm font-medium text-white hover:text-accent"
                     >
                       {t("auth.myProfile")}
                     </Link>

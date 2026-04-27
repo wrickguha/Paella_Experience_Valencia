@@ -5,16 +5,14 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-neutral-dark text-white">
+    <footer className="bg-primary text-white">
       <div className="container-max px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-white text-xl">🥘</span>
-              </div>
-              <span className="font-display text-lg font-bold">Paella Experience</span>
+              <img src="/speakeasylogo.jpeg" alt="Speakeasy Valencia Logo" className="w-12 h-12 object-cover rounded-xl" />
+              <span className="font-script text-3xl font-bold">Speakeasy Valencia</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
               {t('footer.description')}
@@ -23,7 +21,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-heading font-semibold text-sm uppercase tracking-wider mb-4">
+            <h4 className="font-modern font-semibold text-sm uppercase tracking-wider mb-4">
               {t('footer.quickLinks')}
             </h4>
             <ul className="space-y-3">
@@ -36,7 +34,7 @@ export default function Footer() {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="text-gray-400 text-sm hover:text-primary transition-colors"
+                    className="text-gray-400 text-sm hover:text-accent transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -47,22 +45,22 @@ export default function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-heading font-semibold text-sm uppercase tracking-wider mb-4">
+            <h4 className="font-modern font-semibold text-sm uppercase tracking-wider mb-4">
               {t('footer.legal')}
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-400 text-sm hover:text-primary transition-colors">
+                <a href="#" className="text-gray-400 text-sm hover:text-accent transition-colors">
                   {t('footer.privacy')}
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 text-sm hover:text-primary transition-colors">
+                <a href="#" className="text-gray-400 text-sm hover:text-accent transition-colors">
                   {t('footer.terms')}
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-400 text-sm hover:text-primary transition-colors">
+                <a href="#" className="text-gray-400 text-sm hover:text-accent transition-colors">
                   {t('footer.cookies')}
                 </a>
               </li>
@@ -71,7 +69,7 @@ export default function Footer() {
 
           {/* Social */}
           <div>
-            <h4 className="font-heading font-semibold text-sm uppercase tracking-wider mb-4">
+            <h4 className="font-modern font-semibold text-sm uppercase tracking-wider mb-4">
               {t('footer.followUs')}
             </h4>
             <div className="flex gap-4">
@@ -80,7 +78,7 @@ export default function Footer() {
                   key={platform}
                   href="#"
                   className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center
-                             hover:bg-primary transition-colors text-sm font-medium"
+                             hover:bg-accent hover:text-white transition-colors text-sm font-medium"
                   aria-label={platform}
                 >
                   {platform[0]}
