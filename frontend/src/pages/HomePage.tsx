@@ -7,6 +7,7 @@ import HowItWorks from '@/components/HowItWorks';
 import UpcomingEvents from '@/components/UpcomingEvents';
 import Testimonials from '@/components/Testimonials';
 import FinalCTA from '@/components/FinalCTA';
+import FancyButton from '@/components/ui/FancyButton';
 
 export default function HomePage() {
   useScrollToTop();
@@ -21,6 +22,11 @@ export default function HomePage() {
       <UpcomingEvents />
       <Testimonials />
       <FinalCTA />
+
+      <div className="fixed bottom-6 right-6 z-50">
+        <FancyButton />
+      </div>
+
     </>
   );
 }

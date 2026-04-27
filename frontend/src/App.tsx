@@ -23,6 +23,9 @@ function LoadingFallback() {
         <p className="text-neutral-gray font-body text-sm">Loading...</p>
       </div>
     </div>
+
+    
+
   );
 }
 
