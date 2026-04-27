@@ -1,74 +1,76 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { motion } from "framer-motion";
+import Button from "./ui/Button";
 
 export default function HeroSection() {
   const { t } = useTranslation();
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2, delayChildren: 0.3 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+      <motion.div 
+        initial={{ scale: 1.1 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 2, ease: "easeOut" }}
+        className="absolute inset-0 z-0"
+      >
         <img
           src="https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=1600&q=80"
           alt="Paella cooking"
           className="w-full h-full object-cover"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+      </motion.div>
 
       {/* Content */}
       <div className="container-max relative z-10 px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
           className="max-w-3xl"
         >
-          {/* Star rating badge removed as requested */}
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
+          <motion.h1 variants={itemVariants} className="font-modern text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6">
             {t("hero.title")}
-          </h1>
+          </motion.h1>
 
-          <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl leading-relaxed">
+          <motion.p variants={itemVariants} className="text-lg sm:text-xl text-white/90 font-modern mb-10 max-w-2xl leading-relaxed">
             {t("hero.subtitle")}
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              to="/booking"
-              className="btn-primary !text-lg !px-10 !py-5 text-center"
-            >
-              {t("hero.cta")}
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 items-center">
+            <Link to="/booking" className="btn-uiverse">
+              <svg 
+                className="w-6 h-6" 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+              <span className="now">Let's Go!</span>
+              <span className="play">{t("hero.cta")}</span>
             </Link>
-            <Link
-              to="/experience"
-              className="
-    relative inline-flex items-center justify-center
-    text-lg font-semibold px-10 py-5
-    text-white rounded-xl
-    bg-gradient-to-r from-orange-500 via-pink-500 to-purple-500
-    shadow-lg shadow-orange-500/30
-    transition-all duration-300 ease-in-out
-    hover:scale-105 hover:shadow-purple-500/40
-    active:scale-95
-    overflow-hidden
-  "
-            >
-              <span className="relative z-10">{t("hero.scrollDown")}</span>
-
-              {/* Shine effect */}
-              <span
-                className="
-    absolute inset-0
-    bg-white/10 opacity-0
-    hover:opacity-100
-    transition duration-300
-  "
-              ></span>
-            </Link>
-          </div>
+            <Button variant="premium" href="/experience" className="!px-10 !py-5">
+              {t("hero.scrollDown")}
+            </Button>
+          </motion.div>
         </motion.div>
       </div>
 

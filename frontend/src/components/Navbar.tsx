@@ -4,11 +4,13 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { FiGlobe } from "react-icons/fi";
+import ScrollProgress from "./ui/ScrollProgress";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -17,6 +19,14 @@ export default function Navbar() {
   const toggleLanguage = () => {
     i18n.changeLanguage(i18n.language === "en" ? "es" : "en");
   };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Close user dropdown when clicking outside
   useEffect(() => {
@@ -47,7 +57,9 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-primary shadow-soft">
+    <>
+    <ScrollProgress />
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-primary/95 backdrop-blur-md shadow-soft py-0' : 'bg-primary py-2'}`}>
       <div className="container-max px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -64,7 +76,7 @@ export default function Navbar() {
               <Link
                 key={link.to}
                 to={link.to}
-                className={`font-modern text-sm font-medium transition-colors hover:text-accent ${
+                className={`font-modern text-sm font-medium transition-colors hover:text-accent link-underline pb-1 ${
                   location.pathname === link.to
                     ? "text-accent"
                     : "text-gray-300"
@@ -256,5 +268,6 @@ export default function Navbar() {
         )}
       </AnimatePresence>
     </nav>
+    </>
   );
 }

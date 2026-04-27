@@ -10,6 +10,7 @@
   --color-bg-secondary: #e8ceb0;
   --color-accent: #f4a261;
   --color-accent-alt: #d4a373;
+  --color-luxury-accent: #d4a373;
   --color-text-primary: #1a1a1a;
   --color-text-secondary: #6b7280;
   --color-white: #ffffff;
@@ -43,13 +44,54 @@
   .btn-primary {
     @apply bg-accent text-white font-modern font-semibold px-8 py-4 rounded-xl
            hover:bg-accent-alt transition-all duration-300 shadow-soft hover:shadow-card
-           active:scale-[0.98] text-lg;
+           hover:scale-105 active:scale-95 text-lg inline-flex items-center justify-center;
   }
 
   .btn-secondary {
     @apply bg-white text-primary border-2 border-primary font-modern font-semibold px-8 py-4 rounded-xl
-           hover:bg-primary hover:text-white transition-all duration-300
-           active:scale-[0.98] text-lg;
+           hover:bg-primary hover:text-white transition-all duration-300 shadow-soft hover:shadow-card
+           hover:scale-105 active:scale-95 text-lg inline-flex items-center justify-center;
+  }
+
+  /* Uiverse Animated Button */
+  .btn-uiverse {
+    @apply inline-flex items-center justify-center gap-[10px] px-8 py-5 text-white uppercase cursor-pointer 
+           tracking-[1px] font-semibold text-lg bg-accent rounded-full relative overflow-hidden shadow-soft 
+           font-modern transition-all duration-500 ease-in-out hover:shadow-card active:scale-90 active:duration-100;
+  }
+
+  .btn-uiverse svg {
+    transition: all 0.5s ease;
+    z-index: 2;
+  }
+
+  .btn-uiverse .play {
+    transition: all 0.5s ease;
+    transition-delay: 300ms;
+    white-space: nowrap;
+  }
+
+  .btn-uiverse:hover svg {
+    transform: scale(2.5) translate(-10%);
+  }
+
+  .btn-uiverse .now {
+    position: absolute;
+    right: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease;
+    z-index: 2;
+    white-space: nowrap;
+  }
+
+  .btn-uiverse:hover .now {
+    transform: translateX(-40px);
+    transition-delay: 300ms;
+  }
+
+  .btn-uiverse:hover .play {
+    transform: translateX(200%);
+    transition-delay: 300ms;
   }
 
   .section-padding {
@@ -61,6 +103,18 @@
   }
 
   .card {
-    @apply bg-white rounded-2xl shadow-card p-6 sm:p-8;
+    @apply bg-white rounded-2xl shadow-card p-6 sm:p-8 transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-elevated;
+  }
+
+  .hover-zoom {
+    @apply transition-transform duration-300 ease-in-out hover:scale-105;
+  }
+
+  .link-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-accent after:transition-all after:duration-300 hover:after:w-full;
+  }
+
+  .input-base {
+    @apply w-full px-4 py-3 rounded-xl border-2 border-neutral-sand bg-white text-text-primary transition-colors duration-300 outline-none focus:border-accent focus:ring-2 focus:ring-accent/20;
   }
 }

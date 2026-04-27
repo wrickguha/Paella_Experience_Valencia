@@ -19,6 +19,9 @@ export default {
           DEFAULT: 'var(--color-accent)',
           alt: 'var(--color-accent-alt)',
         },
+        luxury: {
+          DEFAULT: 'var(--color-accent-alt)',
+        },
         bg: {
           main: 'var(--color-bg-main)',
           secondary: 'var(--color-bg-secondary)',
@@ -51,6 +54,21 @@ export default {
         'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
         'card': '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 30px -5px rgba(0, 0, 0, 0.04)',
         'elevated': '0 20px 60px -15px rgba(0, 0, 0, 0.15)',
+      },
+      keyframes: {
+        'gradient-x': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center'
+          },
+        },
+      },
+      animation: {
+        'gradient-x': 'gradient-x 5s ease infinite',
       },
     },
   },
