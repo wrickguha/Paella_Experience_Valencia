@@ -28,6 +28,9 @@ class Booking extends Model
         'total_price',
         'payment_status',
         'payment_id',
+        'language_preference',
+        'notes',
+        'status',
     ];
 
     protected $casts = [

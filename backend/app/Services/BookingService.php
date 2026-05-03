@@ -50,6 +50,9 @@ class BookingService
                 'guests' => $requestedGuests,
                 'total_price' => $totalPrice,
                 'payment_status' => 'pending',
+                'language_preference' => $data['language_preference'] ?? null,
+                'notes' => $data['notes'] ?? null,
+                'status' => 'pending',
             ]);
 
             // Increment booked_slots

@@ -22,9 +22,17 @@ use App\Http\Controllers\Admin\TestimonialController as AdminTestimonialControll
 use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Admin\SettingController as AdminSettingController;
 use App\Http\Controllers\API\AboutController;
+use App\Http\Controllers\API\ActivityController;
+use App\Http\Controllers\API\CommunityController;
 use App\Http\Controllers\API\ContactController;
+use App\Http\Controllers\API\LanguageSessionController;
+use App\Http\Controllers\API\LeadController;
 use App\Http\Controllers\Admin\AboutController as AdminAboutController;
+use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
+use App\Http\Controllers\Admin\CommunityMemberController as AdminCommunityMemberController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
+use App\Http\Controllers\Admin\LanguageSessionController as AdminLanguageSessionController;
+use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +56,14 @@ Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/about', [AboutController::class, 'index']);
 Route::post('/contact', [ContactController::class, 'store']);
+
+// Community, Language, Activities & Leads
+Route::get('/activities', [ActivityController::class, 'index']);
+Route::get('/community', [CommunityController::class, 'index']);
+Route::post('/community/join', [CommunityController::class, 'join']);
+Route::get('/languages', [LanguageSessionController::class, 'index']);
+Route::post('/language/join', [LanguageSessionController::class, 'join']);
+Route::post('/leads', [LeadController::class, 'store']);
 
 /*
 |--------------------------------------------------------------------------
@@ -180,4 +196,25 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::put('/messages/{contactMessage}/read', [AdminContactMessageController::class, 'markRead']);
     Route::put('/messages/{contactMessage}/unread', [AdminContactMessageController::class, 'markUnread']);
     Route::delete('/messages/{contactMessage}', [AdminContactMessageController::class, 'destroy']);
+
+    // Activities
+    Route::get('/activities', [AdminActivityController::class, 'index']);
+    Route::post('/activities', [AdminActivityController::class, 'store']);
+    Route::put('/activities/{id}', [AdminActivityController::class, 'update']);
+    Route::delete('/activities/{id}', [AdminActivityController::class, 'destroy']);
+
+    // Community Members
+    Route::get('/community', [AdminCommunityMemberController::class, 'index']);
+    Route::put('/community/{id}', [AdminCommunityMemberController::class, 'update']);
+    Route::delete('/community/{id}', [AdminCommunityMemberController::class, 'destroy']);
+
+    // Language Sessions
+    Route::get('/language-sessions', [AdminLanguageSessionController::class, 'index']);
+    Route::post('/language-sessions', [AdminLanguageSessionController::class, 'store']);
+    Route::put('/language-sessions/{id}', [AdminLanguageSessionController::class, 'update']);
+    Route::delete('/language-sessions/{id}', [AdminLanguageSessionController::class, 'destroy']);
+
+    // Leads
+    Route::get('/leads', [AdminLeadController::class, 'index']);
+    Route::get('/leads/stats', [AdminLeadController::class, 'stats']);
 });

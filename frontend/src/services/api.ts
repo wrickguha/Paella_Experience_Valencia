@@ -287,4 +287,76 @@ export async function sendContactMessage(data: {
   await apiClient.post('/contact', data);
 }
 
+// ── Activities API ─────────────────────────────────────────────────
+export interface ActivityItem {
+  id: number;
+  title: string;
+  description: string | null;
+  icon: string;
+}
+
+export async function fetchActivities(lang = 'en'): Promise<ActivityItem[]> {
+  const res = await apiClient.get('/activities', { params: { lang } });
+  return res.data.data as ActivityItem[];
+}
+
+// ── Community API ──────────────────────────────────────────────────
+export interface CommunityMember {
+  id: number;
+  name: string;
+  bio: string | null;
+  avatar: string | null;
+  country: string | null;
+  joined_at: string | null;
+}
+
+export async function fetchCommunityMembers(): Promise<CommunityMember[]> {
+  const res = await apiClient.get('/community');
+  return res.data.data as CommunityMember[];
+}
+
+export async function joinCommunity(data: {
+  name: string;
+  email: string;
+  bio?: string;
+  phone?: string;
+  country?: string;
+}): Promise<void> {
+  await apiClient.post('/community/join', data);
+}
+
+// ── Language Sessions API ──────────────────────────────────────────
+export interface LanguageSessionItem {
+  id: number;
+  title: string;
+  description: string | null;
+  language_type: 'spanish' | 'english' | 'both';
+  skill_level: string | null;
+}
+
+export async function fetchLanguageSessions(lang = 'en'): Promise<LanguageSessionItem[]> {
+  const res = await apiClient.get('/languages', { params: { lang } });
+  return res.data.data as LanguageSessionItem[];
+}
+
+export async function joinLanguageSession(data: {
+  name: string;
+  email: string;
+  language_type: 'spanish' | 'english' | 'both';
+  skill_level?: string;
+}): Promise<void> {
+  await apiClient.post('/language/join', data);
+}
+
+// ── Lead Tracking API ──────────────────────────────────────────────
+export async function trackLead(data: {
+  source: 'whatsapp' | 'community_cta' | 'community_join' | 'language_join' | 'contact';
+  name?: string;
+  email?: string;
+  phone?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<void> {
+  await apiClient.post('/leads', data);
+}
+
 export default apiClient;

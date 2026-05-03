@@ -13,39 +13,7 @@ export default function Testimonials() {
     setLoading(true);
     fetchTestimonials(i18n.language)
       .then(fetchedItems => {
-        const communityTestimonials: Testimonial[] = [
-          {
-            id: 101,
-            name: "Alex & Maria",
-            location: "Berlin, Germany",
-            rating: 5,
-            review: i18n.language === 'es' 
-              ? "¡No es solo una clase de cocina! Conocimos a gente increíble de todo el mundo e incluso practicamos nuestro español. Un ambiente comunitario muy vibrante." 
-              : "Not just a cooking class! We met amazing people from all over the world and even practiced our Spanish. Such a vibrant community feel.",
-            avatar: null
-          },
-          {
-            id: 102,
-            name: "David Wilson",
-            location: "New York, USA",
-            rating: 5,
-            review: i18n.language === 'es'
-              ? "La parte del intercambio de idiomas fue muy natural. Aprendí más español en 3 horas cocinando que en una semana de clases. ¡Además, el ambiente era de 10!"
-              : "The language exchange part was so natural. I learned more Spanish in 3 hours of cooking than in a week of classes. Plus, the vibe was 10/10!",
-            avatar: null
-          },
-          {
-            id: 103,
-            name: "Sophie Laurent",
-            location: "Paris, France",
-            rating: 5,
-            review: i18n.language === 'es'
-              ? "Una experiencia social maravillosa. Vine sola y me fui con tres nuevos amigos. Las risas y la conexión fueron tan buenas como la paella."
-              : "A wonderful social experience. I came alone and left with three new friends. The laughter and connection were just as good as the paella.",
-            avatar: null
-          }
-        ];
-        setItems([...fetchedItems, ...communityTestimonials]);
+        setItems(fetchedItems);
       })
       .catch(() => setItems([]))
       .finally(() => setLoading(false));
