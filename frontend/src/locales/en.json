@@ -170,6 +170,71 @@
       }
     ]
   },
+  "community": {
+    "title": "Meet the Community",
+    "subtitle": "People from different places come together for more than just food.",
+    "items": [
+      {
+        "title": "Travelers & Locals",
+        "description": "Connect with people from all over the world and Valencia.",
+        "image": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800"
+      },
+      {
+        "title": "Make New Friends",
+        "description": "Our experiences are designed to foster genuine human connections.",
+        "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=800"
+      },
+      {
+        "title": "Shared Experiences",
+        "description": "Create lasting memories while learning and laughing together.",
+        "image": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800"
+      }
+    ]
+  },
+  "language": {
+    "title": "Learn While You Experience",
+    "subtitle": "Master Spanish and English through real-life conversations in a relaxed atmosphere.",
+    "points": [
+      "Real-life speaking practice",
+      "No classroom pressure",
+      "Learn while cooking & socializing"
+    ]
+  },
+  "activities": {
+    "title": "More Than Cooking",
+    "items": [
+      {
+        "title": "Icebreaker Games",
+        "description": "Fun activities to get everyone talking and laughing."
+      },
+      {
+        "title": "Cultural Exchange",
+        "description": "Share stories and traditions from your own culture."
+      },
+      {
+        "title": "Music & Vibe",
+        "description": "The perfect soundtrack to set the mood for connection."
+      },
+      {
+        "title": "Group Interaction",
+        "description": "Collaborative tasks that bring everyone together."
+      }
+    ]
+  },
+  "flow": {
+    "title": "The Experience Flow",
+    "steps": [
+      { "id": 1, "title": "Meet & Greet", "description": "Welcome drink and introductions." },
+      { "id": 2, "title": "Icebreaker", "description": "Fun games to break the ice." },
+      { "id": 3, "title": "Cook Together", "description": "Hands-on paella preparation." },
+      { "id": 4, "title": "Language Interaction", "description": "Practice phrases while cooking." },
+      { "id": 5, "title": "Eat & Connect", "description": "Enjoy the meal and shared stories." }
+    ]
+  },
+  "cta": {
+    "join_community": "Join Community",
+    "join_whatsapp": "Join WhatsApp Group"
+  },
   "faq": {
     "title": "Frequently Asked Questions",
     "subtitle": "Everything you need to know",

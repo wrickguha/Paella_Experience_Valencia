@@ -170,6 +170,71 @@
       }
     ]
   },
+  "community": {
+    "title": "Conoce a la Comunidad",
+    "subtitle": "Personas de diferentes lugares se unen por algo más que comida.",
+    "items": [
+      {
+        "title": "Viajeros y Locales",
+        "description": "Conecta con personas de todo el mundo y de Valencia.",
+        "image": "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&q=80&w=800"
+      },
+      {
+        "title": "Haz Nuevos Amigos",
+        "description": "Nuestras experiencias están diseñadas para fomentar conexiones humanas genuinas.",
+        "image": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=800"
+      },
+      {
+        "title": "Experiencias Compartidas",
+        "description": "Crea recuerdos duraderos mientras aprendéis y reís juntos.",
+        "image": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800"
+      }
+    ]
+  },
+  "language": {
+    "title": "Aprende Mientras Vives la Experiencia",
+    "subtitle": "Domina el español y el inglés a través de conversaciones reales en un ambiente relajado.",
+    "points": [
+      "Práctica de conversación real",
+      "Sin presión de aula",
+      "Aprende mientras cocinas y socializas"
+    ]
+  },
+  "activities": {
+    "title": "Más que Cocinar",
+    "items": [
+      {
+        "title": "Juegos Rompehielo",
+        "description": "Actividades divertidas para que todos hablen y se rían."
+      },
+      {
+        "title": "Intercambio Cultural",
+        "description": "Comparte historias y tradiciones de tu propia cultura."
+      },
+      {
+        "title": "Música y Ambiente",
+        "description": "La banda sonora perfecta para crear un ambiente de conexión."
+      },
+      {
+        "title": "Interacción Grupal",
+        "description": "Tareas colaborativas que unen a todos."
+      }
+    ]
+  },
+  "flow": {
+    "title": "El Flujo de la Experiencia",
+    "steps": [
+      { "id": 1, "title": "Bienvenida", "description": "Bebida de bienvenida y presentaciones." },
+      { "id": 2, "title": "Rompehielo", "description": "Juegos divertidos para romper el hielo." },
+      { "id": 3, "title": "Cocinar Juntos", "description": "Preparación práctica de la paella." },
+      { "id": 4, "title": "Interacción de Idiomas", "description": "Practica frases mientras cocinas." },
+      { "id": 5, "title": "Comer y Conectar", "description": "Disfruta de la comida e historias compartidas." }
+    ]
+  },
+  "cta": {
+    "join_community": "Unirse a la Comunidad",
+    "join_whatsapp": "Unirse al Grupo de WhatsApp"
+  },
   "faq": {
     "title": "Preguntas Frecuentes",
     "subtitle": "Todo lo que necesitas saber",
