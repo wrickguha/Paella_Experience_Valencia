@@ -15,7 +15,7 @@ function AboutHero() {
       <div className="absolute inset-0">
         <img
           src="https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=1600&q=80"
-          alt="About Speakeasy Valencia"
+          alt="About SpeakEasy Valencia"
           className="w-full h-full object-cover"
           loading="eager"
         />
