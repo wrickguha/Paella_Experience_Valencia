@@ -10,7 +10,7 @@
   "hero": {
     "title": "The Authentic Paella Experience",
     "subtitle": "Cook, Learn & Taste in the Heart of Valencia",
-    "cta": "Book Your Experience",
+    "cta": "Join the Experience",
     "scrollDown": "Discover More"
   },
   "socialProof": {
@@ -268,7 +268,7 @@
   "finalCta": {
     "title": "Ready for an Unforgettable Experience?",
     "subtitle": "Spaces fill up fast — secure your spot today",
-    "cta": "Book Your Experience Now"
+    "cta": "Join the Community Now"
   },
   "about": {
     "valuesTitle": "What We Stand For",
@@ -285,6 +285,48 @@
       "title": "Authentic Paella Experience in Valencia",
       "subtitle": "A hands-on culinary journey through Valencia's most iconic dish"
     },
+    "community_intro": {
+      "title": "This is not just cooking.",
+      "content": "You will meet new people, communicate, and share cultures in an environment that feels like home.",
+      "highlights": [
+        "🤝 Meet people from different backgrounds",
+        "🗣️ Practice Spanish & English naturally",
+        "🎉 Enjoy interactive group activities",
+        "🍳 Cook and dine together"
+      ]
+    },
+    "micro_flow": {
+      "title": "What Happens During the Experience",
+      "steps": [
+        { "title": "Welcome & Introductions", "description": "Meet your fellow travelers and hosts." },
+        { "title": "Icebreaker Interactions", "description": "Fun activities to get the conversation flowing." },
+        { "title": "Cooking Together", "description": "Collaborate on the perfect paella." },
+        { "title": "Language Interaction Moments", "description": "Learn key phrases in a natural setting." },
+        { "title": "Shared Dining & Bonding", "description": "Enjoy the feast and new friendships." }
+      ]
+    },
+    "inline_language": {
+      "title": "Learn Spanish & English while you experience",
+      "content": "Real conversations, not classroom lessons."
+    },
+    "inline_activities": {
+      "title": "Fun & Activities",
+      "items": [
+        { "title": "Icebreaker Games", "icon": "PartyPopper" },
+        { "title": "Cultural Exchange", "icon": "Globe2" },
+        { "title": "Music & Vibes", "icon": "Music" }
+      ]
+    },
+    "inline_testimonials": [
+      {
+        "text": "Met amazing people from all over the world. It felt like a community from the start!",
+        "author": "Lukas, Germany"
+      },
+      {
+        "text": "Learned more Spanish while cooking than I did in a week of classes. So natural!",
+        "author": "Elena, Spain"
+      }
+    ],
     "intro": {
       "title": "More Than a Cooking Class",
       "subtitle": "An immersive cultural experience",

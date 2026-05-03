@@ -285,6 +285,48 @@
       "title": "Auténtica Experiencia de Paella en Valencia",
       "subtitle": "Un viaje culinario práctico a través del plato más icónico de Valencia"
     },
+    "community_intro": {
+      "title": "Esto no es solo cocinar.",
+      "content": "Conocerás gente nueva, te comunicarás y compartirás culturas en un ambiente que te hará sentir como en casa.",
+      "highlights": [
+        "🤝 Conoce gente de diferentes orígenes",
+        "🗣️ Practica español e inglés de forma natural",
+        "🎉 Disfruta de actividades grupales interactivas",
+        "🍳 Cocina y cena en compañía"
+      ]
+    },
+    "micro_flow": {
+      "title": "Qué Ocurre Durante la Experiencia",
+      "steps": [
+        { "title": "Bienvenida y Presentaciones", "description": "Conoce a tus compañeros de viaje y anfitriones." },
+        { "title": "Interacciones Rompehielo", "description": "Actividades divertidas para que fluya la conversación." },
+        { "title": "Cocinando Juntos", "description": "Colabora en la paella perfecta." },
+        { "title": "Momentos de Interacción de Idiomas", "description": "Aprende frases clave en un entorno natural." },
+        { "title": "Cena Compartida y Vínculos", "description": "Disfruta del festín y las nuevas amistades." }
+      ]
+    },
+    "inline_language": {
+      "title": "Aprende español e inglés mientras vives la experiencia",
+      "content": "Conversaciones reales, no clases de aula."
+    },
+    "inline_activities": {
+      "title": "Diversión y Actividades",
+      "items": [
+        { "title": "Juegos Rompehielo", "icon": "PartyPopper" },
+        { "title": "Intercambio Cultural", "icon": "Globe2" },
+        { "title": "Música y Vibras", "icon": "Music" }
+      ]
+    },
+    "inline_testimonials": [
+      {
+        "text": "Conocí gente increíble de todo el mundo. ¡Se sintió como una comunidad desde el principio!",
+        "author": "Lukas, Alemania"
+      },
+      {
+        "text": "Aprendí más español mientras cocinaba que en una semana de clases. ¡Tan natural!",
+        "author": "Elena, España"
+      }
+    ],
     "intro": {
       "title": "Más que una Clase de Cocina",
       "subtitle": "Una experiencia cultural inmersiva",

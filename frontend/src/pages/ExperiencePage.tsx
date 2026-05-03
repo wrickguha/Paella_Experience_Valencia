@@ -7,7 +7,15 @@ import GalleryGrid from '@/components/GalleryGrid';
 import Testimonials from '@/components/Testimonials';
 import FAQSection from '@/components/FAQSection';
 import FinalCTA from '@/components/FinalCTA';
+import { 
+  CommunityIntroEnhancement, 
+  MicroFlowBreakdown, 
+  InlineLanguageCard, 
+  ActivitiesInlineSegment, 
+  CommunityInlineTestimonial 
+} from '@/components/ExperienceCommunityEnhancements';
 import { fetchLocations, type FrontendLocation, type LocationSchedule } from '@/services/api';
+
 
 // ── Helpers ───────────────────────────────────────────────────────
 const BADGE_COLORS = ['bg-primary', 'bg-emerald-500', 'bg-blue-500', 'bg-purple-500'];
@@ -165,7 +173,7 @@ function LocationSection({
                 to={`/booking?location=${locationSlug}`}
                 className="btn-primary !px-8 !py-3.5"
               >
-                Book {location.name} Experience
+                Join the {location.name} Experience
               </Link>
               {location.price != null && (
                 <p className="font-display text-2xl font-bold text-neutral-dark">
@@ -267,8 +275,21 @@ export default function ExperiencePage() {
               </motion.p>
             ))}
           </div>
+          <CommunityIntroEnhancement />
+          <ActivitiesInlineSegment />
+          <InlineLanguageCard />
         </div>
       </section>
+
+      {/* ── Micro Flow Breakdown ─────────────────────── */}
+      <section className="bg-neutral-cream/30 py-20">
+        <div className="container-max">
+          <MicroFlowBreakdown />
+        </div>
+      </section>
+
+      <CommunityInlineTestimonial />
+
 
       {/* ── Location Sections ─────────────────────────── */}
       <div id="locations" />
