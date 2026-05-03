@@ -12,12 +12,14 @@ class ContactMessage extends Model
         'subject',
         'message',
         'is_read',
+        'is_resolved',
     ];
 
     protected function casts(): array
     {
         return [
             'is_read' => 'boolean',
+            'is_resolved' => 'boolean',
         ];
     }
 

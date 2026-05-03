@@ -76,6 +76,8 @@ export const bookingsApi = {
   list: (params?: Record<string, string | number>) => api.get('/admin/bookings', { params }),
   get: (id: number) => api.get(`/admin/bookings/${id}`),
   updateStatus: (id: number, status: string) => api.put(`/admin/bookings/${id}/status`, { payment_status: status }),
+  updateBookingStatus: (id: number, status: string) => api.put(`/admin/bookings/${id}/booking-status`, { status }),
+  updateNotes: (id: number, notes: string) => api.put(`/admin/bookings/${id}/notes`, { notes }),
 };
 
 // ── Payments ──
@@ -132,6 +134,37 @@ export const messagesApi = {
   get: (id: number) => api.get(`/admin/messages/${id}`),
   markRead: (id: number) => api.put(`/admin/messages/${id}/read`),
   markUnread: (id: number) => api.put(`/admin/messages/${id}/unread`),
+  toggleResolved: (id: number) => api.put(`/admin/messages/${id}/toggle-resolved`),
   delete: (id: number) => api.delete(`/admin/messages/${id}`),
   unreadCount: () => api.get('/admin/messages/unread-count'),
 };
+
+// ── Activities ──
+export const activitiesApi = {
+  list: () => api.get('/admin/activities'),
+  create: (data: object) => api.post('/admin/activities', data),
+  update: (id: number, data: object) => api.put(`/admin/activities/${id}`, data),
+  delete: (id: number) => api.delete(`/admin/activities/${id}`),
+};
+
+// ── Community Members ──
+export const communityApi = {
+  list: (params?: Record<string, string | number>) => api.get('/admin/community', { params }),
+  update: (id: number, data: object) => api.put(`/admin/community/${id}`, data),
+  delete: (id: number) => api.delete(`/admin/community/${id}`),
+};
+
+// ── Language Sessions ──
+export const languageSessionsApi = {
+  list: () => api.get('/admin/language-sessions'),
+  create: (data: object) => api.post('/admin/language-sessions', data),
+  update: (id: number, data: object) => api.put(`/admin/language-sessions/${id}`, data),
+  delete: (id: number) => api.delete(`/admin/language-sessions/${id}`),
+};
+
+// ── Leads ──
+export const leadsApi = {
+  list: (params?: Record<string, string | number>) => api.get('/admin/leads', { params }),
+  stats: () => api.get('/admin/leads/stats'),
+};
+

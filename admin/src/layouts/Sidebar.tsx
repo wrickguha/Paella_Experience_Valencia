@@ -14,6 +14,10 @@ import {
   MessageSquare,
   Settings,
   X,
+  PartyPopper,
+  Users,
+  Languages,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +32,10 @@ const NAV_ITEMS = [
   { to: '/admin/testimonials', icon: MessageSquareQuote, label: 'Testimonials' },
   { to: '/admin/faqs', icon: HelpCircle, label: 'FAQs' },
   { to: '/admin/about', icon: FileText, label: 'About Page' },
+  { to: '/admin/activities', icon: PartyPopper, label: 'Activities' },
+  { to: '/admin/community', icon: Users, label: 'Community' },
+  { to: '/admin/languages', icon: Languages, label: 'Languages' },
+  { to: '/admin/leads', icon: TrendingUp, label: 'Leads' },
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];

@@ -14,6 +14,7 @@ interface ContactMessage {
   subject: string;
   message: string;
   is_read: boolean;
+  is_resolved: boolean;
   created_at: string;
 }
 
@@ -24,6 +25,7 @@ export default function MessagesPage() {
   const [loading, setLoading] = useState(true);
   const [detail, setDetail] = useState<ContactMessage | null>(null);
   const [filter, setFilter] = useState<string>('');
+  const [resolvedFilter, setResolvedFilter] = useState<string>('');
   const [deleting, setDeleting] = useState<number | null>(null);
 
   const fetch = useCallback(async () => {
@@ -31,12 +33,13 @@ export default function MessagesPage() {
     try {
       const params: Record<string, string | number> = { page };
       if (filter) params.is_read = filter;
+      if (resolvedFilter) params.is_resolved = resolvedFilter;
       const res = await messagesApi.list(params);
       setData(res.data.data || res.data);
       setLastPage(res.data.last_page || 1);
     } catch { /* empty */ }
     setLoading(false);
-  }, [page, filter]);
+  }, [page, filter, resolvedFilter]);
 
   useEffect(() => { fetch(); }, [fetch]);
 
@@ -59,6 +62,14 @@ export default function MessagesPage() {
       }
       setData(prev => prev.map(m => m.id === msg.id ? { ...m, is_read: !m.is_read } : m));
       if (detail?.id === msg.id) setDetail({ ...msg, is_read: !msg.is_read });
+    } catch { /* empty */ }
+  };
+
+  const handleToggleResolved = async (msg: ContactMessage) => {
+    try {
+      const res = await messagesApi.toggleResolved(msg.id);
+      setData(prev => prev.map(m => m.id === msg.id ? { ...m, is_resolved: res.data.is_resolved } : m));
+      if (detail?.id === msg.id) setDetail({ ...msg, is_resolved: res.data.is_resolved });
     } catch { /* empty */ }
   };
 
@@ -120,6 +131,15 @@ export default function MessagesPage() {
       ),
     },
     {
+      key: 'is_resolved',
+      header: 'Status',
+      render: (r: ContactMessage) => (
+        <Badge variant={r.is_resolved ? 'success' : 'warning'}>
+          {r.is_resolved ? 'Resolved' : 'Pending'}
+        </Badge>
+      ),
+    },
+    {
       key: 'actions',
       header: '',
       render: (r: ContactMessage) => (
@@ -154,9 +174,9 @@ export default function MessagesPage() {
       />
 
       {/* Filters */}
-      <Card>
+      <Card className="space-y-4">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-neutral-gray">Filter:</span>
+          <span className="text-sm font-medium text-neutral-gray">Filter Read:</span>
           {[
             { label: 'All', value: '' },
             { label: 'Unread', value: '0' },
@@ -167,6 +187,26 @@ export default function MessagesPage() {
               onClick={() => { setFilter(f.value); setPage(1); }}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
                 filter === f.value
+                  ? 'bg-primary text-white'
+                  : 'bg-gray-100 text-neutral-gray hover:bg-gray-200'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-neutral-gray">Status:</span>
+          {[
+            { label: 'All', value: '' },
+            { label: 'Pending', value: '0' },
+            { label: 'Resolved', value: '1' },
+          ].map(f => (
+            <button
+              key={f.value}
+              onClick={() => { setResolvedFilter(f.value); setPage(1); }}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                resolvedFilter === f.value
                   ? 'bg-primary text-white'
                   : 'bg-gray-100 text-neutral-gray hover:bg-gray-200'
               }`}
@@ -227,6 +267,12 @@ export default function MessagesPage() {
                 Received: {formatDate(detail.created_at)}
               </span>
               <div className="flex items-center gap-2">
+                <Badge variant={detail.is_resolved ? 'success' : 'warning'}>
+                  {detail.is_resolved ? 'Resolved' : 'Pending'}
+                </Badge>
+                <Button size="sm" variant={detail.is_resolved ? 'outline' : 'primary'} onClick={() => handleToggleResolved(detail)}>
+                  {detail.is_resolved ? 'Mark Pending' : 'Mark Resolved'}
+                </Button>
                 <Badge variant={detail.is_read ? 'info' : 'warning'}>
                   {detail.is_read ? 'Read' : 'Unread'}
                 </Badge>

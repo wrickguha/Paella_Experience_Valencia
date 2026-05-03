@@ -18,8 +18,14 @@ class BookingController extends Controller
         if ($request->filled('status')) {
             $query->where('payment_status', $request->status);
         }
+        if ($request->filled('booking_status')) {
+            $query->where('status', $request->booking_status);
+        }
         if ($request->filled('location_id')) {
             $query->where('location_id', $request->location_id);
+        }
+        if ($request->filled('min_guests')) {
+            $query->where('guests', '>=', $request->min_guests);
         }
 
         return $query->orderBy('created_at', 'desc')
@@ -38,6 +44,9 @@ class BookingController extends Controller
                 'guests' => $b->guests,
                 'total_price' => $b->total_price,
                 'payment_status' => $b->payment_status,
+                'status' => $b->status ?? 'pending',
+                'language_preference' => $b->language_preference,
+                'notes' => $b->notes,
                 'created_at' => $b->created_at,
             ]);
     }
@@ -60,6 +69,9 @@ class BookingController extends Controller
             'guests' => $b->guests,
             'total_price' => $b->total_price,
             'payment_status' => $b->payment_status,
+            'status' => $b->status ?? 'pending',
+            'language_preference' => $b->language_preference,
+            'notes' => $b->notes,
             'payment' => $b->payment,
             'created_at' => $b->created_at,
         ]);
@@ -75,5 +87,29 @@ class BookingController extends Controller
         $booking->update(['payment_status' => $request->payment_status]);
 
         return response()->json(['message' => 'Status updated', 'payment_status' => $request->payment_status]);
+    }
+
+    public function updateBookingStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,confirmed,cancelled',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $booking->update(['status' => $request->status]);
+
+        return response()->json(['message' => 'Booking status updated', 'status' => $request->status]);
+    }
+
+    public function updateNotes(Request $request, $id)
+    {
+        $request->validate([
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        $booking = Booking::findOrFail($id);
+        $booking->update(['notes' => $request->notes]);
+
+        return response()->json(['message' => 'Notes updated']);
     }
 }

@@ -17,6 +17,10 @@ class ContactMessageController extends Controller
             $query->where('is_read', $request->boolean('is_read'));
         }
 
+        if ($request->filled('is_resolved')) {
+            $query->where('is_resolved', $request->boolean('is_resolved'));
+        }
+
         return response()->json($query->paginate(20));
     }
 
@@ -50,10 +54,21 @@ class ContactMessageController extends Controller
         return response()->json(['message' => 'Message deleted']);
     }
 
+    public function toggleResolved(ContactMessage $contactMessage): JsonResponse
+    {
+        $contactMessage->update(['is_resolved' => !$contactMessage->is_resolved]);
+
+        return response()->json([
+            'message' => $contactMessage->is_resolved ? 'Marked as resolved' : 'Marked as unresolved',
+            'is_resolved' => $contactMessage->is_resolved
+        ]);
+    }
+
     public function unreadCount(): JsonResponse
     {
         return response()->json([
             'count' => ContactMessage::unread()->count(),
+            'unresolved_count' => ContactMessage::where('is_resolved', false)->count(),
         ]);
     }
 }

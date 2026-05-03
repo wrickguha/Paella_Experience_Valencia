@@ -33,6 +33,8 @@ class DashboardController extends Controller
             ->count();
 
         $totalGuests = Booking::where('payment_status', 'paid')->sum('guests');
+        $totalMembers = \App\Models\CommunityMember::count();
+        $totalLeads = \App\Models\Lead::count();
 
         return response()->json([
             'total_bookings' => $totalBookings,
@@ -45,6 +47,8 @@ class DashboardController extends Controller
                 : 0,
             'upcoming_events' => $upcomingEvents,
             'total_guests' => $totalGuests,
+            'total_members' => $totalMembers,
+            'total_leads' => $totalLeads,
         ]);
     }
 

@@ -26,6 +26,8 @@ interface Stats {
   total_revenue: number;
   upcoming_events: number;
   total_guests: number;
+  total_members: number;
+  total_leads: number;
   bookings_trend: string;
   revenue_trend: string;
 }
@@ -164,6 +166,25 @@ export default function DashboardPage() {
             value={stats?.total_guests ?? 0}
             icon={<Users className="w-5 h-5" />}
             color="bg-warning/10 text-warning"
+          />
+        </motion.div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+          <StatCard
+            title="Community Members"
+            value={stats?.total_members ?? 0}
+            icon={<Users className="w-5 h-5" />}
+            color="bg-purple-50 text-purple-600"
+          />
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
+          <StatCard
+            title="Total Leads"
+            value={stats?.total_leads ?? 0}
+            icon={<TrendingUp className="w-5 h-5" />}
+            color="bg-rose-50 text-rose-600"
           />
         </motion.div>
       </div>

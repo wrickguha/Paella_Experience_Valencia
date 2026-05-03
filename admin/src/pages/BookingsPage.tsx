@@ -6,7 +6,7 @@ import { formatCurrency, formatDate } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
 import DataTable, { Pagination } from '@/components/DataTable';
 import { Modal } from '@/components/Modal';
-import { FormInput, FormSelect } from '@/components/FormFields';
+import { FormInput, FormSelect, FormTextarea } from '@/components/FormFields';
 
 interface Booking {
   id: number;
@@ -20,13 +20,20 @@ interface Booking {
   guests: number;
   total_price: number;
   payment_status: string;
+  status: string;
+  language_preference: string | null;
+  notes: string | null;
   location_name: string;
   experience_name: string;
   created_at: string;
 }
 
-const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
+const PAYMENT_VARIANT: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
   paid: 'success', pending: 'warning', failed: 'danger', refunded: 'info',
+};
+
+const BOOKING_VARIANT: Record<string, 'success' | 'warning' | 'danger'> = {
+  confirmed: 'success', pending: 'warning', cancelled: 'danger',
 };
 
 export default function BookingsPage() {
@@ -34,9 +41,11 @@ export default function BookingsPage() {
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ date: '', status: '' });
+  const [filters, setFilters] = useState({ date: '', status: '', booking_status: '' });
   const [detail, setDetail] = useState<Booking | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [editNotes, setEditNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -44,6 +53,7 @@ export default function BookingsPage() {
       const params: Record<string, string | number> = { page };
       if (filters.date) params.date = filters.date;
       if (filters.status) params.status = filters.status;
+      if (filters.booking_status) params.booking_status = filters.booking_status;
       const res = await bookingsApi.list(params);
       setData(res.data.data || res.data);
       setLastPage(res.data.last_page || 1);
@@ -53,7 +63,7 @@ export default function BookingsPage() {
 
   useEffect(() => { fetch(); }, [fetch]);
 
-  const handleStatusUpdate = async (id: number, status: string) => {
+  const handlePaymentStatus = async (id: number, status: string) => {
     setUpdatingStatus(true);
     try {
       await bookingsApi.updateStatus(id, status);
@@ -63,21 +73,40 @@ export default function BookingsPage() {
     setUpdatingStatus(false);
   };
 
+  const handleBookingStatus = async (id: number, status: string) => {
+    setUpdatingStatus(true);
+    try {
+      await bookingsApi.updateBookingStatus(id, status);
+      fetch();
+      if (detail?.id === id) setDetail({ ...detail, status });
+    } catch { /* empty */ }
+    setUpdatingStatus(false);
+  };
+
+  const handleSaveNotes = async () => {
+    if (!detail) return;
+    setSavingNotes(true);
+    try {
+      await bookingsApi.updateNotes(detail.id, editNotes);
+      setDetail({ ...detail, notes: editNotes });
+      fetch();
+    } catch { /* empty */ }
+    setSavingNotes(false);
+  };
+
+  const openDetail = (b: Booking) => {
+    setDetail(b);
+    setEditNotes(b.notes || '');
+  };
+
   const columns = [
     {
-      key: 'reference',
-      header: 'Ref',
+      key: 'reference', header: 'Ref',
       render: (r: Booking) => <span className="font-mono text-xs text-primary">{r.reference.slice(0, 8)}</span>,
     },
     {
-      key: 'name',
-      header: 'Customer',
-      render: (r: Booking) => (
-        <div>
-          <p className="font-medium">{r.first_name} {r.last_name}</p>
-          <p className="text-xs text-neutral-gray">{r.email}</p>
-        </div>
-      ),
+      key: 'name', header: 'Customer',
+      render: (r: Booking) => (<div><p className="font-medium">{r.first_name} {r.last_name}</p><p className="text-xs text-neutral-gray">{r.email}</p></div>),
     },
     { key: 'location_name', header: 'Location' },
     { key: 'date', header: 'Date', render: (r: Booking) => formatDate(r.date) },
@@ -85,16 +114,17 @@ export default function BookingsPage() {
     { key: 'guests', header: 'Guests', className: 'text-center' },
     { key: 'total_price', header: 'Amount', render: (r: Booking) => formatCurrency(r.total_price) },
     {
-      key: 'payment_status',
-      header: 'Status',
-      render: (r: Booking) => <Badge variant={STATUS_VARIANT[r.payment_status] || 'default'}>{r.payment_status}</Badge>,
+      key: 'payment_status', header: 'Payment',
+      render: (r: Booking) => <Badge variant={PAYMENT_VARIANT[r.payment_status] || 'default'}>{r.payment_status}</Badge>,
     },
     {
-      key: 'actions',
-      header: '',
-      className: 'w-12',
+      key: 'status', header: 'Booking',
+      render: (r: Booking) => <Badge variant={BOOKING_VARIANT[r.status] || 'warning'}>{r.status || 'pending'}</Badge>,
+    },
+    {
+      key: 'actions', header: '', className: 'w-12',
       render: (r: Booking) => (
-        <button onClick={() => setDetail(r)} className="p-1.5 rounded-lg hover:bg-gray-100 text-neutral-gray hover:text-primary">
+        <button onClick={() => openDetail(r)} className="p-1.5 rounded-lg hover:bg-gray-100 text-neutral-gray hover:text-primary">
           <Eye className="w-4 h-4" />
         </button>
       ),
@@ -107,24 +137,12 @@ export default function BookingsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-4">
-        <FormInput
-          label=""
-          type="date"
-          value={filters.date}
-          onChange={(e) => { setFilters({ ...filters, date: e.target.value }); setPage(1); }}
-          placeholder="Filter by date"
+        <FormInput label="" type="date" value={filters.date} onChange={(e) => { setFilters({ ...filters, date: e.target.value }); setPage(1); }} />
+        <FormSelect label="" value={filters.status} onChange={(e) => { setFilters({ ...filters, status: e.target.value }); setPage(1); }}
+          options={[{ value: '', label: 'All Payments' }, { value: 'paid', label: 'Paid' }, { value: 'pending', label: 'Pending' }, { value: 'failed', label: 'Failed' }, { value: 'refunded', label: 'Refunded' }]}
         />
-        <FormSelect
-          label=""
-          value={filters.status}
-          onChange={(e) => { setFilters({ ...filters, status: e.target.value }); setPage(1); }}
-          options={[
-            { value: '', label: 'All Statuses' },
-            { value: 'paid', label: 'Paid' },
-            { value: 'pending', label: 'Pending' },
-            { value: 'failed', label: 'Failed' },
-            { value: 'refunded', label: 'Refunded' },
-          ]}
+        <FormSelect label="" value={filters.booking_status} onChange={(e) => { setFilters({ ...filters, booking_status: e.target.value }); setPage(1); }}
+          options={[{ value: '', label: 'All Bookings' }, { value: 'pending', label: 'Pending' }, { value: 'confirmed', label: 'Confirmed' }, { value: 'cancelled', label: 'Cancelled' }]}
         />
       </div>
 
@@ -142,12 +160,12 @@ export default function BookingsPage() {
       </motion.div>
 
       {/* Detail Modal */}
-      <Modal open={!!detail} onClose={() => setDetail(null)} title="Booking Details" size="md">
+      <Modal open={!!detail} onClose={() => setDetail(null)} title="Booking Details" size="lg">
         {detail && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div><span className="text-neutral-gray">Reference:</span><p className="font-mono font-medium">{detail.reference}</p></div>
-              <div><span className="text-neutral-gray">Status:</span><p><Badge variant={STATUS_VARIANT[detail.payment_status]}>{detail.payment_status}</Badge></p></div>
+              <div><span className="text-neutral-gray">Payment:</span><p><Badge variant={PAYMENT_VARIANT[detail.payment_status]}>{detail.payment_status}</Badge></p></div>
               <div><span className="text-neutral-gray">Name:</span><p className="font-medium">{detail.first_name} {detail.last_name}</p></div>
               <div><span className="text-neutral-gray">Email:</span><p>{detail.email}</p></div>
               <div><span className="text-neutral-gray">Phone:</span><p>{detail.phone || '—'}</p></div>
@@ -156,23 +174,39 @@ export default function BookingsPage() {
               <div><span className="text-neutral-gray">Time:</span><p>{detail.time?.slice(0, 5)}</p></div>
               <div><span className="text-neutral-gray">Guests:</span><p>{detail.guests}</p></div>
               <div><span className="text-neutral-gray">Amount:</span><p className="font-bold text-primary">{formatCurrency(detail.total_price)}</p></div>
+              <div><span className="text-neutral-gray">Language Pref:</span><p>{detail.language_preference || '—'}</p></div>
+              <div><span className="text-neutral-gray">Booking Status:</span><p><Badge variant={BOOKING_VARIANT[detail.status] || 'warning'}>{detail.status || 'pending'}</Badge></p></div>
             </div>
 
+            {/* Booking Status */}
             <div className="pt-4 border-t border-gray-200">
-              <p className="text-sm font-medium text-neutral-dark mb-2">Update Status</p>
+              <p className="text-sm font-medium text-neutral-dark mb-2">Booking Status</p>
               <div className="flex flex-wrap gap-2">
-                {['paid', 'pending', 'failed', 'refunded'].map((s) => (
-                  <Button
-                    key={s}
-                    variant={detail.payment_status === s ? 'primary' : 'secondary'}
-                    size="sm"
-                    onClick={() => handleStatusUpdate(detail.id, s)}
-                    loading={updatingStatus}
-                    disabled={detail.payment_status === s}
-                  >
+                {['pending', 'confirmed', 'cancelled'].map((s) => (
+                  <Button key={s} variant={detail.status === s ? 'primary' : 'secondary'} size="sm" onClick={() => handleBookingStatus(detail.id, s)} loading={updatingStatus} disabled={detail.status === s}>
                     {s.charAt(0).toUpperCase() + s.slice(1)}
                   </Button>
                 ))}
+              </div>
+            </div>
+
+            {/* Payment Status */}
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-sm font-medium text-neutral-dark mb-2">Payment Status</p>
+              <div className="flex flex-wrap gap-2">
+                {['paid', 'pending', 'failed', 'refunded'].map((s) => (
+                  <Button key={s} variant={detail.payment_status === s ? 'primary' : 'secondary'} size="sm" onClick={() => handlePaymentStatus(detail.id, s)} loading={updatingStatus} disabled={detail.payment_status === s}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Admin Notes */}
+            <div className="pt-4 border-t border-gray-200">
+              <FormTextarea label="Admin Notes" value={editNotes} onChange={(e) => setEditNotes(e.target.value)} placeholder="Add notes about this booking..." />
+              <div className="flex justify-end mt-2">
+                <Button size="sm" onClick={handleSaveNotes} loading={savingNotes}>Save Notes</Button>
               </div>
             </div>
           </div>

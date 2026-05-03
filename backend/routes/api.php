@@ -154,6 +154,8 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/bookings', [AdminBookingController::class, 'index']);
     Route::get('/bookings/{id}', [AdminBookingController::class, 'show']);
     Route::put('/bookings/{id}/status', [AdminBookingController::class, 'updateStatus']);
+    Route::put('/bookings/{id}/booking-status', [AdminBookingController::class, 'updateBookingStatus']);
+    Route::put('/bookings/{id}/notes', [AdminBookingController::class, 'updateNotes']);
 
     // Payments
     Route::get('/payments', [AdminPaymentController::class, 'index']);
@@ -195,6 +197,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/messages/{contactMessage}', [AdminContactMessageController::class, 'show']);
     Route::put('/messages/{contactMessage}/read', [AdminContactMessageController::class, 'markRead']);
     Route::put('/messages/{contactMessage}/unread', [AdminContactMessageController::class, 'markUnread']);
+    Route::put('/messages/{contactMessage}/toggle-resolved', [AdminContactMessageController::class, 'toggleResolved']);
     Route::delete('/messages/{contactMessage}', [AdminContactMessageController::class, 'destroy']);
 
     // Activities

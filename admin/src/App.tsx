@@ -18,6 +18,10 @@ const FaqsPage = lazy(() => import('@/pages/FaqsPage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const MessagesPage = lazy(() => import('@/pages/MessagesPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
+const ActivitiesPage = lazy(() => import('@/pages/ActivitiesPage'));
+const CommunityPage = lazy(() => import('@/pages/CommunityPage'));
+const LanguageSessionsPage = lazy(() => import('@/pages/LanguageSessionsPage'));
+const LeadsPage = lazy(() => import('@/pages/LeadsPage'));
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { token, isLoading } = useAuth();
@@ -49,6 +53,10 @@ export default function App() {
           <Route path="testimonials" element={<TestimonialsPage />} />
           <Route path="faqs" element={<FaqsPage />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="activities" element={<ActivitiesPage />} />
+          <Route path="community" element={<CommunityPage />} />
+          <Route path="languages" element={<LanguageSessionsPage />} />
+          <Route path="leads" element={<LeadsPage />} />
           <Route path="messages" element={<MessagesPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
