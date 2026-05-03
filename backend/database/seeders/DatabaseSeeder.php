@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
     {
         // Order matters: locations first, then dependents
         $this->call([
+            AdminSeeder::class,
             LocationSeeder::class,
             ScheduleSeeder::class,
             ExperienceSeeder::class,
