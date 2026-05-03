@@ -153,7 +153,7 @@ export function CommunityInlineTestimonial() {
       {testimonials.map((test, i) => (
         <motion.div
           key={i}
-          initial={{ opacity: 0, opacity: 1 }}
+          initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className="max-w-2xl mx-auto text-center"

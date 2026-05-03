@@ -10,6 +10,8 @@ const iconMap: Record<number, any> = {
   3: FiUsers,
 };
 
+const PartyPopper = FiGift;
+
 
 export default function ActivitiesSection() {
   const { t } = useTranslation();
