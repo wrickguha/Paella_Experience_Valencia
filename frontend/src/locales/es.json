@@ -271,14 +271,55 @@
     "cta": "Reserva Tu Experiencia Ahora"
   },
   "about": {
-    "valuesTitle": "Lo Que Nos Define",
-    "valuesSubtitle": "Los principios que guían todo lo que hacemos",
-    "differentTitle": "La Diferencia",
-    "differentHeading": "Qué Nos Hace Diferentes",
-    "differentSubtitle": "No es solo una clase de cocina — es algo que sentirás en lo más profundo",
-    "whyloveTag": "El Resultado",
-    "whyloveHeading": "Por Qué la Gente Ama Esto",
-    "whyloveSubtitle": "No se trata de la receta — se trata de lo que te llevas en el corazón"
+    "hero": {
+      "title": "Más Que Una Experiencia",
+      "subtitle": "Unimos a las personas a través de la comida, el idioma y momentos compartidos.",
+      "content": "Speakeasy Valencia es más que una clase de cocina. Es una comunidad donde la mesa es un puente entre culturas, idiomas y nuevas amistades."
+    },
+    "story": {
+      "title": "Nuestra Historia",
+      "subtitle": "Nacida de la Pasión",
+      "content": "Todo empezó con una creencia sencilla: que la mejor manera de entender una cultura es sentarse a su mesa. Quisimos crear un espacio donde viajeros y locales pudieran conocerse, donde la presión de un aula se viera reemplazada por el calor de un fuego compartido, y donde los extraños se hicieran amigos frente a una paella humeante."
+    },
+    "vision": {
+      "title": "Visión de Comunidad",
+      "subtitle": "Mejor Juntos",
+      "content": "Creemos que las experiencias son mejores cuando se comparten. Nuestra visión es construir una comunidad global que celebre la diversidad a través de experiencias locales auténticas.",
+      "highlights": [
+        { "title": "Gente Diversa", "description": "Conoce a viajeros y locales de todos los ámbitos." },
+        { "title": "Mesas Compartidas", "description": "La magia ocurre cuando nos sentamos a comer juntos." },
+        { "title": "Intercambio Cultural", "description": "Comparte tus historias y aprende de los demás." }
+      ]
+    },
+    "language": {
+      "title": "Idioma y Cultura",
+      "subtitle": "Habla Naturalmente",
+      "content": "Sin libros de texto, sin aulas. Solo conversaciones reales en español e inglés mientras cocinas.",
+      "points": [
+        { "title": "Aprende español naturalmente", "description": "Aprende frases utilizadas en la vida diaria." },
+        { "title": "Practica inglés con confianza", "description": "Un entorno relajado para mejorar tus habilidades." },
+        { "title": "Inmersión cultural", "description": "Entiende el contexto detrás de las palabras." }
+      ]
+    },
+    "different": {
+      "title": "Qué Nos Hace Diferentes",
+      "subtitle": "El Estilo Speakeasy",
+      "items": [
+        { "title": "La Comunidad Primero", "description": "Cada detalle está diseñado para fomentar la conexión." },
+        { "title": "Actividades Interactivas", "description": "Juegos divertidos que rompen el hielo al instante." },
+        { "title": "Conexiones Humanas Reales", "description": "Priorizamos las interacciones de calidad sobre todo lo demás." }
+      ]
+    },
+    "host": {
+      "title": "Conoce a tu Anfitrión",
+      "subtitle": "Guía Experta",
+      "content": "¡Hola, soy tu anfitrión! Como profesor de idiomas apasionado y amante de la comida, creé Speakeasy Valencia para combinar mis dos grandes amores. Creo que aprender un idioma es más que gramática: se trata de las personas que conoces y las historias que compartes."
+    },
+    "cta": {
+      "title": "Sé parte de algo más que un simple evento",
+      "primary": "Únete a la Experiencia",
+      "secondary": "Forma Parte de la Comunidad"
+    }
   },
   "experience": {
     "hero": {

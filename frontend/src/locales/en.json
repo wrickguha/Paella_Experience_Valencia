@@ -271,14 +271,55 @@
     "cta": "Join the Community Now"
   },
   "about": {
-    "valuesTitle": "What We Stand For",
-    "valuesSubtitle": "The principles that guide everything we do",
-    "differentTitle": "The Difference",
-    "differentHeading": "What Makes Us Different",
-    "differentSubtitle": "Not just another cooking class — this is something you'll feel in your bones",
-    "whyloveTag": "The Outcome",
-    "whyloveHeading": "Why People Love This",
-    "whyloveSubtitle": "It's not about the recipe — it's about what you take home in your heart"
+    "hero": {
+      "title": "More Than an Experience",
+      "subtitle": "We bring people together through food, language, and shared moments.",
+      "content": "Speakeasy Valencia is more than just a cooking class. It's a community where the table is a bridge between cultures, languages, and new friendships."
+    },
+    "story": {
+      "title": "Our Story",
+      "subtitle": "Born from Passion",
+      "content": "It all started with a simple belief: that the best way to understand a culture is to sit at its table. We wanted to create a space where travelers and locals could meet, where the pressure of a classroom is replaced by the warmth of a shared fire, and where strangers become friends over a steaming pan of paella."
+    },
+    "vision": {
+      "title": "Community Vision",
+      "subtitle": "Better Together",
+      "content": "We believe experiences are better when shared. Our vision is to build a global community that celebrates diversity through authentic local experiences.",
+      "highlights": [
+        { "title": "Diverse People", "description": "Meet travelers and locals from all walks of life." },
+        { "title": "Shared Tables", "description": "The magic happens when we sit down to eat together." },
+        { "title": "Cultural Exchange", "description": "Share your stories and learn about others." }
+      ]
+    },
+    "language": {
+      "title": "Language & Culture",
+      "subtitle": "Speak Naturally",
+      "content": "No textbooks, no classrooms. Just real conversations in Spanish and English while you cook.",
+      "points": [
+        { "title": "Learn Spanish naturally", "description": "Pick up phrases used in daily life." },
+        { "title": "Practice English confidently", "description": "A relaxed environment to improve your skills." },
+        { "title": "Cultural immersion", "description": "Understand the context behind the words." }
+      ]
+    },
+    "different": {
+      "title": "What Makes Us Different",
+      "subtitle": "The Speakeasy Way",
+      "items": [
+        { "title": "Community-First", "description": "Every detail is designed to foster connection." },
+        { "title": "Interactive Activities", "description": "Fun games that break the ice instantly." },
+        { "title": "Real Human Connections", "description": "We prioritize quality interactions over everything." }
+      ]
+    },
+    "host": {
+      "title": "Meet Your Host",
+      "subtitle": "Expert Guidance",
+      "content": "Hi, I'm your host! As a passionate language teacher and food lover, I created Speakeasy Valencia to combine my two greatest loves. I believe that learning a language is about more than grammar—it's about the people you meet and the stories you share."
+    },
+    "cta": {
+      "title": "Be part of something more than just an event",
+      "primary": "Join the Experience",
+      "secondary": "Become Part of the Community"
+    }
   },
   "experience": {
     "hero": {

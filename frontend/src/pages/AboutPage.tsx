@@ -1,500 +1,339 @@
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
+import { useScrollToTop } from '@/hooks/useScrollReveal';
 import SectionWrapper from '@/components/SectionWrapper';
 import Testimonials from '@/components/Testimonials';
 import GalleryGrid from '@/components/GalleryGrid';
-import { fetchAbout, type AboutData, type AboutSection } from '@/services/api';
+import { FiUsers, FiGlobe, FiMessageCircle, FiHeart, FiStar, FiZap } from 'react-icons/fi';
 
-/* ── Animated reveal helper ─────────────────────────────────────── */
-function RevealBlock({ children, className = '', delay = 0 }: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const { ref, isInView } = useScrollReveal();
+/* ── Hero Section ────────────────────────────────────────────────── */
+function AboutHero() {
+  const { t } = useTranslation();
   return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-      transition={{ duration: 0.7, delay, ease: 'easeOut' }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   1. HERO — full-width cinematic header with CTA
-   ════════════════════════════════════════════════════════════════════ */
-function HeroSection({ data }: { data: AboutSection }) {
-  return (
-    <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden">
-      {/* Background image */}
+    <section className="relative py-28 sm:py-36 overflow-hidden">
       <div className="absolute inset-0">
-        {data.image && (
-          <img
-            src={data.image}
-            alt=""
-            className="w-full h-full object-cover"
-            loading="eager"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+        <img
+          src="https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=1600&q=80"
+          alt="About Speakeasy Valencia"
+          className="w-full h-full object-cover"
+          loading="eager"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
       </div>
-
-      {/* Decorative grain overlay */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{
-        backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")',
-      }} />
-
-      <div className="container-max relative z-10 px-4 sm:px-6 lg:px-8 py-32 sm:py-40">
+      <div className="container-max relative z-10 px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: 'easeOut' }}
-          className="text-center max-w-4xl mx-auto"
+          transition={{ duration: 0.8 }}
+          className="text-center max-w-3xl mx-auto"
         >
-          {/* Decorative line */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="w-16 h-0.5 bg-primary mx-auto mb-8"
-          />
-
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white mb-6 leading-[1.1]">
-            {data.title}
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+            {t('about.hero.title')}
           </h1>
-
-          {data.subtitle && (
-            <p className="text-lg sm:text-xl lg:text-2xl text-white/85 font-body max-w-2xl mx-auto mb-10 leading-relaxed">
-              {data.subtitle}
-            </p>
-          )}
-
-          {data.cta_text && data.cta_link && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-            >
-              <Link
-                to={data.cta_link}
-                className="inline-flex items-center gap-2 bg-primary text-white font-heading font-bold text-lg
-                           px-10 py-5 rounded-xl shadow-elevated hover:bg-primary-600
-                           hover:shadow-card transition-all active:scale-[0.98]"
-              >
-                {data.cta_text}
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            </motion.div>
-          )}
+          <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl mx-auto">
+            {t('about.hero.subtitle')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/booking" className="btn-primary !text-lg !px-10 !py-5">
+              {t('about.cta.primary')}
+            </Link>
+          </div>
         </motion.div>
       </div>
-
-      {/* Scroll indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      >
-        <div className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center pt-2">
-          <div className="w-1.5 h-3 bg-white/60 rounded-full" />
-        </div>
-      </motion.div>
     </section>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   2. OUR STORY — emotional narrative with side image
-   ════════════════════════════════════════════════════════════════════ */
-function StorySection({ data }: { data: AboutSection }) {
+/* ── Our Story Section ───────────────────────────────────────────── */
+function OurStory() {
+  const { t } = useTranslation();
   return (
-    <SectionWrapper className="bg-white">
+    <SectionWrapper>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-        <RevealBlock>
-          <div>
-            <span className="inline-block text-primary font-heading font-semibold text-sm uppercase tracking-[0.2em] mb-4">
-              {data.subtitle}
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-8 leading-tight">
-              {data.title}
-            </h2>
-            {data.content && (
-              <div className="space-y-4">
-                {data.content.split('\n').filter(Boolean).map((para, i) => (
-                  <p key={i} className="text-neutral-gray font-body text-lg leading-relaxed">
-                    {para}
-                  </p>
-                ))}
-              </div>
-            )}
-          </div>
-        </RevealBlock>
-
-        {data.image && (
-          <RevealBlock delay={0.2}>
-            <div className="relative">
-              <img
-                src={data.image}
-                alt={data.title ?? ''}
-                className="rounded-2xl shadow-elevated w-full object-cover aspect-[4/3]"
-                loading="lazy"
-              />
-              {/* Decorative elements */}
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-2xl -z-10" />
-              <div className="absolute -top-4 -left-4 w-20 h-20 border-2 border-primary/20 rounded-2xl -z-10" />
-            </div>
-          </RevealBlock>
-        )}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
+            {t('about.story.subtitle')}
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
+            {t('about.story.title')}
+          </h2>
+          <p className="text-neutral-gray font-body text-lg leading-relaxed">
+            {t('about.story.content')}
+          </p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="relative"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800"
+            alt="Our Story"
+            className="rounded-2xl shadow-elevated w-full aspect-[4/3] object-cover"
+          />
+          <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-2xl -z-10" />
+        </motion.div>
       </div>
     </SectionWrapper>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   3. OUR PHILOSOPHY — reversed layout, warm background
-   ════════════════════════════════════════════════════════════════════ */
-function PhilosophySection({ data }: { data: AboutSection }) {
-  return (
-    <section className="relative overflow-hidden">
-      {/* Warm gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neutral-cream via-white to-primary-50" />
-
-      <SectionWrapper className="relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          {data.image && (
-            <RevealBlock>
-              <div className="relative lg:order-1 order-2">
-                <img
-                  src={data.image}
-                  alt={data.title ?? ''}
-                  className="rounded-2xl shadow-elevated w-full object-cover aspect-[4/3]"
-                  loading="lazy"
-                />
-                <div className="absolute -top-6 -right-6 w-32 h-32 bg-primary/10 rounded-2xl -z-10" />
-              </div>
-            </RevealBlock>
-          )}
-
-          <RevealBlock delay={0.2}>
-            <div className="lg:order-2 order-1">
-              <span className="inline-block text-primary font-heading font-semibold text-sm uppercase tracking-[0.2em] mb-4">
-                {data.subtitle}
-              </span>
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-8 leading-tight">
-                {data.title}
-              </h2>
-              {data.content && (
-                <div className="space-y-4">
-                  {data.content.split('\n').filter(Boolean).map((para, i) => (
-                    <p key={i} className="text-neutral-gray font-body text-lg leading-relaxed">
-                      {para}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          </RevealBlock>
-        </div>
-      </SectionWrapper>
-    </section>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   4. WHAT MAKES US DIFFERENT — icon cards grid
-   ════════════════════════════════════════════════════════════════════ */
-function DifferentiatorsSection({ data, t }: { data: AboutSection[]; t: (key: string) => string }) {
-  const icons = ['🔥', '👥', '🤲', '🏛️', '❤️'];
+/* ── Community Vision Section ─────────────────────────────────────── */
+function CommunityVision() {
+  const { t } = useTranslation();
+  const highlights = t('about.vision.highlights', { returnObjects: true }) as any[];
+  const icons = [FiUsers, FiHeart, FiGlobe];
 
   return (
-    <SectionWrapper className="bg-white">
+    <SectionWrapper className="bg-neutral-cream">
       <div className="text-center mb-16">
-        <span className="inline-block text-primary font-heading font-semibold text-sm uppercase tracking-[0.2em] mb-4">
-          {t('about.differentTitle')}
+        <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
+          {t('about.vision.subtitle')}
         </span>
-        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
-          {t('about.differentHeading')}
+        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
+          {t('about.vision.title')}
         </h2>
         <p className="text-neutral-gray font-body text-lg max-w-2xl mx-auto">
-          {t('about.differentSubtitle')}
+          {t('about.vision.content')}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-        {data.map((item, idx) => (
-          <RevealBlock key={item.id} delay={idx * 0.1}>
-            <div className="group relative p-8 rounded-2xl bg-neutral-light/50 border border-transparent
-                            hover:border-primary/20 hover:bg-white hover:shadow-card transition-all duration-300">
-              {/* Icon */}
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5
-                              group-hover:bg-primary/20 transition-colors">
-                <span className="text-2xl">{icons[idx % icons.length]}</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {highlights.map((item, idx) => {
+          const Icon = icons[idx % icons.length];
+          return (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="card text-center !p-8 group hover:shadow-elevated transition-all"
+            >
+              <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                <Icon size={32} />
               </div>
-
               <h3 className="font-display text-xl font-bold text-neutral-dark mb-3">
                 {item.title}
               </h3>
-              <p className="text-neutral-gray font-body leading-relaxed text-[15px]">
-                {item.content}
+              <p className="text-neutral-gray text-sm leading-relaxed">
+                {item.description}
               </p>
-            </div>
-          </RevealBlock>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </SectionWrapper>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   5. MEET THE TEAM — personal, human section
-   ════════════════════════════════════════════════════════════════════ */
-function TeamSection({ data }: { data: AboutSection }) {
+/* ── Language & Culture Section ──────────────────────────────────── */
+function LanguageAndCulture() {
+  const { t } = useTranslation();
+  const points = t('about.language.points', { returnObjects: true }) as any[];
+  const icons = [FiMessageCircle, FiZap, FiGlobe];
+
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-neutral-cream to-neutral-beige" />
+    <SectionWrapper>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="lg:order-2"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=800"
+            alt="Language & Culture"
+            className="rounded-2xl shadow-elevated w-full aspect-[4/3] object-cover"
+          />
+        </motion.div>
 
-      <SectionWrapper className="relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <RevealBlock>
-            <div>
-              <span className="inline-block text-primary font-heading font-semibold text-sm uppercase tracking-[0.2em] mb-4">
-                {data.subtitle}
-              </span>
-              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-8 leading-tight">
-                {data.title}
-              </h2>
-              {data.content && (
-                <div className="space-y-4">
-                  {data.content.split('\n').filter(Boolean).map((para, i) => (
-                    <p key={i} className="text-neutral-gray font-body text-lg leading-relaxed">
-                      {para}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          </RevealBlock>
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="lg:order-1"
+        >
+          <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
+            {t('about.language.subtitle')}
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
+            {t('about.language.title')}
+          </h2>
+          <p className="text-neutral-gray font-body text-lg leading-relaxed mb-10">
+            {t('about.language.content')}
+          </p>
 
-          {data.image && (
-            <RevealBlock delay={0.2}>
-              <div className="relative">
-                <img
-                  src={data.image}
-                  alt={data.title ?? ''}
-                  className="rounded-2xl shadow-elevated w-full object-cover aspect-[4/3]"
-                  loading="lazy"
-                />
-                {/* Warm accent overlay on corner */}
-                <div className="absolute -bottom-4 -left-4 w-28 h-28 bg-primary/10 rounded-2xl -z-10" />
-                <div className="absolute -top-3 -right-3 w-16 h-16 border-2 border-primary/20 rounded-xl -z-10" />
-              </div>
-            </RevealBlock>
-          )}
-        </div>
-      </SectionWrapper>
-    </section>
+          <div className="space-y-6">
+            {points.map((point, idx) => {
+              const Icon = icons[idx % icons.length];
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="flex items-start gap-4"
+                >
+                  <div className="mt-1 w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
+                    <Icon size={20} />
+                  </div>
+                  <div>
+                    <h4 className="font-heading font-bold text-neutral-dark">{point.title}</h4>
+                    <p className="text-neutral-gray text-sm">{point.description}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+      </div>
+    </SectionWrapper>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   8. WHY PEOPLE LOVE THIS — emotional outcome cards
-   ════════════════════════════════════════════════════════════════════ */
-function WhyLoveSection({ data, t }: { data: AboutSection[]; t: (key: string) => string }) {
-  const icons = ['🤝', '📖', '🌇', '✨'];
+/* ── What Makes Us Different ─────────────────────────────────────── */
+function Differentiators() {
+  const { t } = useTranslation();
+  const items = t('about.different.items', { returnObjects: true }) as any[];
+  const icons = [FiUsers, FiStar, FiHeart];
 
   return (
-    <SectionWrapper className="bg-white">
+    <SectionWrapper className="bg-neutral-cream/50">
       <div className="text-center mb-16">
-        <span className="inline-block text-primary font-heading font-semibold text-sm uppercase tracking-[0.2em] mb-4">
-          {t('about.whyloveTag')}
+        <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
+          {t('about.different.subtitle')}
         </span>
-        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
-          {t('about.whyloveHeading')}
+        <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
+          {t('about.different.title')}
         </h2>
-        <p className="text-neutral-gray font-body text-lg max-w-2xl mx-auto">
-          {t('about.whyloveSubtitle')}
-        </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
-        {data.map((item, idx) => (
-          <RevealBlock key={item.id} delay={idx * 0.12}>
-            <div className="flex gap-5 p-6 rounded-2xl bg-gradient-to-br from-neutral-cream/60 to-white
-                            border border-neutral-sand/50 hover:shadow-card transition-all duration-300">
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <span className="text-xl">{icons[idx % icons.length]}</span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {items.map((item, idx) => {
+          const Icon = icons[idx % icons.length];
+          return (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="group p-8 rounded-2xl bg-white border border-neutral-sand/20 hover:shadow-card transition-all"
+            >
+              <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                <Icon size={24} />
               </div>
-              <div>
-                <h3 className="font-display text-lg font-bold text-neutral-dark mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-neutral-gray font-body text-[15px] leading-relaxed">
-                  {item.content}
-                </p>
-              </div>
-            </div>
-          </RevealBlock>
-        ))}
+              <h3 className="font-display text-xl font-bold text-neutral-dark mb-3">
+                {item.title}
+              </h3>
+              <p className="text-neutral-gray text-sm leading-relaxed">
+                {item.description}
+              </p>
+            </motion.div>
+          );
+        })}
       </div>
     </SectionWrapper>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   9. FINAL CTA — high impact conversion section
-   ════════════════════════════════════════════════════════════════════ */
-function CTASection({ data }: { data: AboutSection }) {
+/* ── Meet the Host Section ───────────────────────────────────────── */
+function MeetTheHost() {
+  const { t } = useTranslation();
   return (
-    <section className="relative py-24 sm:py-32 overflow-hidden">
-      {/* Rich gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-700 to-primary-800" />
+    <SectionWrapper>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+        >
+          <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
+            {t('about.host.subtitle')}
+          </span>
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-8">
+            {t('about.host.title')}
+          </h2>
+          <p className="text-neutral-gray font-body text-lg leading-relaxed">
+            {t('about.host.content')}
+          </p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="relative order-first lg:order-last"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=800"
+            alt="Your Host"
+            className="rounded-2xl shadow-elevated w-full aspect-square object-cover"
+          />
+          <div className="absolute -top-4 -right-4 w-20 h-20 border-4 border-accent/20 rounded-2xl -z-10" />
+        </motion.div>
+      </div>
+    </SectionWrapper>
+  );
+}
 
-      {/* Pattern overlay */}
-      <div className="absolute inset-0 opacity-[0.07]" style={{
-        backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px)',
-        backgroundSize: '60px 60px',
-      }} />
-
-      {/* Soft glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-white/10 rounded-full blur-3xl" />
-
-      <div className="container-max relative z-10 px-4 sm:px-6 lg:px-8">
-        <RevealBlock>
-          <div className="text-center max-w-3xl mx-auto">
-            <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-6 leading-tight">
-              {data.title}
-            </h2>
-            {data.subtitle && (
-              <p className="text-lg sm:text-xl text-white/80 font-body max-w-2xl mx-auto mb-12 leading-relaxed">
-                {data.subtitle}
-              </p>
-            )}
-            {data.cta_text && data.cta_link && (
-              <Link
-                to={data.cta_link}
-                className="inline-flex items-center gap-3 bg-white text-primary font-heading font-bold text-lg
-                           px-14 py-5 rounded-xl shadow-elevated hover:shadow-card
-                           hover:bg-neutral-cream transition-all active:scale-[0.98]"
-              >
-                {data.cta_text}
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
-            )}
+/* ── Final CTA Section ───────────────────────────────────────────── */
+function FinalAboutCTA() {
+  const { t } = useTranslation();
+  return (
+    <section className="bg-primary py-24">
+      <div className="container-max px-4 text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8">
+            {t('about.cta.title')}
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/booking" className="btn-secondary !bg-white !text-primary !border-white !px-10 !py-5 !text-lg">
+              {t('about.cta.primary')}
+            </Link>
+            <Link to="/contact" className="btn-outline !text-white !border-white/30 !px-10 !py-5 !text-lg hover:!bg-white/10">
+              {t('about.cta.secondary')}
+            </Link>
           </div>
-        </RevealBlock>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-/* ════════════════════════════════════════════════════════════════════
-   LOADING SKELETON
-   ════════════════════════════════════════════════════════════════════ */
-function LoadingSkeleton() {
-  return (
-    <div className="min-h-screen">
-      {/* Hero skeleton */}
-      <div className="h-[80vh] bg-gray-200 animate-pulse relative">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center space-y-4 px-4">
-            <div className="h-1 w-16 bg-gray-300 rounded mx-auto" />
-            <div className="h-12 w-[500px] max-w-full bg-gray-300 rounded mx-auto" />
-            <div className="h-6 w-[350px] max-w-full bg-gray-300 rounded mx-auto" />
-            <div className="h-14 w-48 bg-gray-300 rounded-xl mx-auto mt-6" />
-          </div>
-        </div>
-      </div>
-
-      {/* Content skeletons */}
-      <div className="container-max px-4 py-20 space-y-24">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-            <div className="space-y-4">
-              <div className="h-3 w-24 bg-gray-200 rounded animate-pulse" />
-              <div className="h-10 w-72 bg-gray-200 rounded animate-pulse" />
-              <div className="space-y-2 mt-4">
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
-              </div>
-            </div>
-            <div className="h-72 bg-gray-200 rounded-2xl animate-pulse" />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-/* ════════════════════════════════════════════════════════════════════
-   MAIN ABOUT PAGE
-   ════════════════════════════════════════════════════════════════════ */
+/* ── Main About Page ─────────────────────────────────────────────── */
 export default function AboutPage() {
-  const { t, i18n } = useTranslation();
   useScrollToTop();
 
-  const [data, setData] = useState<AboutData | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setLoading(true);
-    fetchAbout(i18n.language)
-      .then(setData)
-      .catch(() => setData(null))
-      .finally(() => setLoading(false));
-  }, [i18n.language]);
-
-  if (loading) return <LoadingSkeleton />;
-  if (!data) return null;
-
-  const hero = data.hero as AboutSection | undefined;
-  const story = data.story as AboutSection | undefined;
-  const philosophy = data.philosophy as AboutSection | undefined;
-  const differentiators = Array.isArray(data.differentiators) ? data.differentiators : data.differentiators ? [data.differentiators] : [];
-  const team = data.team as AboutSection | undefined;
-  const whylove = Array.isArray(data.whylove) ? data.whylove : data.whylove ? [data.whylove] : [];
-  const cta = data.cta as AboutSection | undefined;
-
   return (
-    <>
-      {/* 1. Hero */}
-      {hero && <HeroSection data={hero} />}
-
-      {/* 2. Our Story */}
-      {story && <StorySection data={story} />}
-
-      {/* 3. Our Philosophy */}
-      {philosophy && <PhilosophySection data={philosophy} />}
-
-      {/* 4. What Makes Us Different */}
-      {differentiators.length > 0 && <DifferentiatorsSection data={differentiators} t={t} />}
-
-      {/* 5. Meet the Team */}
-      {team && <TeamSection data={team} />}
-
-      {/* 6. Trust & Social Proof (reuse existing component) */}
+    <div className="bg-white">
+      <AboutHero />
+      <OurStory />
+      <CommunityVision />
+      <LanguageAndCulture />
+      <Differentiators />
+      <MeetTheHost />
       <Testimonials />
-
-      {/* 7. Moments & Memories Gallery (reuse existing component) */}
       <GalleryGrid />
-
-      {/* 8. Why People Love This */}
-      {whylove.length > 0 && <WhyLoveSection data={whylove} t={t} />}
-
-      {/* 9. Final CTA */}
-      {cta && <CTASection data={cta} />}
-    </>
+      <FinalAboutCTA />
+    </div>
   );
 }
