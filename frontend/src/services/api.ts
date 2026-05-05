@@ -38,7 +38,9 @@ export interface CalendarEvent {
 interface ApiLocation {
   id: number;
   name: string;
-  image: string;
+  image: string | null;
+  hero_image: string | null;
+  gallery: string[];
   price: number | null;
   address: string;
 }
@@ -119,7 +121,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
         spotsLeft: e.available_slots,
         pricePerPerson: e.experience_price || loc?.price || 59,
-        image: getFullImageUrl(loc?.image ?? ''),
+        image: getFullImageUrl(loc?.image ?? loc?.hero_image ?? loc?.gallery?.[0] ?? ''),
         address: loc?.address ?? '',
       };
     });
