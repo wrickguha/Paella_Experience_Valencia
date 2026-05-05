@@ -37,7 +37,6 @@ function EventCard({ event, index }: EventCardProps) {
   const { day, monthIndex } = parseDateParts(event.date);
   const isBloom = event.locationId === 'bloom';
   const monthNames = i18n.language.startsWith('es') ? MONTH_NAMES_ES : MONTH_NAMES;
-  const addressKey = isBloom ? 'upcomingEvents.bloomGallery' : 'upcomingEvents.casaMagnolia';
 
   return (
     <motion.div
@@ -45,12 +44,10 @@ function EventCard({ event, index }: EventCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
       transition={{ duration: 0.35, delay: index * 0.07, ease: 'easeOut' }}
-      className={`relative bg-white rounded-2xl shadow-card overflow-hidden border border-neutral-sand/30 flex flex-col
-        ${isBloom ? 'border-l-4 border-l-primary' : 'border-l-4 border-l-emerald-500'}`}
+      className={`relative bg-white rounded-2xl shadow-card overflow-hidden border border-neutral-sand/30 flex flex-col border-l-4 ${isBloom ? 'border-l-primary' : 'border-l-emerald-500'}`}
     >
       {/* Price badge */}
-      <div className={`absolute top-4 right-4 text-sm font-heading font-bold
-        ${isBloom ? 'text-primary' : 'text-emerald-600'}`}>
+      <div className={`absolute top-4 right-4 text-sm font-heading font-bold ${isBloom ? 'text-primary' : 'text-emerald-600'}`}>
         €{event.pricePerPerson}.00
       </div>
 
@@ -67,24 +64,19 @@ function EventCard({ event, index }: EventCardProps) {
 
         {/* Location badge */}
         <span
-          className={`self-start px-2.5 py-0.5 rounded-full text-xs font-heading font-semibold
-            ${isBloom
-              ? 'bg-primary/10 text-primary'
-              : 'bg-emerald-50 text-emerald-700'}`}
+          className={`self-start px-2.5 py-0.5 rounded-full text-xs font-heading font-semibold ${isBloom ? 'bg-primary/10 text-primary' : 'bg-emerald-50 text-emerald-700'}`}
         >
           {event.locationName}
         </span>
 
         {/* Title */}
         <p className="font-heading font-semibold text-neutral-dark text-sm leading-snug">
-          {isBloom
-            ? 'Saturdays — The Paella Experience · 12–4pm · Bloom Gallery, Ruzafa'
-            : 'Weekdays — The Paella Experience · 1–5pm · Casa Magnolia'}
+          The Paella Experience · {event.time} · {event.locationName}
         </p>
 
         {/* Address */}
         <p className="text-xs text-neutral-gray font-body leading-relaxed">
-          {t(addressKey)}
+          {event.address}
         </p>
 
         {/* Footer: status + slots */}
@@ -99,8 +91,7 @@ function EventCard({ event, index }: EventCardProps) {
             </span>
             <button
               onClick={() => navigate(`/booking?location=${event.locationId}&date=${event.date}`)}
-              className={`px-3 py-1 rounded-lg text-xs font-heading font-semibold text-white transition-opacity hover:opacity-90
-                ${isBloom ? 'bg-primary' : 'bg-emerald-600'}`}
+              className={`px-3 py-1 rounded-lg text-xs font-heading font-semibold text-white transition-opacity hover:opacity-90 ${isBloom ? 'bg-primary' : 'bg-emerald-600'}`}
             >
               {t('upcomingEvents.bookNow')}
             </button>
@@ -134,11 +125,11 @@ export default function UpcomingEvents() {
   // window crosses a month boundary (e.g. Apr 28 → May 4).
   const curYear   = today.getFullYear();
   const curMonth  = today.getMonth();
-  const nextMonth = curMonth === 11 ? 0  : curMonth + 1;
-  const nextYear  = curMonth === 11 ? curYear + 1 : curYear;
+  const nxtMonthIdx = curMonth === 11 ? 0  : curMonth + 1;
+  const nxtYear  = curMonth === 11 ? curYear + 1 : curYear;
 
   const { events: curEvents,  loading: loadingCur  } = useCalendarMonth(curYear, curMonth);
-  const { events: nextEvents, loading: loadingNext } = useCalendarMonth(nextYear, nextMonth);
+  const { events: nextEvents, loading: loadingNext } = useCalendarMonth(nxtYear, nxtMonthIdx);
   const loading = loadingCur || loadingNext;
 
   const monthNames = i18n.language.startsWith('es') ? MONTH_NAMES_ES : MONTH_NAMES;
@@ -156,6 +147,20 @@ export default function UpcomingEvents() {
       })
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [curEvents, nextEvents, todayStr, cutoffStr]);
+
+  // Derive unique locations for legend
+  const uniqueLocations = useMemo(() => {
+    const map = new Map<string, { name: string; color: string }>();
+    for (const e of events) {
+      if (!map.has(e.locationId)) {
+        map.set(e.locationId, {
+          name: e.locationName,
+          color: e.locationId === 'bloom' ? 'bg-primary' : 'bg-emerald-500',
+        });
+      }
+    }
+    return Array.from(map.values());
+  }, [events]);
 
   // Human-readable date range label e.g. "10 May — 17 May"
   const rangeLabel = useMemo(() => {
@@ -191,15 +196,13 @@ export default function UpcomingEvents() {
       </div>
 
       {/* ── Legend ── */}
-      <div className="flex gap-5 mb-8">
-        <span className="inline-flex items-center gap-2 text-xs font-heading font-semibold text-neutral-gray">
-          <span className="w-3 h-3 rounded-sm bg-primary inline-block" />
-          Bloom Gallery
-        </span>
-        <span className="inline-flex items-center gap-2 text-xs font-heading font-semibold text-neutral-gray">
-          <span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block" />
-          Casa Magnolia
-        </span>
+      <div className="flex flex-wrap gap-5 mb-8">
+        {uniqueLocations.map((loc) => (
+          <span key={loc.name} className="inline-flex items-center gap-2 text-xs font-heading font-semibold text-neutral-gray">
+            <span className={`w-3 h-3 rounded-sm ${loc.color} inline-block`} />
+            {loc.name}
+          </span>
+        ))}
       </div>
 
       {/* ── Event grid ── */}

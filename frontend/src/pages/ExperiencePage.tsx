@@ -21,7 +21,13 @@ import { fetchLocations, type FrontendLocation, type LocationSchedule } from '@/
 const BADGE_COLORS = ['bg-primary', 'bg-emerald-500', 'bg-blue-500', 'bg-purple-500'];
 
 function slugFromName(name: string): string {
-  return name.toLowerCase().includes('magnolia') ? 'magnolia' : 'bloom';
+  const normalized = name.toLowerCase().trim();
+  if (normalized === 'bloom gallery') return 'bloom';
+  if (normalized === 'casa magnolia' || normalized === 'casa mangolia') return 'magnolia';
+  
+  return normalized
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 function formatAvailability(schedules: LocationSchedule[], availabilityType: string): string {

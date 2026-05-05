@@ -23,6 +23,49 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
 
   const { events: allEvents, loading } = useCalendarMonth(viewYear, viewMonth);
 
+  // Derive unique locations from events for filters and legend
+  const locationMetadata = useMemo(() => {
+    const map = new Map<string, { label: string; colorClass: string; dotClass: string; price: number }>();
+    const extraColors = [
+      { colorClass: 'bg-amber-500', dotClass: 'bg-amber-500' },
+      { colorClass: 'bg-indigo-500', dotClass: 'bg-indigo-500' },
+      { colorClass: 'bg-rose-500', dotClass: 'bg-rose-500' },
+      { colorClass: 'bg-cyan-500', dotClass: 'bg-cyan-500' },
+    ];
+
+    let extraColorIdx = 0;
+    // Sort events to ensure bloom/magnolia get priority if they exist (to keep colors stable)
+    const sortedEvents = [...allEvents].sort((a, b) => {
+      if (a.locationId === 'bloom') return -1;
+      if (b.locationId === 'bloom') return 1;
+      if (a.locationId === 'magnolia') return -1;
+      if (b.locationId === 'magnolia') return 1;
+      return 0;
+    });
+
+    for (const ev of sortedEvents) {
+      if (!map.has(ev.locationId)) {
+        let color;
+        if (ev.locationId === 'bloom') {
+          color = { colorClass: 'bg-primary', dotClass: 'bg-primary' };
+        } else if (ev.locationId === 'magnolia') {
+          color = { colorClass: 'bg-emerald-500', dotClass: 'bg-emerald-500' };
+        } else {
+          color = extraColors[extraColorIdx % extraColors.length];
+          extraColorIdx++;
+        }
+
+        map.set(ev.locationId, {
+          label: ev.locationName,
+          colorClass: color.colorClass,
+          dotClass: color.dotClass,
+          price: ev.pricePerPerson,
+        });
+      }
+    }
+    return map;
+  }, [allEvents]);
+
   const filteredEvents = useMemo(
     () => filter === 'all' ? allEvents : allEvents.filter((e) => e.locationId === filter),
     [allEvents, filter],
@@ -80,19 +123,22 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
     }
   };
 
-  const getLocationBadges = (dateStr: string) => {
+  const getLocationBadgeIds = (dateStr: string) => {
     const events = eventsByDate.get(dateStr);
-    if (!events) return null;
-    const hasBloom = events.some((e) => e.locationId === 'bloom');
-    const hasMagnolia = events.some((e) => e.locationId === 'magnolia');
-    return { hasBloom, hasMagnolia };
+    if (!events) return [];
+    // Return unique location IDs for this day
+    return Array.from(new Set(events.map((e) => e.locationId)));
   };
 
-  const filters: { key: LocationFilter; label: string }[] = [
-    { key: 'all', label: t('booking.calendar.filterAll') },
-    { key: 'bloom', label: t('booking.calendar.filterBloom') },
-    { key: 'magnolia', label: t('booking.calendar.filterMagnolia') },
-  ];
+  const dynamicFilters = useMemo(() => {
+    const f: { key: LocationFilter; label: string; colorClass?: string }[] = [
+      { key: 'all', label: t('booking.calendar.filterAll') },
+    ];
+    locationMetadata.forEach((meta, id) => {
+      f.push({ key: id, label: meta.label, colorClass: meta.dotClass });
+    });
+    return f;
+  }, [locationMetadata, t]);
 
   return (
     <div className="w-full max-w-2xl mx-auto">
@@ -107,22 +153,19 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
       </div>
 
       {/* Location filter tabs */}
-      <div className="flex justify-center gap-2 mb-6">
-        {filters.map((f) => (
+      <div className="flex justify-center flex-wrap gap-2 mb-6">
+        {dynamicFilters.map((f) => (
           <button
             key={f.key}
             onClick={() => setFilter(f.key)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all flex items-center ${
               filter === f.key
                 ? 'bg-primary text-white shadow-md'
                 : 'bg-white text-neutral-gray hover:bg-neutral-cream border border-neutral-sand/40'
             }`}
           >
-            {f.key === 'bloom' && (
-              <span className="inline-block w-2 h-2 rounded-full bg-primary mr-2" />
-            )}
-            {f.key === 'magnolia' && (
-              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-2" />
+            {f.colorClass && (
+              <span className={`inline-block w-2 h-2 rounded-full mr-2 ${filter === f.key ? 'bg-white' : f.colorClass}`} />
             )}
             {f.label}
           </button>
@@ -189,8 +232,8 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
             const day = i + 1;
             const dateStr = toDateStr(day);
             const past = isPast(day);
-            const badges = getLocationBadges(dateStr);
-            const hasEvents = badges !== null;
+            const dayLocationIds = getLocationBadgeIds(dateStr);
+            const hasEvents = dayLocationIds.length > 0;
             const isSelected = dateStr === selectedDate;
 
             return (
@@ -211,12 +254,16 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
                 <span className={isSelected ? 'text-primary font-bold' : ''}>{day}</span>
                 {hasEvents && !past && (
                   <div className="flex gap-0.5">
-                    {badges.hasBloom && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary" title="Bloom" />
-                    )}
-                    {badges.hasMagnolia && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="Magnolia" />
-                    )}
+                    {dayLocationIds.map((locId) => {
+                      const meta = locationMetadata.get(locId);
+                      return meta ? (
+                        <span 
+                          key={locId}
+                          className={`w-1.5 h-1.5 rounded-full ${meta.dotClass}`} 
+                          title={meta.label} 
+                        />
+                      ) : null;
+                    })}
                   </div>
                 )}
               </motion.button>
@@ -225,15 +272,13 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
         </div>
 
         {/* Legend */}
-        <div className="flex items-center justify-center gap-6 mt-6 pt-4 border-t border-neutral-sand/30">
-          <div className="flex items-center gap-2 text-xs text-neutral-gray">
-            <span className="w-2.5 h-2.5 rounded-full bg-primary" />
-            Bloom Gallery · €59
-          </div>
-          <div className="flex items-center gap-2 text-xs text-neutral-gray">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            Casa Magnolia · €99
-          </div>
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-6 pt-4 border-t border-neutral-sand/30">
+          {Array.from(locationMetadata.entries()).map(([id, meta]) => (
+            <div key={id} className="flex items-center gap-2 text-xs text-neutral-gray">
+              <span className={`w-2.5 h-2.5 rounded-full ${meta.dotClass}`} />
+              {meta.label} · €{meta.price}
+            </div>
+          ))}
         </div>
       </div>
     </div>

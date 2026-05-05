@@ -77,6 +77,7 @@ export default function BookingPage() {
         guests,
         total: selectedEvent.pricePerPerson * guests,
         pricePerPerson: selectedEvent.pricePerPerson,
+        locationName: selectedEvent.locationName,
         customerFirstName: nameParts[0] || '',
         customerLastName: nameParts.slice(1).join(' ') || '',
         customerEmail: user.email,
@@ -147,9 +148,7 @@ export default function BookingPage() {
               <div className="bg-white rounded-2xl shadow-card p-5 mb-8">
                 <div className="flex items-start gap-4">
                   <div
-                    className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${
-                      selectedEvent.locationId === 'bloom' ? 'bg-primary' : 'bg-emerald-500'
-                    }`}
+                    className="w-2 h-2 rounded-full mt-2 flex-shrink-0 bg-primary"
                   />
                   <div className="flex-1">
                     <p className="font-heading font-semibold text-neutral-dark text-sm">

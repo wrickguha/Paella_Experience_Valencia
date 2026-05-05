@@ -80,9 +80,7 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                     {/* Location badge */}
                     <span
-                      className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white ${
-                        event.locationId === 'bloom' ? 'bg-primary' : 'bg-emerald-500'
-                      }`}
+                      className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-semibold text-white bg-primary"
                     >
                       {event.locationName}
                     </span>
@@ -111,7 +109,7 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        {event.locationId === 'bloom' ? 'Ruzafa, Valencia' : 'Alzira'}
+                        {event.address || (event.locationId === 'bloom' ? 'Ruzafa, Valencia' : 'Alzira')}
                       </div>
                     </div>
 

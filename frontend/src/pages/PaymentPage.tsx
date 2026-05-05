@@ -11,6 +11,7 @@ interface StoredBooking {
   locationId: string;
   locationNumericId: number;
   experienceId: number;
+  locationName: string;
   date: string;
   time: string;
   guests: number;
@@ -21,11 +22,6 @@ interface StoredBooking {
   customerEmail?: string;
   customerPhone?: string;
 }
-
-const locationLabels: Record<string, string> = {
-  bloom: 'Bloom Gallery — Ruzafa, Valencia',
-  magnolia: 'Casa Magnolia — Alzira',
-};
 
 export default function PaymentPage() {
   const { t } = useTranslation();
@@ -155,7 +151,7 @@ export default function PaymentPage() {
                   )}
                   <div className="flex justify-between">
                     <span className="text-neutral-gray">{t('booking.summary.location')}</span>
-                    <span className="text-neutral-dark font-medium">{locationLabels[stored.locationId] ?? stored.locationId}</span>
+                    <span className="text-neutral-dark font-medium">{stored.locationName}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-neutral-gray">{t('booking.summary.date')}</span>

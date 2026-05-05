@@ -19,7 +19,7 @@ apiClient.interceptors.request.use((config) => {
 });
 
 // ── Shared domain types ────────────────────────────────────────────
-export type LocationId = 'bloom' | 'magnolia';
+export type LocationId = string;
 
 export interface CalendarEvent {
   date: string;
@@ -31,6 +31,7 @@ export interface CalendarEvent {
   spotsLeft: number;
   pricePerPerson: number;
   image: string;
+  address: string;
 }
 
 // ── Internal types (backend response shapes) ───────────────────────
@@ -75,8 +76,14 @@ async function getExperiences(): Promise<ApiExperience[]> {
   return _experienceCache;
 }
 
-function slugFromName(name: string): LocationId {
-  return name.toLowerCase().includes('magnolia') ? 'magnolia' : 'bloom';
+function slugFromName(name: string): string {
+  const normalized = name.toLowerCase().trim();
+  if (normalized === 'bloom gallery') return 'bloom';
+  if (normalized === 'casa magnolia' || normalized === 'casa mangolia') return 'magnolia';
+  
+  return normalized
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 // ── Calendar API ───────────────────────────────────────────────────
@@ -105,6 +112,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         spotsLeft: e.available_slots,
         pricePerPerson: e.experience_price || loc?.price || 59,
         image: loc?.image ?? '',
+        address: loc?.address ?? '',
       };
     });
 }
