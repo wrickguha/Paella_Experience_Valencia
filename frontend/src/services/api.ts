@@ -87,6 +87,13 @@ function slugFromName(name: string): string {
     .replace(/(^-|-$)/g, '');
 }
 
+function getFullImageUrl(path: string | null): string {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  const baseUrl = API_BASE_URL.replace('/api', '');
+  return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
 // ── Calendar API ───────────────────────────────────────────────────
 /**
  * Fetch all available CalendarEvents for a given month (0-indexed, JS convention).
@@ -112,7 +119,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
         spotsLeft: e.available_slots,
         pricePerPerson: e.experience_price || loc?.price || 59,
-        image: loc?.image ?? '',
+        image: getFullImageUrl(loc?.image ?? ''),
         address: loc?.address ?? '',
       };
     });
@@ -142,7 +149,13 @@ export interface FrontendLocation {
 
 export async function fetchLocations(lang = 'en'): Promise<FrontendLocation[]> {
   const res = await apiClient.get('/locations', { params: { lang } });
-  return res.data.data as FrontendLocation[];
+  const data = res.data.data as FrontendLocation[];
+  return data.map((loc) => ({
+    ...loc,
+    image: getFullImageUrl(loc.image),
+    hero_image: getFullImageUrl(loc.hero_image),
+    gallery: (loc.gallery || []).map(getFullImageUrl),
+  }));
 }
 
 // ── Testimonials API ──────────────────────────────────────────────
