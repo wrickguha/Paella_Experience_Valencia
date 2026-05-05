@@ -40,6 +40,7 @@ interface ApiLocation {
   name: string;
   image: string;
   price: number | null;
+  address: string;
 }
 
 interface ApiExperience {
