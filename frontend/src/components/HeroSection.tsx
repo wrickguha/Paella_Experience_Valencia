@@ -17,13 +17,16 @@ const HERO_SLIDES = [
 export default function HeroSection() {
   const { t } = useTranslation();
   const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   const next = useCallback(() => {
+    setDirection(1);
     setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
   }, []);
 
   const prev = useCallback(() => {
+    setDirection(-1);
     setCurrent((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
   }, []);
 
@@ -49,22 +52,23 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Carousel background */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={current}
-          initial={{ opacity: 0, scale: 1.06 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 1.1, ease: "easeInOut" }}
+          custom={direction}
+          initial={{ opacity: 0, x: direction * 80 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: direction * -80 }}
+          transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="absolute inset-0 z-0"
         >
           <img
             src={HERO_SLIDES[current].src}
             alt={HERO_SLIDES[current].alt}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center scale-[1.08] animate-kenburns"
             loading={current === 0 ? "eager" : "lazy"}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
         </motion.div>
       </AnimatePresence>
 

@@ -66,9 +66,14 @@ export default {
             'background-position': 'right center'
           },
         },
+        'kenburns': {
+          '0%': { transform: 'scale(1.08) translate(0px, 0px)' },
+          '100%': { transform: 'scale(1.0) translate(-20px, -8px)' },
+        },
       },
       animation: {
         'gradient-x': 'gradient-x 5s ease infinite',
+        'kenburns': 'kenburns 6s ease-out forwards',
       },
     },
   },
