@@ -5,13 +5,25 @@ import SectionWrapper from './SectionWrapper';
 import { fetchGallery } from '@/services/api';
 import type { GalleryImage } from '@/services/api';
 
+// Real event photos — used as fallback when API returns no data
+const LOCAL_GALLERY: GalleryImage[] = [
+  { src: '/Casa Magnolia. 5.3.26/Chef Gene.jpg',       alt: 'Chef Gene presenting the paella at Casa Magnolia' },
+  { src: '/Casa Magnolia. 5.3.26/Paella valenciana.jpg', alt: 'Traditional Paella Valenciana' },
+  { src: '/Casa Magnolia. 5.3.26/Sobremesa.jpg',       alt: 'Guests sharing stories after the meal' },
+  { src: '/Casa Magnolia. 5.3.26/Socarrat.jpg',        alt: 'The perfect socarrat — crispy caramelised rice base' },
+  { src: '/Speakeasy EXPERIENCE 4.19.2026/GPTempDownload.jpg',   alt: 'The Speakeasy paella experience' },
+  { src: '/Casa Magnolia. 5.3.26/Paella 1.jpg',        alt: 'Paella sizzling over open flame at Casa Magnolia' },
+];
+
 export default function GalleryGrid() {
   const { t, i18n } = useTranslation();
   const [images, setImages] = useState<GalleryImage[]>([]);
 
   useEffect(() => {
     const lang = i18n.language.startsWith('es') ? 'es' : 'en';
-    fetchGallery('homepage', lang).then(setImages).catch(() => {});
+    fetchGallery('homepage', lang)
+      .then((data) => setImages(data.length > 0 ? data : LOCAL_GALLERY))
+      .catch(() => setImages(LOCAL_GALLERY));
   }, [i18n.language]);
 
   const captions = [
@@ -20,7 +32,7 @@ export default function GalleryGrid() {
     "People from different places",
     "Connection through culture",
     "Laughter is the best ingredient",
-    "Cooking is a universal language"
+    "Cooking is a universal language",
   ];
 
   return (
@@ -43,14 +55,14 @@ export default function GalleryGrid() {
             viewport={{ once: true }}
             transition={{ delay: index * 0.1, duration: 0.5 }}
             className={`relative overflow-hidden rounded-2xl group cursor-pointer ${
-              index === 0 ? 'md:col-span-2 md:row-span-2' : ''
+              index === 0 ? 'md:col-span-2 md:row-span-2 aspect-[4/3] md:aspect-auto' : 'aspect-square'
             }`}
           >
             <img
               src={image.src}
               alt={image.alt}
               loading="lazy"
-              className="w-full h-full object-cover aspect-square transition-transform duration-500
+              className="w-full h-full object-cover transition-transform duration-500
                          group-hover:scale-110"
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center p-6 text-center">
@@ -62,6 +74,6 @@ export default function GalleryGrid() {
         ))}
       </div>
     </SectionWrapper>
-
   );
 }
+

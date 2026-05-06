@@ -91,7 +91,15 @@ function slugFromName(name: string): string {
 
 function getFullImageUrl(path: string | null): string {
   if (!path) return '';
-  if (path.startsWith('http')) return path;
+  if (path.startsWith('http')) {
+    // Strip the backend origin so the browser uses Vite's /storage proxy in dev
+    // and the same-domain path in production
+    try {
+      return new URL(path).pathname;
+    } catch {
+      return path;
+    }
+  }
   const baseUrl = API_BASE_URL.replace('/api', '');
   return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 }

@@ -9,47 +9,95 @@ class GallerySeeder extends Seeder
 {
     public function run(): void
     {
+        Gallery::truncate();
+
         $images = [
+            // Homepage gallery — real event photos
             [
-                'image' => 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?w=600&q=80',
-                'alt_en' => 'Paella cooking over open fire',
-                'alt_es' => 'Paella cocinando al fuego',
+                'image' => 'gallery/chef-gene.jpg',
+                'alt_en' => 'Chef Gene presenting the paella at Casa Magnolia',
+                'alt_es' => 'Chef Gene presentando la paella en Casa Magnolia',
                 'type' => 'homepage',
+                'sort_order' => 0,
+                'is_active' => true,
             ],
             [
-                'image' => 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80',
-                'alt_en' => 'Fresh ingredients at Mercado Central',
-                'alt_es' => 'Ingredientes frescos en el Mercado Central',
+                'image' => 'gallery/paella-valenciana.jpg',
+                'alt_en' => 'Traditional Paella Valenciana freshly cooked',
+                'alt_es' => 'Paella Valenciana tradicional recién cocinada',
                 'type' => 'homepage',
+                'sort_order' => 1,
+                'is_active' => true,
             ],
             [
-                'image' => 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80',
-                'alt_en' => 'Beautiful terrace dining',
-                'alt_es' => 'Hermosa cena en la terraza',
+                'image' => 'gallery/sobremesa.jpg',
+                'alt_en' => 'Guests sharing stories and laughter after the meal',
+                'alt_es' => 'Invitados compartiendo historias y risas tras la comida',
                 'type' => 'homepage',
+                'sort_order' => 2,
+                'is_active' => true,
             ],
             [
-                'image' => 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600&q=80',
-                'alt_en' => 'Chef preparing ingredients',
-                'alt_es' => 'Chef preparando ingredientes',
+                'image' => 'gallery/socarrat.jpg',
+                'alt_en' => 'The perfect socarrat — crispy caramelised rice base',
+                'alt_es' => 'El socarrat perfecto — base de arroz crujiente caramelizado',
                 'type' => 'homepage',
+                'sort_order' => 3,
+                'is_active' => true,
             ],
             [
-                'image' => 'https://images.unsplash.com/photo-1551218808-94e220e084d2?w=600&q=80',
-                'alt_en' => 'Group enjoying the experience',
-                'alt_es' => 'Grupo disfrutando de la experiencia',
+                'image' => 'gallery/speakeasy-1.jpg',
+                'alt_en' => 'The Speakeasy Experience — underground dining atmosphere',
+                'alt_es' => 'La Experiencia Speakeasy — ambiente de comedor underground',
                 'type' => 'homepage',
+                'sort_order' => 4,
+                'is_active' => true,
             ],
             [
-                'image' => 'https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?w=600&q=80',
-                'alt_en' => 'Finished paella dish',
-                'alt_es' => 'Plato de paella terminado',
+                'image' => 'gallery/paella-1.jpg',
+                'alt_en' => 'Paella sizzling over the open flame at Casa Magnolia',
+                'alt_es' => 'Paella chisporroteando al fuego abierto en Casa Magnolia',
                 'type' => 'homepage',
+                'sort_order' => 5,
+                'is_active' => true,
+            ],
+            // Experience gallery
+            [
+                'image' => 'gallery/speakeasy-2.jpg',
+                'alt_en' => 'Guests enjoying the Speakeasy paella experience',
+                'alt_es' => 'Invitados disfrutando de la experiencia paella Speakeasy',
+                'type' => 'experience',
+                'sort_order' => 0,
+                'is_active' => true,
+            ],
+            [
+                'image' => 'gallery/speakeasy-3.jpg',
+                'alt_en' => 'The unique atmosphere of the Speakeasy venue',
+                'alt_es' => 'La atmósfera única del local Speakeasy',
+                'type' => 'experience',
+                'sort_order' => 1,
+                'is_active' => true,
+            ],
+            [
+                'image' => 'gallery/speakeasy-4.jpg',
+                'alt_en' => 'Speakeasy — intimate gathering around the paella',
+                'alt_es' => 'Speakeasy — reunión íntima alrededor de la paella',
+                'type' => 'experience',
+                'sort_order' => 2,
+                'is_active' => true,
+            ],
+            [
+                'image' => 'gallery/speakeasy-5.jpg',
+                'alt_en' => 'Magical evening at the Speakeasy paella experience',
+                'alt_es' => 'Noche mágica en la experiencia paella Speakeasy',
+                'type' => 'experience',
+                'sort_order' => 3,
+                'is_active' => true,
             ],
         ];
 
-        foreach ($images as $i => $img) {
-            Gallery::create(array_merge($img, ['sort_order' => $i]));
+        foreach ($images as $img) {
+            Gallery::create($img);
         }
     }
 }

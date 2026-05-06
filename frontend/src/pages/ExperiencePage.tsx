@@ -218,8 +218,8 @@ export default function ExperiencePage() {
       <section className="relative py-28 sm:py-36 overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=1600&q=80"
-            alt="Valencia cooking experience"
+            src="/Casa Magnolia. 5.3.26/Paella valenciana.jpg"
+            alt="Paella Valenciana — The Experience"
             className="w-full h-full object-cover"
             loading="eager"
           />
@@ -293,6 +293,7 @@ export default function ExperiencePage() {
           <MicroFlowBreakdown />
         </div>
       </section>
+
 
       <CommunityInlineTestimonial />
 

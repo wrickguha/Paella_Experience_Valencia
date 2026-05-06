@@ -58,8 +58,8 @@ export default function LanguageSection() {
         >
           <div className="relative rounded-3xl overflow-hidden shadow-elevated aspect-[4/3]">
             <img 
-              src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=1000" 
-              alt="People talking" 
+              src="/Speakeasy EXPERIENCE 4.19.2026/GPTempDownload(2).jpg" 
+              alt="SpeakEasy Valencia experience" 
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />

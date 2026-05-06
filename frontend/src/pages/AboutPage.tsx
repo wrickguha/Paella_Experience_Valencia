@@ -14,8 +14,8 @@ function AboutHero() {
     <section className="relative py-28 sm:py-36 overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="https://images.unsplash.com/photo-1515443961218-a51367888e4b?w=1600&q=80"
-          alt="About SpeakEasy Valencia"
+          src="/Casa Magnolia. 5.3.26/Sobremesa.jpg"
+          alt="About SpeakEasy Valencia — guests sharing a meal"
           className="w-full h-full object-cover"
           loading="eager"
         />
@@ -72,12 +72,12 @@ function OurStory() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative"
+          className="relative overflow-hidden rounded-2xl shadow-elevated"
         >
           <img
-            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=800"
-            alt="Our Story"
-            className="rounded-2xl shadow-elevated w-full aspect-[4/3] object-cover"
+            src="/Casa Magnolia. 5.3.26/Chef Gene.jpg"
+            alt="Chef Gene — Our Story"
+            className="w-full aspect-[4/3] object-cover object-top"
           />
           <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-2xl -z-10" />
         </motion.div>
@@ -149,12 +149,12 @@ function LanguageAndCulture() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="lg:order-2"
+          className="lg:order-2 overflow-hidden rounded-2xl shadow-elevated"
         >
           <img
-            src="https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&q=80&w=800"
-            alt="Language & Culture"
-            className="rounded-2xl shadow-elevated w-full aspect-[4/3] object-cover"
+            src="/Speakeasy EXPERIENCE 4.19.2026/GPTempDownload(2).jpg"
+            alt="Language & Culture — SpeakEasy Valencia"
+            className="w-full aspect-[4/3] object-cover object-center"
           />
         </motion.div>
 
@@ -279,11 +279,13 @@ function MeetTheHost() {
           transition={{ duration: 0.7 }}
           className="relative order-first lg:order-last"
         >
-          <img
-            src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=800"
-            alt="Your Host"
-            className="rounded-2xl shadow-elevated w-full aspect-square object-cover"
-          />
+          <div className="overflow-hidden rounded-2xl shadow-elevated">
+            <img
+              src="/Casa Magnolia. 5.3.26/Chef Gene.jpg"
+              alt="Chef Gene — Your Host"
+              className="w-full aspect-[4/3] object-cover object-top"
+            />
+          </div>
           <div className="absolute -top-4 -right-4 w-20 h-20 border-4 border-accent/20 rounded-2xl -z-10" />
         </motion.div>
       </div>
