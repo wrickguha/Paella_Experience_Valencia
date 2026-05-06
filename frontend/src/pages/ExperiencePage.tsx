@@ -67,8 +67,10 @@ function LocationSection({
     ? location.gallery
     : fallbackImage ? [fallbackImage] : [];
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slideDir, setSlideDir] = useState(1);
 
   const nextSlide = useCallback(() => {
+    setSlideDir(1);
     setCurrentSlide((prev) => (prev + 1) % images.length);
   }, [images.length]);
 
@@ -95,17 +97,18 @@ function LocationSection({
             transition={{ duration: 0.4 }}
           >
             <div className="relative w-full h-72 sm:h-96 lg:h-[480px]">
-              <AnimatePresence mode="wait">
+              <AnimatePresence initial={false} custom={slideDir}>
                 {images.length > 0 && (
                   <motion.img
                     key={currentSlide}
+                    custom={slideDir}
                     src={images[currentSlide]}
                     alt={`${location.name} ${currentSlide + 1}`}
                     className="absolute inset-0 w-full h-full object-cover"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.6 }}
+                    initial={(dir) => ({ opacity: 0, x: dir * 60 })}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={(dir) => ({ opacity: 0, x: dir * -60 })}
+                    transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
                     loading="lazy"
                   />
                 )}
@@ -123,7 +126,7 @@ function LocationSection({
                 {images.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCurrentSlide(idx)}
+                    onClick={() => { setSlideDir(idx > currentSlide ? 1 : -1); setCurrentSlide(idx); }}
                     className={`w-2 h-2 rounded-full transition-all ${
                       idx === currentSlide ? 'bg-white w-5' : 'bg-white/50'
                     }`}
