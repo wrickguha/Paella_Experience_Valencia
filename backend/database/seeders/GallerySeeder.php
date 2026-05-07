@@ -14,7 +14,7 @@ class GallerySeeder extends Seeder
         $images = [
             // Homepage gallery — real event photos
             [
-                'image' => 'gallery/chef-gene.jpg',
+                'image' => 'assets/images/casa-magnolia/Chef Gene.jpg',
                 'alt_en' => 'Chef Gene presenting the paella at Casa Magnolia',
                 'alt_es' => 'Chef Gene presentando la paella en Casa Magnolia',
                 'type' => 'homepage',
@@ -22,7 +22,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/paella-valenciana.jpg',
+                'image' => 'assets/images/casa-magnolia/Paella valenciana.jpg',
                 'alt_en' => 'Traditional Paella Valenciana freshly cooked',
                 'alt_es' => 'Paella Valenciana tradicional recién cocinada',
                 'type' => 'homepage',
@@ -30,7 +30,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/sobremesa.jpg',
+                'image' => 'assets/images/casa-magnolia/Sobremesa.jpg',
                 'alt_en' => 'Guests sharing stories and laughter after the meal',
                 'alt_es' => 'Invitados compartiendo historias y risas tras la comida',
                 'type' => 'homepage',
@@ -38,7 +38,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/socarrat.jpg',
+                'image' => 'assets/images/casa-magnolia/Socarrat.jpg',
                 'alt_en' => 'The perfect socarrat — crispy caramelised rice base',
                 'alt_es' => 'El socarrat perfecto — base de arroz crujiente caramelizado',
                 'type' => 'homepage',
@@ -46,7 +46,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/speakeasy-1.jpg',
+                'image' => 'assets/images/speakeasy/GPTempDownload.jpg',
                 'alt_en' => 'The Speakeasy Experience — underground dining atmosphere',
                 'alt_es' => 'La Experiencia Speakeasy — ambiente de comedor underground',
                 'type' => 'homepage',
@@ -54,7 +54,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/paella-1.jpg',
+                'image' => 'assets/images/casa-magnolia/Paella 1.jpg',
                 'alt_en' => 'Paella sizzling over the open flame at Casa Magnolia',
                 'alt_es' => 'Paella chisporroteando al fuego abierto en Casa Magnolia',
                 'type' => 'homepage',
@@ -63,7 +63,7 @@ class GallerySeeder extends Seeder
             ],
             // Experience gallery
             [
-                'image' => 'gallery/speakeasy-2.jpg',
+                'image' => 'assets/images/speakeasy/GPTempDownload(1).jpg',
                 'alt_en' => 'Guests enjoying the Speakeasy paella experience',
                 'alt_es' => 'Invitados disfrutando de la experiencia paella Speakeasy',
                 'type' => 'experience',
@@ -71,7 +71,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/speakeasy-3.jpg',
+                'image' => 'assets/images/speakeasy/GPTempDownload(2).jpg',
                 'alt_en' => 'The unique atmosphere of the Speakeasy venue',
                 'alt_es' => 'La atmósfera única del local Speakeasy',
                 'type' => 'experience',
@@ -79,7 +79,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/speakeasy-4.jpg',
+                'image' => 'assets/images/speakeasy/GPTempDownload(3).jpg',
                 'alt_en' => 'Speakeasy — intimate gathering around the paella',
                 'alt_es' => 'Speakeasy — reunión íntima alrededor de la paella',
                 'type' => 'experience',
@@ -87,7 +87,7 @@ class GallerySeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'image' => 'gallery/speakeasy-5.jpg',
+                'image' => 'assets/images/speakeasy/GPTempDownload(4).jpg',
                 'alt_en' => 'Magical evening at the Speakeasy paella experience',
                 'alt_es' => 'Noche mágica en la experiencia paella Speakeasy',
                 'type' => 'experience',
