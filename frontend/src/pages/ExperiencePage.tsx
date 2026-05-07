@@ -226,7 +226,7 @@ export default function ExperiencePage() {
       <section className="relative py-28 sm:py-36 overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="/Casa Magnolia. 5.3.26/Paella valenciana.jpg"
+            src="/storage/assets/images/casa-magnolia/Paella valenciana.jpg"
             alt="Paella Valenciana — The Experience"
             className="w-full h-full object-cover"
             loading="eager"

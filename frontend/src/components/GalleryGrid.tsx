@@ -7,12 +7,12 @@ import type { GalleryImage } from '@/services/api';
 
 // Real event photos — used as fallback when API returns no data
 const LOCAL_GALLERY: GalleryImage[] = [
-  { src: '/Casa Magnolia. 5.3.26/Chef Gene.jpg',       alt: 'Chef Gene presenting the paella at Casa Magnolia' },
-  { src: '/Casa Magnolia. 5.3.26/Paella valenciana.jpg', alt: 'Traditional Paella Valenciana' },
-  { src: '/Casa Magnolia. 5.3.26/Sobremesa.jpg',       alt: 'Guests sharing stories after the meal' },
-  { src: '/Casa Magnolia. 5.3.26/Socarrat.jpg',        alt: 'The perfect socarrat — crispy caramelised rice base' },
-  { src: '/Speakeasy EXPERIENCE 4.19.2026/GPTempDownload.jpg',   alt: 'The Speakeasy paella experience' },
-  { src: '/Casa Magnolia. 5.3.26/Paella 1.jpg',        alt: 'Paella sizzling over open flame at Casa Magnolia' },
+  { src: '/storage/assets/images/casa-magnolia/Chef Gene.jpg',       alt: 'Chef Gene presenting the paella at Casa Magnolia' },
+  { src: '/storage/assets/images/casa-magnolia/Paella valenciana.jpg', alt: 'Traditional Paella Valenciana' },
+  { src: '/storage/assets/images/casa-magnolia/Sobremesa.jpg',       alt: 'Guests sharing stories after the meal' },
+  { src: '/storage/assets/images/casa-magnolia/Socarrat.jpg',        alt: 'The perfect socarrat — crispy caramelised rice base' },
+  { src: '/storage/assets/images/speakeasy/GPTempDownload.jpg',      alt: 'The Speakeasy paella experience' },
+  { src: '/storage/assets/images/casa-magnolia/Paella 1.jpg',        alt: 'Paella sizzling over open flame at Casa Magnolia' },
 ];
 
 export default function GalleryGrid() {

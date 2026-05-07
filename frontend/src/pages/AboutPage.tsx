@@ -14,7 +14,7 @@ function AboutHero() {
     <section className="relative py-28 sm:py-36 overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="/Casa Magnolia. 5.3.26/Sobremesa.jpg"
+          src="/storage/assets/images/casa-magnolia/Sobremesa.jpg"
           alt="About SpeakEasy Valencia — guests sharing a meal"
           className="w-full h-full object-cover"
           loading="eager"
@@ -75,7 +75,7 @@ function OurStory() {
           className="relative overflow-hidden rounded-2xl shadow-elevated"
         >
           <img
-            src="/Casa Magnolia. 5.3.26/Chef Gene.jpg"
+            src="/storage/assets/images/casa-magnolia/Chef Gene.jpg"
             alt="Chef Gene — Our Story"
             className="w-full aspect-[4/3] object-cover object-top"
           />
@@ -152,7 +152,7 @@ function LanguageAndCulture() {
           className="lg:order-2 overflow-hidden rounded-2xl shadow-elevated"
         >
           <img
-            src="/Speakeasy EXPERIENCE 4.19.2026/GPTempDownload(2).jpg"
+            src="/storage/assets/images/speakeasy/GPTempDownload(2).jpg"
             alt="Language & Culture — SpeakEasy Valencia"
             className="w-full aspect-[4/3] object-cover object-center"
           />
@@ -281,7 +281,7 @@ function MeetTheHost() {
         >
           <div className="overflow-hidden rounded-2xl shadow-elevated">
             <img
-              src="/Casa Magnolia. 5.3.26/Chef Gene.jpg"
+              src="/storage/assets/images/casa-magnolia/Chef Gene.jpg"
               alt="Chef Gene — Your Host"
               className="w-full aspect-[4/3] object-cover object-top"
             />

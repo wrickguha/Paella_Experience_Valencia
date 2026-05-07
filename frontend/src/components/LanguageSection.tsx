@@ -58,7 +58,7 @@ export default function LanguageSection() {
         >
           <div className="relative rounded-3xl overflow-hidden shadow-elevated aspect-[4/3]">
             <img 
-              src="/Speakeasy EXPERIENCE 4.19.2026/GPTempDownload(2).jpg" 
+              src="/storage/assets/images/speakeasy/GPTempDownload(2).jpg" 
               alt="SpeakEasy Valencia experience" 
               className="w-full h-full object-cover"
             />

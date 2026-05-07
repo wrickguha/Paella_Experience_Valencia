@@ -22,3 +22,17 @@ frontend/.env.local
 # OS
 .DS_Store
 Thumbs.db
+
+# Large media — videos should never be in git
+*.mp4
+*.mov
+*.m4a
+*.m4v
+*.avi
+*.mkv
+*.webm
+
+# Local public media folders (images served from backend storage in prod)
+frontend/public/Speakeasy EXPERIENCE 4.19.2026/
+frontend/public/Casa Magnolia. 5.3.26/
+backend/storage/app/public/assets/images/casa-magnolia/Casa Magnolia. 5.3.26/
