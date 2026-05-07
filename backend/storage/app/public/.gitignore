@@ -1,2 +1,11 @@
 *
 !.gitignore
+!assets/
+assets/**
+!assets/**/
+!assets/**/*.jpg
+!assets/**/*.jpeg
+!assets/**/*.png
+!assets/**/*.gif
+!assets/**/*.webp
+!assets/**/*.svg
