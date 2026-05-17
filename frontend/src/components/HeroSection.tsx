@@ -44,14 +44,14 @@ export default function HeroSection() {
         >
           <motion.h1
             variants={itemVariants}
-            className="font-modern text-4xl sm:text-5xl lg:text-7xl font-bold text-white leading-tight mb-6"
+            className="font-modern text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-lg"
           >
             {t("hero.title")}
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
-            className="text-lg sm:text-xl text-white/90 font-modern mb-10 max-w-2xl leading-relaxed"
+            className="text-xl sm:text-2xl text-white/95 font-body font-medium mb-10 max-w-3xl leading-relaxed drop-shadow-md"
           >
             {t("hero.subtitle")}
           </motion.p>
