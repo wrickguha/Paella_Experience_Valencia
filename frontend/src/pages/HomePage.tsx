@@ -11,6 +11,7 @@ import CommunitySection from '@/components/CommunitySection';
 import VideoTestimonialsSection from '@/components/VideoTestimonialsSection';
 import LanguageSection from '@/components/LanguageSection';
 import ActivitiesSection from '@/components/ActivitiesSection';
+import SpanishLevelTest from '@/components/SpanishLevelTest';
 import ExperienceFlowSection from '@/components/ExperienceFlowSection';
 import CommunityCTA from '@/components/CommunityCTA';
 import FancyButton from '@/components/ui/FancyButton';
@@ -27,6 +28,7 @@ export default function HomePage() {
       <VideoTestimonialsSection />
       <LanguageSection />
       <ActivitiesSection />
+      <SpanishLevelTest />
       <ExperienceFlowSection />
       <GalleryGrid />
       <HowItWorks />

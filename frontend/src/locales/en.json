@@ -678,5 +678,134 @@
     "acceptTerms": "I have read and accept the terms and conditions and the privacy policy",
     "isOver18": "I am over 18 years old",
     "disclaimerRequired": "Please accept the terms and confirm you are over 18 to continue"
+  },
+  "spanishTest": {
+    "title": "Discover Your Spanish Level",
+    "subtitle": "Our experiences are designed for different levels of confidence and immersion. This quick placement test helps us recommend the most comfortable and enjoyable experience for you.",
+    "startBtn": "Start Test",
+    "nextBtn": "Next",
+    "resultsBtn": "See Results",
+    "retakeBtn": "Retake Test",
+    "bookBtn": "View Experiences",
+    "resultsTitle": "Your Results",
+    "scoreLabel": "You scored",
+    "outOf": "out of 60",
+    "recommendationTitle": "Suggested Experience For You",
+    "levels": {
+      "beginner": {
+        "title": "Relaxed beginner retreats",
+        "description": "Perfect for those starting their Spanish journey. We focus on fun, simple interactions with plenty of English support."
+      },
+      "intermediate": {
+        "title": "Conversation-based immersion days",
+        "description": "Ideal if you can hold basic conversations. We'll help you speak more naturally while cooking and socializing."
+      },
+      "advanced": {
+        "title": "Full immersion experiences",
+        "description": "For those comfortable speaking Spanish. Enjoy deep cultural conversations and authentic local interactions."
+      }
+    },
+    "questions": [
+      {
+        "q": "Hola, ¿Cómo _______?",
+        "options": ["estás", "eres", "es", "estoy"],
+        "answer": 0
+      },
+      {
+        "q": "Yo _______ de los Estados Unidos.",
+        "options": ["soy", "estoy", "es", "eres"],
+        "answer": 0
+      },
+      {
+        "q": "Me _______ la paella.",
+        "options": ["gusta", "gustan", "gusto", "gustas"],
+        "answer": 0
+      },
+      {
+        "q": "¿Dónde _______ el baño?",
+        "options": ["es", "está", "hay", "tiene"],
+        "answer": 1
+      },
+      {
+        "q": "Nosotros _______ español todos los días.",
+        "options": ["hablo", "hablan", "hablamos", "hablas"],
+        "answer": 2
+      },
+      {
+        "q": "Ayer yo _______ al mercado central.",
+        "options": ["fui", "iba", "voy", "iré"],
+        "answer": 0
+      },
+      {
+        "q": "Cuando era niño, siempre _______ paella los domingos.",
+        "options": ["comí", "comía", "comeré", "como"],
+        "answer": 1
+      },
+      {
+        "q": "No creo que _______ llover mañana.",
+        "options": ["va a", "vaya a", "irá", "va"],
+        "answer": 1
+      },
+      {
+        "q": "Si yo _______ más dinero, viajaría más.",
+        "options": ["tengo", "tuviera", "tendré", "tenía"],
+        "answer": 1
+      },
+      {
+        "q": "Para hacer una buena paella, es importante _______ buen arroz.",
+        "options": ["usar", "usando", "uses", "usas"],
+        "answer": 0
+      },
+      {
+        "q": "Todavía no _______ terminado de comer.",
+        "options": ["he", "ha", "hemos", "han"],
+        "answer": 0
+      },
+      {
+        "q": "Espero que tú _______ un buen viaje.",
+        "options": ["tienes", "tengas", "tendrías", "tuviste"],
+        "answer": 1
+      },
+      {
+        "q": "¿Has _______ alguna vez a Valencia?",
+        "options": ["ido", "estado", "sido", "andado"],
+        "answer": 1
+      },
+      {
+        "q": "Me pidió que le _______ la sal.",
+        "options": ["paso", "pase", "pasara", "pasar"],
+        "answer": 2
+      },
+      {
+        "q": "Llevo tres años _______ español.",
+        "options": ["estudiar", "estudiando", "estudiado", "estudio"],
+        "answer": 1
+      },
+      {
+        "q": "El coche fue _______ por el mecánico.",
+        "options": ["arreglar", "arreglado", "arregló", "arreglando"],
+        "answer": 1
+      },
+      {
+        "q": "Ojalá _______ sol este fin de semana.",
+        "options": ["hace", "haga", "hizo", "hará"],
+        "answer": 1
+      },
+      {
+        "q": "Lo habría hecho si me lo _______ dicho antes.",
+        "options": ["habías", "habrías", "hubieras", "hayas"],
+        "answer": 2
+      },
+      {
+        "q": "Por mucho que _______, no conseguirá convencerme.",
+        "options": ["insiste", "insistirá", "insista", "insistió"],
+        "answer": 2
+      },
+      {
+        "q": "Es evidente que ellos no _______ la verdad.",
+        "options": ["saben", "sepan", "sabían", "sabrán"],
+        "answer": 0
+      }
+    ]
   }
 }
