@@ -3,12 +3,12 @@ import SectionWrapper from './SectionWrapper';
 import { motion } from 'framer-motion';
 
 const iconMap: Record<string, string> = {
-  chef: '👨‍🍳',
-  market: '🏪',
-  fire: '🔥',
-  wine: '🍷',
-  group: '👥',
-  camera: '📸',
+  conversations: '🗣',
+  meals: '🥘',
+  sobremesa: '🍷',
+  lifestyle: '☀️',
+  community: '👥',
+  immersive: '🌿',
 };
 
 export default function ExperienceHighlights() {

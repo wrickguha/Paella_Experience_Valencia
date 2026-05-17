@@ -25,34 +25,34 @@
     "subtitle": "More than a cooking class — it's a cultural journey",
     "items": [
       {
-        "icon": "chef",
-        "title": "Cook With Culinary Legends",
-        "description": "Step into the kitchen with Valencia’s most celebrated chefs and unlock the secrets of authentic paella."
+        "icon": "conversations",
+        "title": "Real Conversations",
+        "description": "Practice language naturally through shared experiences and human connection."
       },
       {
-        "icon": "market",
-        "title": "Savor the City’s Flavors",
-        "description": "Embark on a guided market adventure—discover, taste, and select the freshest local ingredients like a true Valencian."
+        "icon": "meals",
+        "title": "Shared Meals",
+        "description": "From paella to tapas, food becomes part of the experience."
       },
       {
-        "icon": "fire",
-        "title": "Cook Over Open Fire",
-        "description": "Prepare authentic paella the traditional way — over wood fire"
+        "icon": "sobremesa",
+        "title": "Sobremesa",
+        "description": "Slow down, stay at the table, and let conversations flow naturally."
       },
       {
-        "icon": "wine",
-        "title": "Wine & Tapas Included",
-        "description": "Enjoy local wines and tapas while your paella simmers"
+        "icon": "lifestyle",
+        "title": "Mediterranean Lifestyle",
+        "description": "Experience the relaxed rhythm, warmth, and culture of Valencia."
       },
       {
-        "icon": "group",
-        "title": "Small Groups Only",
-        "description": "Intimate groups of max 12 people for a personal experience"
+        "icon": "community",
+        "title": "Community & Connection",
+        "description": "Meet travelers, expats, locals, and new friends through shared moments."
       },
       {
-        "icon": "camera",
-        "title": "Instagram-Worthy Setting",
-        "description": "Beautiful rooftop terrace with stunning views of Valencia"
+        "icon": "immersive",
+        "title": "Immersive Experiences",
+        "description": "Beautiful locations, cultural activities, music, nature, and meaningful social experiences."
       }
     ]
   },
