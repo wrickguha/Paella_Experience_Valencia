@@ -7,6 +7,7 @@ import HowItWorks from '@/components/HowItWorks';
 import UpcomingEvents from '@/components/UpcomingEvents';
 import Testimonials from '@/components/Testimonials';
 import FinalCTA from '@/components/FinalCTA';
+import IntroSection from '@/components/IntroSection';
 import CommunitySection from '@/components/CommunitySection';
 import VideoTestimonialsSection from '@/components/VideoTestimonialsSection';
 import LanguageSection from '@/components/LanguageSection';
@@ -22,6 +23,7 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
+      <IntroSection />
       <SocialProof />
       <ExperienceHighlights />
       <CommunitySection />
