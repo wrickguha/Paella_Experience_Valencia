@@ -118,6 +118,10 @@ class LocationController extends Controller
         ]);
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
+        $data['name_es'] = $data['name_es'] ?? '';
+        $data['description_en'] = $data['description_en'] ?? '';
+        $data['description_es'] = $data['description_es'] ?? '';
+        $data['address'] = $data['address'] ?? '';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('locations', 'public');
@@ -148,6 +152,10 @@ class LocationController extends Controller
         ]);
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
+        $data['name_es'] = $data['name_es'] ?? '';
+        $data['description_en'] = $data['description_en'] ?? '';
+        $data['description_es'] = $data['description_es'] ?? '';
+        $data['address'] = $data['address'] ?? '';
 
         if ($request->hasFile('image')) {
             if ($location->image) {
