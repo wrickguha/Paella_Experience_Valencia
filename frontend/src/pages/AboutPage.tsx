@@ -387,7 +387,6 @@ export default function AboutPage() {
 
   return (
     <div className="bg-white">
-      <AboutHero />
       <OurStory />
       <CommunityVision />
       <LanguageAndCulture />

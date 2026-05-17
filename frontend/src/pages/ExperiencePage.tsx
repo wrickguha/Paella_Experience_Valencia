@@ -274,45 +274,6 @@ export default function ExperiencePage() {
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────── */}
-      <section className="relative min-h-[70vh] flex items-center">
-        <div className="absolute inset-0 overflow-hidden">
-          <video
-            src="/video/hero-video.mp4"
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
-        </div>
-        <div className="container-max relative z-10 px-8 sm:px-12 lg:px-16 w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-center max-w-3xl mx-auto"
-          >
-            {/* Review section removed as requested */}
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              {t('experience.hero.title')}
-            </h1>
-            <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl mx-auto">
-              {t('experience.hero.subtitle')}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/booking" className="btn-primary !text-lg !px-10 !py-5">
-                {t('hero.cta')}
-              </Link>
-              <a href="#locations" className="px-10 py-5 rounded-2xl text-lg font-semibold text-white border-2 border-white/40 hover:bg-white/10 transition-colors">
-                {t('highlights.subtitle').split('—')[0].trim()} ↓
-              </a>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* ── Intro Section ────────────────────────────── */}
       <section className="section-padding bg-white">
         <div className="container-max max-w-3xl text-center">
