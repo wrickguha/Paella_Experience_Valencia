@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, MapPin, Clock, X, Star, ImagePlus } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, Clock, X, Star, ImagePlus, CalendarDays } from 'lucide-react';
 import { locationsApi } from '@/services/api';
 import { formatCurrency } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
@@ -12,7 +12,15 @@ import { FormInput, FormTextarea, FormSelect, FormToggle } from '@/components/Fo
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 interface ScheduleEntry {
-  day_of_week: number;
+  day_of_week: number | null;
+  date?: string | null;
+  start_time: string;
+  end_time: string;
+  is_active: boolean;
+}
+
+interface CustomDateEntry {
+  date: string;
   start_time: string;
   end_time: string;
   is_active: boolean;
@@ -57,6 +65,7 @@ const EMPTY: Partial<Location> = {
 };
 
 const EMPTY_SCHEDULE: ScheduleEntry = { day_of_week: 1, start_time: '12:00', end_time: '16:00', is_active: true };
+const EMPTY_CUSTOM_DATE: CustomDateEntry = { date: '', start_time: '11:00', end_time: '20:00', is_active: true };
 
 export default function LocationsPage() {
   const [data, setData] = useState<Location[]>([]);
@@ -69,6 +78,7 @@ export default function LocationsPage() {
   const [deleteTarget, setDeleteTarget] = useState<Location | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [features, setFeatures] = useState<FeatureEntry[]>([]);
+  const [customDates, setCustomDates] = useState<CustomDateEntry[]>([]);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<{ id?: number; url: string; isNew?: boolean }[]>([]);
   const [removeGalleryIds, setRemoveGalleryIds] = useState<number[]>([]);
@@ -88,6 +98,7 @@ export default function LocationsPage() {
   const openCreate = () => {
     setEditing({ ...EMPTY, schedules: [], features: [] });
     setFeatures([]);
+    setCustomDates([]);
     setGalleryFiles([]);
     setGalleryPreviews([]);
     setRemoveGalleryIds([]);
@@ -95,8 +106,19 @@ export default function LocationsPage() {
   };
 
   const openEdit = (loc: Location) => {
-    setEditing({ ...loc, schedules: loc.schedules || [] });
+    const allSchedules = loc.schedules || [];
+    const weeklySchedules = allSchedules.filter((s) => !s.date);
+    const customDatesFromServer: CustomDateEntry[] = allSchedules
+      .filter((s) => s.date)
+      .map((s) => ({
+        date: s.date as string,
+        start_time: s.start_time,
+        end_time: s.end_time,
+        is_active: s.is_active,
+      }));
+    setEditing({ ...loc, schedules: weeklySchedules });
     setFeatures(loc.features || []);
+    setCustomDates(customDatesFromServer);
     setGalleryFiles([]);
     setGalleryPreviews(
       (loc.gallery || []).map((g) => ({ id: g.id, url: g.image }))
@@ -116,7 +138,12 @@ export default function LocationsPage() {
       fd.append('address', editing.address || '');
       fd.append('availability_type', editing.availability_type || 'weekly');
       fd.append('is_active', editing.is_active ? '1' : '0');
-      fd.append('schedules', JSON.stringify(editing.schedules || []));
+      // Combine weekly and custom date schedules into one array
+      const schedulesData =
+        editing.availability_type === 'custom'
+          ? customDates.map((cd) => ({ ...cd, day_of_week: null }))
+          : (editing.schedules || []);
+      fd.append('schedules', JSON.stringify(schedulesData));
       // Experience fields
       fd.append('subtitle_en', editing.subtitle_en || '');
       fd.append('subtitle_es', editing.subtitle_es || '');
@@ -254,12 +281,85 @@ export default function LocationsPage() {
           <FormSelect
             label="Availability Type"
             value={editing.availability_type || 'weekly'}
-            onChange={(e) => setEditing({ ...editing, availability_type: e.target.value })}
+            onChange={(e) => {
+              setEditing({ ...editing, availability_type: e.target.value });
+            }}
             options={[{ value: 'weekly', label: 'Weekly Schedule' }, { value: 'custom', label: 'Custom Dates' }]}
           />
           <div className="flex items-end">
             <FormToggle label="Active" checked={editing.is_active ?? true} onChange={(v) => setEditing({ ...editing, is_active: v })} />
           </div>
+
+          {/* ── Custom Dates Section ── */}
+          {editing.availability_type === 'custom' && (
+            <div className="md:col-span-2 border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-primary" />
+                  <p className="text-sm font-semibold text-neutral-dark">Custom Dates</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCustomDates([...customDates, { ...EMPTY_CUSTOM_DATE }])}
+                  className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add Date
+                </button>
+              </div>
+              {customDates.length === 0 ? (
+                <p className="text-sm text-neutral-gray text-center py-4">
+                  No custom dates added. Click "Add Date" to set specific availability.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {customDates.map((cd, idx) => (
+                    <div key={idx} className="flex items-center gap-2 bg-gray-50 rounded-lg p-2.5">
+                      <input
+                        type="date"
+                        value={cd.date}
+                        onChange={(e) => {
+                          const updated = [...customDates];
+                          updated[idx] = { ...updated[idx], date: e.target.value };
+                          setCustomDates(updated);
+                        }}
+                        className="flex-1 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                      />
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="time"
+                          value={cd.start_time}
+                          onChange={(e) => {
+                            const updated = [...customDates];
+                            updated[idx] = { ...updated[idx], start_time: e.target.value };
+                            setCustomDates(updated);
+                          }}
+                          className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
+                        <span className="text-xs text-neutral-gray">to</span>
+                        <input
+                          type="time"
+                          value={cd.end_time}
+                          onChange={(e) => {
+                            const updated = [...customDates];
+                            updated[idx] = { ...updated[idx], end_time: e.target.value };
+                            setCustomDates(updated);
+                          }}
+                          className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setCustomDates(customDates.filter((_, i) => i !== idx))}
+                        className="p-1 rounded-lg hover:bg-red-50 text-neutral-gray hover:text-danger shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* ── Weekly Schedule Section ── */}
           {editing.availability_type === 'weekly' && (

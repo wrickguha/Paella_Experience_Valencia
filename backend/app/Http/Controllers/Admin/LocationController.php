@@ -66,6 +66,7 @@ class LocationController extends Controller
                 'schedules' => $l->schedules->map(fn ($s) => [
                     'id' => $s->id,
                     'day_of_week' => $s->day_of_week,
+                    'date' => $s->date ? $s->date->format('Y-m-d') : null,
                     'start_time' => substr($s->start_time, 0, 5),
                     'end_time' => substr($s->end_time, 0, 5),
                     'is_active' => $s->is_active,
@@ -98,6 +99,7 @@ class LocationController extends Controller
             'schedules' => $l->schedules->map(fn ($s) => [
                 'id' => $s->id,
                 'day_of_week' => $s->day_of_week,
+                'date' => $s->date ? $s->date->format('Y-m-d') : null,
                 'start_time' => substr($s->start_time, 0, 5),
                 'end_time' => substr($s->end_time, 0, 5),
                 'is_active' => $s->is_active,
@@ -251,8 +253,11 @@ class LocationController extends Controller
         foreach ($schedules as $s) {
             if (empty($s['start_time']) || empty($s['end_time'])) continue;
 
+            $isCustomDate = !empty($s['date']);
+
             $location->schedules()->create([
-                'day_of_week' => (int) $s['day_of_week'],
+                'date' => $isCustomDate ? $s['date'] : null,
+                'day_of_week' => $isCustomDate ? null : (int) $s['day_of_week'],
                 'start_time' => $s['start_time'],
                 'end_time' => $s['end_time'],
                 'is_active' => filter_var($s['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
