@@ -8,7 +8,7 @@ export default function CommunityCTA() {
   return (
     <div className="fixed bottom-24 right-6 z-50 flex flex-col items-end gap-4 pointer-events-none">
       <motion.a
-        href="https://wa.me/yournumber" // Replace with actual WhatsApp link if available
+        href="https://wa.me/34695869040"
         target="_blank"
         rel="noopener noreferrer"
         initial={{ opacity: 0, scale: 0.5, y: 20 }}
