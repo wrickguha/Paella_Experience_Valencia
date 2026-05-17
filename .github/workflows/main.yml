@@ -34,6 +34,20 @@ jobs:
           echo "=== Admin ==="
           ls -la backend/public/admin/ || echo "MISSING"
 
+      - name: Prepare backend for upload (strip vendor, node_modules, large storage)
+        run: |
+          rsync -a \
+            --exclude=vendor \
+            --exclude=node_modules \
+            --exclude=storage/app/public \
+            --exclude=storage/logs \
+            --exclude=storage/framework/cache \
+            --exclude=storage/framework/sessions \
+            --exclude=.git \
+            backend/ /tmp/backend_deploy/
+          echo "=== Deploy size ==="
+          du -sh /tmp/backend_deploy/
+
       - name: Upload backend via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -43,10 +57,10 @@ jobs:
           port: 65002
           timeout: 300s
           command_timeout: 30m
-          source: "backend/"
+          source: "/tmp/backend_deploy/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/backend/"
-          strip_components: 1
-          exclude: "backend/vendor,backend/node_modules,backend/storage/app/public,backend/.git"
+          strip_components: 3
+          overwrite: true
 
       - name: Upload frontend via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -60,6 +74,7 @@ jobs:
           source: "backend/public/frontend/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
           strip_components: 3
+          overwrite: true
 
       - name: Upload admin via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -73,6 +88,7 @@ jobs:
           source: "backend/public/admin/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/admin/"
           strip_components: 3
+          overwrite: true
 
       - name: Upload public_html config via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -86,6 +102,7 @@ jobs:
           source: "deploy/public_html/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
           strip_components: 2
+          overwrite: true
 
       - name: Post-deploy (composer + artisan + symlink)
         uses: appleboy/ssh-action@v1.0.3
