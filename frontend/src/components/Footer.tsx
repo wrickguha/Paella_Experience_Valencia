@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok } from 'react-icons/fa';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -73,15 +74,38 @@ export default function Footer() {
               {t('footer.followUs')}
             </h4>
             <div className="flex gap-4">
-              {['Instagram', 'Facebook', 'TikTok', 'YouTube'].map((platform) => (
+              {[
+                {
+                  name: 'Instagram',
+                  url: 'https://www.instagram.com/speakeasyvalencia?igsh=MWpmbjAwZjN5cjZsYg==',
+                  icon: <FaInstagram className="w-5 h-5" />
+                },
+                {
+                  name: 'Facebook',
+                  url: 'https://www.facebook.com/share/18aMiVTDqF/',
+                  icon: <FaFacebookF className="w-5 h-5" />
+                },
+                {
+                  name: 'TikTok',
+                  url: 'https://www.tiktok.com/@speakeasyvalencia?is_from_webapp=1&sender_device=pc',
+                  icon: <FaTiktok className="w-5 h-5" />
+                },
+                {
+                  name: 'YouTube',
+                  url: 'https://youtube.com/@speakeasyvalencia?si=Lr6AeePW3zitpCNN',
+                  icon: <FaYoutube className="w-5 h-5" />
+                }
+              ].map((platform) => (
                 <a
-                  key={platform}
-                  href="#"
+                  key={platform.name}
+                  href={platform.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center
-                             hover:bg-accent hover:text-white transition-colors text-sm font-medium"
-                  aria-label={platform}
+                             hover:bg-accent hover:text-white transition-colors"
+                  aria-label={platform.name}
                 >
-                  {platform[0]}
+                  {platform.icon}
                 </a>
               ))}
             </div>
