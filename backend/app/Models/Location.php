@@ -16,6 +16,7 @@ class Location extends Model
         'description_en',
         'description_es',
         'address',
+        'maps_link',
         'image',
         'availability_type',
         'is_active',

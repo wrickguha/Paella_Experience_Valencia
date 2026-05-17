@@ -55,6 +55,7 @@ class LocationController extends Controller
             'subtitle' => $firstExp ? ($lang === 'es' ? $firstExp->title_es : $firstExp->title_en) : null,
             'description' => $loc->getLocalizedDescription($lang),
             'address' => $loc->address,
+            'maps_link' => $loc->maps_link,
             'image' => $this->imageUrl($loc->image),
             'hero_image' => $this->imageUrl($firstExp?->hero_image ?? $loc->image),
             'gallery' => $loc->images->map(fn ($img) => $this->imageUrl($img->image))->values()->toArray(),

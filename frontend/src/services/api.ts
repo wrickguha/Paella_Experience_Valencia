@@ -32,6 +32,7 @@ export interface CalendarEvent {
   pricePerPerson: number;
   image: string;
   address: string;
+  maps_link: string | null;
 }
 
 // ── Internal types (backend response shapes) ───────────────────────
@@ -43,6 +44,7 @@ interface ApiLocation {
   gallery: string[];
   price: number | null;
   address: string;
+  maps_link: string | null;
 }
 
 interface ApiExperience {
@@ -131,6 +133,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         pricePerPerson: e.experience_price || loc?.price || 59,
         image: getFullImageUrl(loc?.image ?? loc?.hero_image ?? loc?.gallery?.[0] ?? ''),
         address: loc?.address ?? '',
+        maps_link: loc?.maps_link ?? null,
       };
     });
 }
@@ -148,6 +151,7 @@ export interface FrontendLocation {
   subtitle: string | null;
   description: string;
   address: string;
+  maps_link: string | null;
   image: string | null;
   hero_image: string | null;
   gallery: string[];

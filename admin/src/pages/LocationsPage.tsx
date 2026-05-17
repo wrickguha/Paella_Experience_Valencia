@@ -43,7 +43,8 @@ interface Location {
   name_es: string;
   description_en: string;
   description_es: string;
-  address: string;
+  address?: string;
+  maps_link?: string;
   image: string;
   availability_type: string;
   is_active: boolean;
@@ -60,7 +61,7 @@ interface Location {
 
 const EMPTY: Partial<Location> = {
   name_en: '', name_es: '', description_en: '', description_es: '',
-  address: '', availability_type: 'weekly', is_active: true, schedules: [],
+  address: '', maps_link: '', availability_type: 'weekly', is_active: true, schedules: [],
   subtitle_en: '', subtitle_es: '', price: null, duration: '', features: [],
 };
 
@@ -135,7 +136,7 @@ export default function LocationsPage() {
       fd.append('name_es', editing.name_es || '');
       fd.append('description_en', editing.description_en || '');
       fd.append('description_es', editing.description_es || '');
-      fd.append('address', editing.address || '');
+      fd.append('maps_link', editing.maps_link || '');
       fd.append('availability_type', editing.availability_type || 'weekly');
       fd.append('is_active', editing.is_active ? '1' : '0');
       // Combine weekly and custom date schedules into one array
@@ -202,7 +203,6 @@ export default function LocationsPage() {
         </div>
       ),
     },
-    { key: 'address', header: 'Address' },
     {
       key: 'price',
       header: 'Price',
@@ -277,7 +277,7 @@ export default function LocationsPage() {
           <FormInput label="Name (ES)" value={editing.name_es || ''} onChange={(e) => setEditing({ ...editing, name_es: e.target.value })} />
           <FormTextarea label="Description (EN)" value={editing.description_en || ''} onChange={(e) => setEditing({ ...editing, description_en: e.target.value })} />
           <FormTextarea label="Description (ES)" value={editing.description_es || ''} onChange={(e) => setEditing({ ...editing, description_es: e.target.value })} />
-          <FormInput label="Address" value={editing.address || ''} onChange={(e) => setEditing({ ...editing, address: e.target.value })} className="md:col-span-2" />
+          <FormInput label="Google Maps Link" value={editing.maps_link || ''} onChange={(e) => setEditing({ ...editing, maps_link: e.target.value })} className="md:col-span-2" placeholder="https://maps.app.goo.gl/..." />
           <FormSelect
             label="Availability Type"
             value={editing.availability_type || 'weekly'}

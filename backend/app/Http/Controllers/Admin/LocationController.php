@@ -59,6 +59,7 @@ class LocationController extends Controller
                 'description_en' => $l->description_en,
                 'description_es' => $l->description_es,
                 'address' => $l->address,
+                'maps_link' => $l->maps_link,
                 'image' => $this->imageUrl($l->image),
                 'availability_type' => $l->availability_type,
                 'is_active' => $l->is_active,
@@ -92,6 +93,7 @@ class LocationController extends Controller
             'description_en' => $l->description_en,
             'description_es' => $l->description_es,
             'address' => $l->address,
+            'maps_link' => $l->maps_link,
             'image' => $this->imageUrl($l->image),
             'availability_type' => $l->availability_type,
             'is_active' => $l->is_active,
@@ -115,6 +117,7 @@ class LocationController extends Controller
             'description_en' => 'nullable|string',
             'description_es' => 'nullable|string',
             'address' => 'nullable|string|max:500',
+            'maps_link' => 'nullable|string|max:1000',
             'availability_type' => 'nullable|in:weekly,custom',
             'is_active' => 'nullable',
         ]);
@@ -124,6 +127,7 @@ class LocationController extends Controller
         $data['description_en'] = $data['description_en'] ?? '';
         $data['description_es'] = $data['description_es'] ?? '';
         $data['address'] = $data['address'] ?? '';
+        $data['maps_link'] = $data['maps_link'] ?? null;
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('locations', 'public');
@@ -149,6 +153,7 @@ class LocationController extends Controller
             'description_en' => 'nullable|string',
             'description_es' => 'nullable|string',
             'address' => 'nullable|string|max:500',
+            'maps_link' => 'nullable|string|max:1000',
             'availability_type' => 'nullable|in:weekly,custom',
             'is_active' => 'nullable',
         ]);
@@ -158,6 +163,7 @@ class LocationController extends Controller
         $data['description_en'] = $data['description_en'] ?? '';
         $data['description_es'] = $data['description_es'] ?? '';
         $data['address'] = $data['address'] ?? '';
+        $data['maps_link'] = $data['maps_link'] ?? null;
 
         if ($request->hasFile('image')) {
             if ($location->image) {

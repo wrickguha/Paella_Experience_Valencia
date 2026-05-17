@@ -74,9 +74,21 @@ function EventCard({ event, index }: EventCardProps) {
           The Paella Experience · {event.time} · {event.locationName}
         </p>
 
-        {/* Address */}
+        {/* Address / Maps link */}
         <p className="text-xs text-neutral-gray font-body leading-relaxed">
-          {event.address}
+          {event.maps_link ? (
+            <a
+              href={event.maps_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              View on Maps
+            </a>
+          ) : (
+            event.address
+          )}
         </p>
 
         {/* Footer: status + slots */}

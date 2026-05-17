@@ -146,7 +146,21 @@ function LocationSection({
             <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="bg-neutral-cream rounded-xl p-3">
                 <p className="text-xs text-neutral-gray uppercase tracking-wider">📍 {t('booking.eventCard.location')}</p>
-                <p className="font-heading font-semibold text-sm text-neutral-dark">{location.address}</p>
+                {location.maps_link ? (
+                  <a
+                    href={location.maps_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 font-heading font-semibold text-sm text-primary hover:underline mt-0.5"
+                  >
+                    View on Maps
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                ) : (
+                  <p className="font-heading font-semibold text-sm text-neutral-dark">{location.address}</p>
+                )}
               </div>
               {time && (
                 <div className="bg-neutral-cream rounded-xl p-3">
