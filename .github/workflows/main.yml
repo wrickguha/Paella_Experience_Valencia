@@ -44,9 +44,9 @@ jobs:
             --exclude=storage/framework/cache \
             --exclude=storage/framework/sessions \
             --exclude=.git \
-            backend/ /tmp/backend_deploy/
+            backend/ backend_deploy/
           echo "=== Deploy size ==="
-          du -sh /tmp/backend_deploy/
+          du -sh backend_deploy/
 
       - name: Upload backend via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -57,9 +57,9 @@ jobs:
           port: 65002
           timeout: 300s
           command_timeout: 30m
-          source: "/tmp/backend_deploy/"
+          source: "backend_deploy/"
           target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/backend/"
-          strip_components: 3
+          strip_components: 1
           overwrite: true
 
       - name: Upload frontend via SCP
