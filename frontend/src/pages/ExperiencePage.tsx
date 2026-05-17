@@ -176,7 +176,7 @@ function LocationSection({
                 to={`/booking?location=${locationSlug}`}
                 className="btn-primary !px-8 !py-3.5"
               >
-                Join the {location.name} Experience
+                Save your seat at the table
               </Link>
               {location.price != null && (
                 <p className="font-display text-2xl font-bold text-neutral-dark">
