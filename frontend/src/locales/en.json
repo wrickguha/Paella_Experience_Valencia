@@ -23,6 +23,14 @@
   "highlights": {
     "title": "Why This Experience?",
     "subtitle": "More than a cooking class — it's a cultural journey",
+    "languageTitle": "How Do You Learn the Language Here?",
+    "languageSubtitle": "By living it.",
+    "languageParagraphs": [
+      "Instead of sitting in a classroom, you spend the day surrounded by real conversations, shared meals, cultural activities, music, and long Mediterranean sobremesas under the Valencian sun.",
+      "You hear the language around the table.",
+      "You use it while cooking, sharing stories, laughing with others, and becoming part of the moment.",
+      "Whether speaking Spanish, English, or both, the experience is designed to make language feel natural, social, and alive."
+    ],
     "items": [
       {
         "icon": "conversations",

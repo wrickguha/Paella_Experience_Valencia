@@ -52,6 +52,27 @@ export default function ExperienceHighlights() {
           </motion.div>
         ))}
       </div>
+
+      {/* New Language Learning Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+        className="mt-20 max-w-4xl mx-auto text-center bg-primary/5 border border-primary/10 rounded-[2rem] p-8 sm:p-12 lg:p-16 shadow-sm"
+      >
+        <h3 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-4">
+          {t('highlights.languageTitle')}
+        </h3>
+        <p className="text-xl sm:text-2xl font-heading text-primary font-semibold mb-8">
+          {t('highlights.languageSubtitle')}
+        </p>
+        <div className="space-y-4 text-neutral-gray font-body text-base sm:text-lg leading-relaxed max-w-3xl mx-auto">
+          {(t('highlights.languageParagraphs', { returnObjects: true }) as string[]).map((paragraph, idx) => (
+            <p key={idx}>{paragraph}</p>
+          ))}
+        </div>
+      </motion.div>
     </SectionWrapper>
   );
 }
