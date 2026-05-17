@@ -50,19 +50,19 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="text-gray-400 text-sm hover:text-accent transition-colors">
+                <Link to="/privacy-policy" className="text-gray-400 text-sm hover:text-accent transition-colors">
                   {t('footer.privacy')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 text-sm hover:text-accent transition-colors">
+                <Link to="/terms-of-service" className="text-gray-400 text-sm hover:text-accent transition-colors">
                   {t('footer.terms')}
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-400 text-sm hover:text-accent transition-colors">
+                <Link to="/cookie-policy" className="text-gray-400 text-sm hover:text-accent transition-colors">
                   {t('footer.cookies')}
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
