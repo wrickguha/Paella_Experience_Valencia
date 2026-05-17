@@ -203,6 +203,58 @@ function LocationSection({
   );
 }
 
+// ── Locations Intro ───────────────────────────────────────────────
+function LocationsIntro() {
+  return (
+    <section className="relative py-24 bg-white overflow-hidden border-t border-neutral-sand/20">
+      {/* Decorative background elements */}
+      <motion.div 
+        animate={{ rotate: 360 }}
+        transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
+        className="absolute -top-32 -right-32 w-96 h-96 bg-primary/5 rounded-full blur-3xl" 
+      />
+      <motion.div 
+        animate={{ rotate: -360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        className="absolute -bottom-32 -left-32 w-80 h-80 bg-accent/10 rounded-full blur-3xl" 
+      />
+      
+      <div className="container-max px-4 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto text-center"
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+            whileInView={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ duration: 0.6, type: "spring", bounce: 0.5 }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white shadow-xl text-primary mb-8 border border-neutral-sand/20"
+          >
+            <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </motion.div>
+          <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-dark mb-6 tracking-tight">
+            Experiences & Places
+          </h2>
+          <div className="space-y-6 max-w-3xl mx-auto">
+            <p className="text-xl sm:text-2xl text-neutral-dark font-body leading-relaxed font-medium">
+              At Speak Easy Valencia, the experience is not only about the language. It’s also about <span className="text-primary italic font-bold">where it happens</span>.
+            </p>
+            <p className="text-lg sm:text-xl text-neutral-gray font-body leading-relaxed">
+              We carefully choose places that invite people to slow down, connect naturally, and experience the way of life through conversation, food, culture, and sobremesa.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────
 export default function ExperiencePage() {
   const { t, i18n } = useTranslation();
@@ -309,6 +361,7 @@ export default function ExperiencePage() {
 
 
       {/* ── Location Sections ─────────────────────────── */}
+      <LocationsIntro />
       <div id="locations" />
       {locLoading ? (
         <div className="flex justify-center py-24">
