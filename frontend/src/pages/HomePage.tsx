@@ -8,12 +8,12 @@ import UpcomingEvents from '@/components/UpcomingEvents';
 import Testimonials from '@/components/Testimonials';
 import FinalCTA from '@/components/FinalCTA';
 import CommunitySection from '@/components/CommunitySection';
+import VideoTestimonialsSection from '@/components/VideoTestimonialsSection';
 import LanguageSection from '@/components/LanguageSection';
 import ActivitiesSection from '@/components/ActivitiesSection';
 import ExperienceFlowSection from '@/components/ExperienceFlowSection';
 import CommunityCTA from '@/components/CommunityCTA';
 import FancyButton from '@/components/ui/FancyButton';
-
 
 export default function HomePage() {
   useScrollToTop();
@@ -24,6 +24,7 @@ export default function HomePage() {
       <SocialProof />
       <ExperienceHighlights />
       <CommunitySection />
+      <VideoTestimonialsSection />
       <LanguageSection />
       <ActivitiesSection />
       <ExperienceFlowSection />

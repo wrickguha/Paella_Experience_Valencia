@@ -199,6 +199,10 @@
       }
     ]
   },
+  "videoTestimonials": {
+    "title": "Stories From the Table",
+    "subtitle": "Testimonials video"
+  },
   "language": {
     "title": "Learn While You Experience",
     "subtitle": "Master Spanish and English through real-life conversations in a relaxed atmosphere.",
