@@ -345,23 +345,35 @@ function MeetTheHost() {
 function FinalAboutCTA() {
   const { t } = useTranslation();
   return (
-    <section className="bg-primary py-24">
-      <div className="container-max px-4 text-center">
+    <section className="py-24 bg-neutral-cream">
+      <div className="container-max px-4">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="relative overflow-hidden rounded-[2.5rem] bg-primary text-white text-center py-20 px-6 sm:px-12 shadow-2xl"
         >
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-8">
-            {t('about.cta.title')}
-          </h2>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/booking" className="btn-secondary !bg-white !text-primary !border-white !px-10 !py-5 !text-lg">
-              {t('about.cta.primary')}
-            </Link>
-            <Link to="/contact" className="btn-outline !text-white !border-white/30 !px-10 !py-5 !text-lg hover:!bg-white/10">
-              {t('about.cta.secondary')}
-            </Link>
+          {/* Decorative background effects */}
+          <div className="absolute top-0 left-0 w-full h-full bg-[url('/storage/assets/images/textures/noise.png')] opacity-20 mix-blend-overlay pointer-events-none" />
+          <div className="absolute -top-32 -left-32 w-64 h-64 bg-accent/30 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-accent/20 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-4xl mx-auto">
+            <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
+              Come Join the Table
+            </h2>
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-body mb-12 leading-relaxed max-w-3xl mx-auto font-medium">
+              Whether you’re learning Spanish/English, looking for connection, or simply wanting to experience Valencia differently, Speak Easy Valencia invites you to slow down, share a meal, and be part of the experience.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link to="/booking" className="btn-secondary !bg-white !text-primary !border-white !px-10 !py-5 !text-lg shadow-xl hover:scale-105 transition-transform">
+                {t('about.cta.primary')}
+              </Link>
+              <Link to="/contact" className="btn-outline !text-white !border-white/40 !px-10 !py-5 !text-lg hover:!bg-white/10 hover:!border-white transition-all">
+                {t('about.cta.secondary')}
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>
