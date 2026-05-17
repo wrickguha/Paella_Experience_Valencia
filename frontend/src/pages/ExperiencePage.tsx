@@ -3,17 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
-import GalleryGrid from '@/components/GalleryGrid';
-import Testimonials from '@/components/Testimonials';
-import FAQSection from '@/components/FAQSection';
-import FinalCTA from '@/components/FinalCTA';
-import { 
-  CommunityIntroEnhancement, 
-  MicroFlowBreakdown, 
-  InlineLanguageCard, 
-  ActivitiesInlineSegment, 
-  CommunityInlineTestimonial 
-} from '@/components/ExperienceCommunityEnhancements';
 import { fetchLocations, type FrontendLocation, type LocationSchedule } from '@/services/api';
 
 
@@ -259,7 +248,6 @@ function LocationsIntro() {
 export default function ExperiencePage() {
   const { t, i18n } = useTranslation();
   useScrollToTop();
-  const introParagraphs = t('experience.intro.paragraphs', { returnObjects: true }) as string[];
 
   const [locations, setLocations] = useState<FrontendLocation[]>([]);
   const [locLoading, setLocLoading] = useState(true);
@@ -274,53 +262,6 @@ export default function ExperiencePage() {
 
   return (
     <>
-      {/* ── Intro Section ────────────────────────────── */}
-      <section className="section-padding bg-white">
-        <div className="container-max max-w-3xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-3">
-              {t('experience.intro.title')}
-            </h2>
-            <p className="text-primary font-heading font-semibold text-sm mb-8">
-              {t('experience.intro.subtitle')}
-            </p>
-          </motion.div>
-          <div className="space-y-5">
-            {introParagraphs.map((p, i) => (
-              <motion.p
-                key={i}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-                className="text-neutral-gray font-body leading-relaxed text-base sm:text-lg"
-              >
-                {p}
-              </motion.p>
-            ))}
-          </div>
-          <CommunityIntroEnhancement />
-          <ActivitiesInlineSegment />
-          <InlineLanguageCard />
-        </div>
-      </section>
-
-      {/* ── Micro Flow Breakdown ─────────────────────── */}
-      <section className="bg-neutral-cream/30 py-20">
-        <div className="container-max">
-          <MicroFlowBreakdown />
-        </div>
-      </section>
-
-
-      <CommunityInlineTestimonial />
-
-
       {/* ── Location Sections ─────────────────────────── */}
       <LocationsIntro />
       <div id="locations" />
@@ -346,18 +287,6 @@ export default function ExperiencePage() {
           />
         ))
       )}
-
-      {/* ── Testimonials ─────────────────────────────── */}
-      <Testimonials />
-
-      {/* ── Gallery ──────────────────────────────────── */}
-      <GalleryGrid />
-
-      {/* ── FAQ ──────────────────────────────────────── */}
-      <FAQSection />
-
-      {/* ── Final CTA ────────────────────────────────── */}
-      <FinalCTA />
     </>
   );
 }
