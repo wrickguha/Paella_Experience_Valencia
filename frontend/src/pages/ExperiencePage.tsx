@@ -223,17 +223,19 @@ export default function ExperiencePage() {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────── */}
-      <section className="relative py-28 sm:py-36 overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="/storage/assets/images/casa-magnolia/Paella valenciana.jpg"
-            alt="Paella Valenciana — The Experience"
+      <section className="relative min-h-[70vh] flex items-center">
+        <div className="absolute inset-0 overflow-hidden">
+          <video
+            src="/video/hero-video.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
             className="w-full h-full object-cover"
-            loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30" />
         </div>
-        <div className="container-max relative z-10 px-4 sm:px-6 lg:px-8">
+        <div className="container-max relative z-10 px-8 sm:px-12 lg:px-16 w-full">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
