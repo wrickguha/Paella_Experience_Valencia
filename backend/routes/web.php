@@ -37,6 +37,19 @@ Route::get('/assets/{path}', function ($path) {
     return response()->file($file);
 })->where('path', '.*');
 
+// Serve frontend public videos
+Route::get('/video/{path}', function ($path) {
+    $file = public_path('frontend/video/' . $path);
+    if (! file_exists($file)) {
+        abort(404);
+    }
+    // Set appropriate headers for video streaming
+    return response()->file($file, [
+        'Content-Type' => 'video/mp4',
+        'Accept-Ranges' => 'bytes',
+    ]);
+})->where('path', '.*');
+
 Route::get('/', function () {
     $frontendEntry = public_path('frontend/index.html');
 
@@ -59,5 +72,5 @@ Route::get('/{any}', function () {
     }
 
     return response()->file($frontendEntry);
-})->where('any', '^(?!api|admin|assets|storage|_debugbar).*$');
+})->where('any', '^(?!api|admin|assets|storage|video|_debugbar).*$');
 
