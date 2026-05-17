@@ -23,7 +23,6 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <IntroSection />
       <SocialProof />
       <ExperienceHighlights />
       <CommunitySection />
@@ -32,11 +31,8 @@ export default function HomePage() {
       <ActivitiesSection />
       <SpanishLevelTest />
       <ExperienceFlowSection />
-      <GalleryGrid />
       <HowItWorks />
       <UpcomingEvents />
-      <Testimonials />
-      <FinalCTA />
 
       <CommunityCTA />
 
