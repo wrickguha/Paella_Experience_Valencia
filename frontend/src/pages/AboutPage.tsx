@@ -50,38 +50,84 @@ function AboutHero() {
 /* ── Our Story Section ───────────────────────────────────────────── */
 function OurStory() {
   const { t } = useTranslation();
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  };
+
   return (
     <SectionWrapper>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
         >
-          <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
+          <motion.span 
+            variants={itemVariants}
+            className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block"
+          >
             {t('about.story.subtitle')}
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
+          </motion.span>
+          <motion.h2 
+            variants={itemVariants}
+            className="font-display text-4xl sm:text-5xl font-bold text-neutral-dark mb-6 leading-tight"
+          >
             {t('about.story.title')}
-          </h2>
-          <p className="text-neutral-gray font-body text-lg leading-relaxed">
+          </motion.h2>
+          <motion.div 
+            variants={itemVariants}
+            className="text-neutral-gray font-body text-lg leading-relaxed whitespace-pre-line space-y-4"
+          >
             {t('about.story.content')}
-          </p>
+          </motion.div>
         </motion.div>
+        
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, rotate: -2, scale: 0.95 }}
+          whileInView={{ opacity: 1, rotate: 0, scale: 1 }}
+          whileHover={{ scale: 1.02, rotate: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="relative overflow-hidden rounded-2xl shadow-elevated"
+          transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
+          className="relative z-10"
         >
-          <img
-            src="/storage/assets/images/casa-magnolia/Chef Gene.jpg"
-            alt="Chef Gene — Our Story"
-            className="w-full aspect-[4/3] object-cover object-top"
+          <div className="overflow-hidden rounded-[2.5rem] shadow-2xl relative z-10 border-4 border-white">
+            <motion.img
+              initial={{ scale: 1.1 }}
+              whileInView={{ scale: 1 }}
+              transition={{ duration: 1.5 }}
+              src="/storage/assets/images/casa-magnolia/Chef Gene.jpg"
+              alt="Gene — Our Story"
+              className="w-full aspect-[4/3] object-cover object-top"
+            />
+          </div>
+          {/* Decorative Background Elements */}
+          <motion.div 
+            animate={{ 
+              y: [0, -10, 0],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-8 -right-8 w-48 h-48 bg-primary/30 rounded-full blur-2xl -z-10" 
           />
-          <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-primary/10 rounded-2xl -z-10" />
+          <motion.div 
+            animate={{ 
+              y: [0, 15, 0],
+              rotate: [0, -5, 0]
+            }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute -top-8 -left-8 w-32 h-32 bg-accent/20 rounded-full blur-2xl -z-10" 
+          />
         </motion.div>
       </div>
     </SectionWrapper>
