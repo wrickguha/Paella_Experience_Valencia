@@ -429,13 +429,24 @@ export default function LocationsPage() {
                   className="hidden"
                   onChange={(e) => {
                     const files = Array.from(e.target.files || []);
-                    setGalleryFiles((prev) => [...prev, ...files]);
-                    files.forEach((file) => {
-                      const reader = new FileReader();
-                      reader.onloadend = () =>
-                        setGalleryPreviews((prev) => [...prev, { url: reader.result as string, isNew: true }]);
-                      reader.readAsDataURL(file);
-                    });
+                    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB per image
+                    
+                    const validFiles = files.filter(f => f.size <= MAX_FILE_SIZE);
+                    const invalidFiles = files.filter(f => f.size > MAX_FILE_SIZE);
+                    
+                    if (invalidFiles.length > 0) {
+                      toast.error(`${invalidFiles.length} image(s) exceeded the 5MB size limit and were skipped.`);
+                    }
+
+                    if (validFiles.length > 0) {
+                      setGalleryFiles((prev) => [...prev, ...validFiles]);
+                      validFiles.forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onloadend = () =>
+                          setGalleryPreviews((prev) => [...prev, { url: reader.result as string, isNew: true }]);
+                        reader.readAsDataURL(file);
+                      });
+                    }
                     e.target.value = '';
                   }}
                 />
