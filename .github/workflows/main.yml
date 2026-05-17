@@ -105,7 +105,6 @@ jobs:
             php artisan route:cache
             php artisan view:cache
             php artisan migrate --force
-            php artisan db:seed --force
             php artisan cache:clear
             chmod -R 775 storage bootstrap/cache
             STORAGE_LINK=$BASE/public_html/storage

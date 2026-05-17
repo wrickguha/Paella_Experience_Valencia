@@ -35,6 +35,13 @@
 # ── Disable directory listing ──────────────────────────────────────
 Options -Indexes
 
+# ── MIME types for video ──────────────────────────────────────────
+<IfModule mod_mime.c>
+    AddType video/mp4 .mp4 .m4v
+    AddType video/webm .webm
+    AddType video/ogg .ogv
+</IfModule>
+
 # ── Cache static assets ───────────────────────────────────────────
 <IfModule mod_expires.c>
     ExpiresActive On
@@ -46,4 +53,6 @@ Options -Indexes
     ExpiresByType image/svg+xml "access plus 1 year"
     ExpiresByType image/webp "access plus 1 year"
     ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType video/mp4 "access plus 1 month"
+    ExpiresByType video/webm "access plus 1 month"
 </IfModule>
