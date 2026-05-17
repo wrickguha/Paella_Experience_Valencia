@@ -42,9 +42,6 @@ export default function HowItWorks() {
     <SectionWrapper className="bg-neutral-cream">
       {/* Header */}
       <div className="text-center mb-16">
-        <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-heading font-semibold uppercase tracking-wider mb-4">
-          Simple Process
-        </span>
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {t('howItWorks.title')}
         </h2>

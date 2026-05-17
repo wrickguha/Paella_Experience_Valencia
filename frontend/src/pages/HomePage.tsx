@@ -28,7 +28,6 @@ export default function HomePage() {
       <CommunitySection />
       <VideoTestimonialsSection />
       <LanguageSection />
-      <ActivitiesSection />
       <SpanishLevelTest />
       <ExperienceFlowSection />
       <HowItWorks />

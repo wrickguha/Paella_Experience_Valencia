@@ -14,9 +14,6 @@ export default function VideoTestimonialsSection() {
   return (
     <SectionWrapper className="bg-white">
       <div className="text-center mb-16">
-        <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
-          {t('videoTestimonials.subtitle')}
-        </span>
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {t('videoTestimonials.title')}
         </h2>
