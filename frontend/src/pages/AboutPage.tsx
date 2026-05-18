@@ -298,48 +298,6 @@ function Differentiators() {
   );
 }
 
-/* ── Meet the Host Section ───────────────────────────────────────── */
-function MeetTheHost() {
-  const { t } = useTranslation();
-  return (
-    <SectionWrapper>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-        <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-        >
-          <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
-            {t('about.host.subtitle')}
-          </span>
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-8">
-            {t('about.host.title')}
-          </h2>
-          <p className="text-neutral-gray font-body text-lg leading-relaxed">
-            {t('about.host.content')}
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="relative order-first lg:order-last"
-        >
-          <div className="overflow-hidden rounded-2xl shadow-elevated">
-            <img
-              src="/storage/assets/images/casa-magnolia/Chef Gene.jpg"
-              alt="Chef Gene — Your Host"
-              className="w-full aspect-[4/3] object-cover object-top"
-            />
-          </div>
-          <div className="absolute -top-4 -right-4 w-20 h-20 border-4 border-accent/20 rounded-2xl -z-10" />
-        </motion.div>
-      </div>
-    </SectionWrapper>
-  );
-}
 
 /* ── Final CTA Section ───────────────────────────────────────────── */
 function FinalAboutCTA() {
@@ -391,7 +349,6 @@ export default function AboutPage() {
       <CommunityVision />
       <LanguageAndCulture />
       <Differentiators />
-      <MeetTheHost />
       <Testimonials />
       <GalleryGrid />
       <FinalAboutCTA />
