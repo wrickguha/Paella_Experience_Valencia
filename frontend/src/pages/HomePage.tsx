@@ -10,7 +10,6 @@ import FinalCTA from '@/components/FinalCTA';
 import IntroSection from '@/components/IntroSection';
 import CommunitySection from '@/components/CommunitySection';
 import VideoTestimonialsSection from '@/components/VideoTestimonialsSection';
-import LanguageSection from '@/components/LanguageSection';
 import ActivitiesSection from '@/components/ActivitiesSection';
 import SpanishLevelTest from '@/components/SpanishLevelTest';
 import ExperienceFlowSection from '@/components/ExperienceFlowSection';
@@ -27,7 +26,6 @@ export default function HomePage() {
       <ExperienceHighlights />
       <CommunitySection />
       <VideoTestimonialsSection />
-      <LanguageSection />
       <SpanishLevelTest />
       <ExperienceFlowSection />
       <HowItWorks />
