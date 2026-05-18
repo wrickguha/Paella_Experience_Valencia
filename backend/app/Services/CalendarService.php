@@ -40,18 +40,20 @@ class CalendarService
         $calendar = collect();
         $activeSchedules = $location->schedules->where('is_active', true);
 
+        // Separate weekly schedules (day_of_week set) from custom-date schedules (date set)
+        $weeklySchedules = $activeSchedules->filter(fn($s) => !is_null($s->day_of_week));
+        $customSchedules = $activeSchedules->filter(fn($s) => is_null($s->day_of_week) && !is_null($s->date));
+
+        // ── 1. Weekly schedules: expand across the month ───────────
         $period = CarbonPeriod::create($start, $end);
 
         foreach ($period as $date) {
-            // Skip past dates
             if ($date->lt($today)) {
                 continue;
             }
 
-            $dayOfWeek = $date->dayOfWeek; // 0=Sunday
-
-            // Find schedules for this day of week
-            $daySchedules = $activeSchedules->where('day_of_week', $dayOfWeek);
+            $dayOfWeek = $date->dayOfWeek;
+            $daySchedules = $weeklySchedules->where('day_of_week', $dayOfWeek);
 
             foreach ($daySchedules as $schedule) {
                 $slotKey = $date->format('Y-m-d') . '_' . $schedule->start_time;
@@ -59,36 +61,83 @@ class CalendarService
                 if ($existingSlots->has($slotKey)) {
                     $slot = $existingSlots->get($slotKey);
                     $calendar->push([
-                        'date' => $date->format('Y-m-d'),
-                        'location_id' => $locationId,
-                        'location' => $location->name_en,
-                        'experience_id' => $experienceId,
+                        'date'             => $date->format('Y-m-d'),
+                        'location_id'      => $locationId,
+                        'location'         => $location->name_en,
+                        'experience_id'    => $experienceId,
                         'experience_price' => $experiencePrice,
-                        'start_time' => $slot->start_time,
-                        'end_time' => $slot->end_time,
-                        'total_slots' => $slot->total_slots,
-                        'booked_slots' => $slot->booked_slots,
-                        'available_slots' => $slot->remaining,
-                        'is_available' => $slot->is_available,
-                        'slot_id' => $slot->id,
+                        'start_time'       => $slot->start_time,
+                        'end_time'         => $slot->end_time,
+                        'total_slots'      => $slot->total_slots,
+                        'booked_slots'     => $slot->booked_slots,
+                        'available_slots'  => $slot->remaining,
+                        'is_available'     => $slot->is_available,
+                        'slot_id'          => $slot->id,
                     ]);
                 } else {
-                    // Auto-generate from weekly schedule
                     $calendar->push([
-                        'date' => $date->format('Y-m-d'),
-                        'location_id' => $locationId,
-                        'location' => $location->name_en,
-                        'experience_id' => $experienceId,
+                        'date'             => $date->format('Y-m-d'),
+                        'location_id'      => $locationId,
+                        'location'         => $location->name_en,
+                        'experience_id'    => $experienceId,
                         'experience_price' => $experiencePrice,
-                        'start_time' => $schedule->start_time,
-                        'end_time' => $schedule->end_time,
-                        'total_slots' => 12,
-                        'booked_slots' => 0,
-                        'available_slots' => 12,
-                        'is_available' => true,
-                        'slot_id' => null, // not yet materialized
+                        'start_time'       => $schedule->start_time,
+                        'end_time'         => $schedule->end_time,
+                        'total_slots'      => 12,
+                        'booked_slots'     => 0,
+                        'available_slots'  => 12,
+                        'is_available'     => true,
+                        'slot_id'          => null,
                     ]);
                 }
+            }
+        }
+
+        // ── 2. Custom-date schedules: only on their exact date ─────
+        foreach ($customSchedules as $schedule) {
+            $scheduleDate = $schedule->date instanceof Carbon
+                ? $schedule->date
+                : Carbon::parse($schedule->date);
+
+            // Skip if outside this month or in the past
+            if ($scheduleDate->lt($today) || $scheduleDate->month !== $month || $scheduleDate->year !== $year) {
+                continue;
+            }
+
+            $dateStr  = $scheduleDate->format('Y-m-d');
+            $slotKey  = $dateStr . '_' . $schedule->start_time;
+
+            if ($existingSlots->has($slotKey)) {
+                $slot = $existingSlots->get($slotKey);
+                $calendar->push([
+                    'date'             => $dateStr,
+                    'location_id'      => $locationId,
+                    'location'         => $location->name_en,
+                    'experience_id'    => $experienceId,
+                    'experience_price' => $experiencePrice,
+                    'start_time'       => $slot->start_time,
+                    'end_time'         => $slot->end_time,
+                    'total_slots'      => $slot->total_slots,
+                    'booked_slots'     => $slot->booked_slots,
+                    'available_slots'  => $slot->remaining,
+                    'is_available'     => $slot->is_available,
+                    'slot_id'          => $slot->id,
+                ]);
+            } else {
+                $calendar->push([
+                    'date'             => $dateStr,
+                    'location_id'      => $locationId,
+                    'location'         => $location->name_en,
+                    'experience_id'    => $experienceId,
+                    'experience_price' => $experiencePrice,
+                    'start_time'       => $schedule->start_time,
+                    'end_time'         => $schedule->end_time,
+                    'total_slots'      => 12,
+                    'booked_slots'     => 0,
+                    'available_slots'  => 12,
+                    'is_available'     => true,
+                    'slot_id'          => null,
+                ]);
             }
         }
 
@@ -116,9 +165,9 @@ class CalendarService
     public function getAvailability(int $locationId, string $date): Collection
     {
         $carbonDate = Carbon::parse($date);
-        $dayOfWeek = $carbonDate->dayOfWeek;
+        $dayOfWeek  = $carbonDate->dayOfWeek;
 
-        // Check explicit slots first
+        // 1. Check explicit AvailabilitySlot rows first
         $explicitSlots = AvailabilitySlot::forLocation($locationId)
             ->forDate($date)
             ->get();
@@ -126,34 +175,58 @@ class CalendarService
         if ($explicitSlots->isNotEmpty()) {
             return $explicitSlots->map(function ($slot) use ($locationId) {
                 return [
-                    'slot_id' => $slot->id,
-                    'location_id' => $locationId,
-                    'date' => $slot->date->format('Y-m-d'),
-                    'start_time' => $slot->start_time,
-                    'end_time' => $slot->end_time,
-                    'total_slots' => $slot->total_slots,
+                    'slot_id'         => $slot->id,
+                    'location_id'     => $locationId,
+                    'date'            => $slot->date->format('Y-m-d'),
+                    'start_time'      => $slot->start_time,
+                    'end_time'        => $slot->end_time,
+                    'total_slots'     => $slot->total_slots,
                     'available_slots' => $slot->remaining,
-                    'is_available' => $slot->is_available,
+                    'is_available'    => $slot->is_available,
                 ];
             });
         }
 
-        // Fall back to weekly schedule
+        // 2. Check custom-date schedules matching this exact date
+        $customSchedules = Schedule::where('location_id', $locationId)
+            ->whereNotNull('date')
+            ->whereNull('day_of_week')
+            ->where('date', $date)
+            ->where('is_active', true)
+            ->get();
+
+        if ($customSchedules->isNotEmpty()) {
+            return $customSchedules->map(function ($schedule) use ($locationId, $date) {
+                return [
+                    'slot_id'         => null,
+                    'location_id'     => $locationId,
+                    'date'            => $date,
+                    'start_time'      => $schedule->start_time,
+                    'end_time'        => $schedule->end_time,
+                    'total_slots'     => 12,
+                    'available_slots' => 12,
+                    'is_available'    => true,
+                ];
+            });
+        }
+
+        // 3. Fall back to weekly schedule (only for weekly-type locations)
         $schedules = Schedule::where('location_id', $locationId)
             ->where('day_of_week', $dayOfWeek)
+            ->whereNull('date')
             ->where('is_active', true)
             ->get();
 
         return $schedules->map(function ($schedule) use ($locationId, $date) {
             return [
-                'slot_id' => null,
-                'location_id' => $locationId,
-                'date' => $date,
-                'start_time' => $schedule->start_time,
-                'end_time' => $schedule->end_time,
-                'total_slots' => 12,
+                'slot_id'         => null,
+                'location_id'     => $locationId,
+                'date'            => $date,
+                'start_time'      => $schedule->start_time,
+                'end_time'        => $schedule->end_time,
+                'total_slots'     => 12,
                 'available_slots' => 12,
-                'is_available' => true,
+                'is_available'    => true,
             ];
         });
     }
