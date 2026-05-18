@@ -21,8 +21,22 @@ function slugFromName(name: string): string {
 
 function formatAvailability(schedules: LocationSchedule[], availabilityType: string): string {
   if (schedules.length === 0) return availabilityType || 'Available';
+
+  // Custom date schedules have day_of_week = null and a specific date
+  const isCustomDate = schedules.every((s) => s.day_of_week == null);
+  if (isCustomDate) {
+    // Find the closest upcoming date (or just first one)
+    const sorted = [...schedules]
+      .filter((s) => s.date)
+      .sort((a, b) => (a.date! > b.date! ? 1 : -1));
+    if (sorted.length === 0) return 'Custom Date';
+    const d = new Date(sorted[0].date! + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const days = [...new Set(schedules.map((s) => s.day_of_week))].sort();
+  const days = [...new Set(schedules.map((s) => s.day_of_week))].filter((d): d is number => d != null).sort();
+  if (days.length === 0) return availabilityType || 'Available';
   if (days.length === 1) return `${dayNames[days[0]]}s`;
   if (days.length >= 5) return 'Most days';
   return days.map((d) => dayNames[d]).join(', ');

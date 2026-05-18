@@ -140,7 +140,8 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
 
 // ── Locations API (public) ────────────────────────────────────────
 export interface LocationSchedule {
-  day_of_week: number;
+  day_of_week: number | null;
+  date: string | null;
   start_time: string;
   end_time: string;
 }

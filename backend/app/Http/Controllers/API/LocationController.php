@@ -68,8 +68,9 @@ class LocationController extends Controller
                 : [],
             'schedules' => $loc->schedules->where('is_active', true)->map(fn ($s) => [
                 'day_of_week' => $s->day_of_week,
-                'start_time' => $s->start_time,
-                'end_time' => $s->end_time,
+                'date'        => $s->date ? $s->date->format('Y-m-d') : null,
+                'start_time'  => $s->start_time,
+                'end_time'    => $s->end_time,
             ])->values(),
         ];
 
