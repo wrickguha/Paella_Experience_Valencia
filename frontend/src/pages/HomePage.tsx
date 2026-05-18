@@ -12,7 +12,7 @@ import CommunitySection from '@/components/CommunitySection';
 import VideoTestimonialsSection from '@/components/VideoTestimonialsSection';
 import ActivitiesSection from '@/components/ActivitiesSection';
 import SpanishLevelTest from '@/components/SpanishLevelTest';
-import ExperienceFlowSection from '@/components/ExperienceFlowSection';
+
 import CommunityCTA from '@/components/CommunityCTA';
 import FancyButton from '@/components/ui/FancyButton';
 
@@ -27,7 +27,6 @@ export default function HomePage() {
       <CommunitySection />
       <VideoTestimonialsSection />
       <SpanishLevelTest />
-      <ExperienceFlowSection />
       <HowItWorks />
       <UpcomingEvents />
 
