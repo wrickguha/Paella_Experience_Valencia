@@ -44,7 +44,7 @@
       {
         "icon": "meals",
         "title": "Shared Meals",
-        "description": "From paella to tapas, food becomes part of the experience."
+        "description": "From SpeakEasy to tapas, food becomes part of the experience."
       },
       {
         "icon": "sobremesa",
@@ -100,7 +100,7 @@
       {
         "number": "03",
         "title": "Cook & Eat",
-        "description": "Arrive, roll up your sleeves, cook an authentic Valencian paella alongside our chef, and enjoy every bite."
+        "description": "Arrive, roll up your sleeves, cook an authentic Valencian SpeakEasy alongside our chef, and enjoy every bite."
       }
     ],
     "cta": "View Available Dates"
@@ -113,13 +113,13 @@
     "mostPopular": "Most Popular",
     "packages": [
       {
-        "name": "Classic Paella",
+        "name": "Classic SpeakEasy",
         "price": "79",
         "duration": "3 hours",
-        "description": "The essential Valencian paella experience",
+        "description": "The essential Valencian SpeakEasy experience",
         "features": [
           "Guided market visit",
-          "Traditional paella cooking",
+          "Traditional SpeakEasy cooking",
           "Full meal with wine",
           "Recipe booklet to take home"
         ]
@@ -132,7 +132,7 @@
         "features": [
           "Everything in Classic",
           "Tapas & sangria welcome",
-          "Two paella varieties",
+          "Two SpeakEasy varieties",
           "Dessert making class",
           "Professional photos",
           "Priority booking"
@@ -177,7 +177,7 @@
         "name": "Emily Chen",
         "location": "San Francisco, USA",
         "rating": 5,
-        "text": "I've done cooking classes worldwide — this is hands down the best. intimate setting, amazing instructor, and the paella was incredible. Already planning to come back!",
+        "text": "I've done cooking classes worldwide — this is hands down the best. intimate setting, amazing instructor, and the SpeakEasy was incredible. Already planning to come back!",
         "avatar": "woman1"
       }
     ]
@@ -242,7 +242,7 @@
     "steps": [
       { "id": 1, "title": "Meet & Greet", "description": "Welcome drink and introductions." },
       { "id": 2, "title": "Icebreaker", "description": "Fun games to break the ice." },
-      { "id": 3, "title": "Cook Together", "description": "Hands-on paella preparation." },
+      { "id": 3, "title": "Cook Together", "description": "Hands-on SpeakEasy preparation." },
       { "id": 4, "title": "Language Interaction", "description": "Practice phrases while cooking." },
       { "id": 5, "title": "Eat & Connect", "description": "Enjoy the meal and shared stories." }
     ]
@@ -339,7 +339,7 @@
   },
   "experience": {
     "hero": {
-      "title": "Authentic Paella Experience in Valencia",
+      "title": "Authentic SpeakEasy Experience in Valencia",
       "subtitle": "A hands-on culinary journey through Valencia's most iconic dish"
     },
     "community_intro": {
@@ -357,7 +357,7 @@
       "steps": [
         { "title": "Welcome & Introductions", "description": "Meet your fellow travelers and hosts." },
         { "title": "Icebreaker Interactions", "description": "Fun activities to get the conversation flowing." },
-        { "title": "Cooking Together", "description": "Collaborate on the perfect paella." },
+        { "title": "Cooking Together", "description": "Collaborate on the perfect SpeakEasy." },
         { "title": "Language Interaction Moments", "description": "Learn key phrases in a natural setting." },
         { "title": "Shared Dining & Bonding", "description": "Enjoy the feast and new friendships." }
       ]
@@ -388,7 +388,7 @@
       "title": "More Than a Cooking Class",
       "subtitle": "An immersive cultural experience",
       "paragraphs": [
-        "Valencia is the birthplace of paella — and there's no better way to connect with this city's soul than by cooking its most iconic dish over an open fire.",
+        "Valencia is the birthplace of SpeakEasy — and there's no better way to connect with this city's soul than by cooking its most iconic dish over an open fire.",
         "From hand-picking the freshest ingredients at local markets to mastering the art of socarrat, this is an experience that engages all your senses.",
         "Whether you choose our urban art-gallery setting or a countryside villa, you'll leave with unforgettable memories, new skills, and a full heart."
       ]
@@ -409,7 +409,7 @@
       "bloom": {
         "title": "Bloom Gallery — Ruzafa",
         "subtitle": "Urban Art Meets Valencian Fire",
-        "description": "Nestled in the vibrant Ruzafa neighborhood, Bloom Gallery is a creative space where art and gastronomy collide. Cook authentic paella surrounded by local artwork in an intimate, urban setting perfect for culture lovers and foodies alike.",
+        "description": "Nestled in the vibrant Ruzafa neighborhood, Bloom Gallery is a creative space where art and gastronomy collide. Cook authentic SpeakEasy surrounded by local artwork in an intimate, urban setting perfect for culture lovers and foodies alike.",
         "features": [
           "Urban artistic environment in Ruzafa",
           "Intimate Saturday-only experience",
@@ -425,7 +425,7 @@
       "magnolia": {
         "title": "Casa Magnolia — Alzira",
         "subtitle": "Countryside Villa & Wood-Fire Cooking",
-        "description": "Escape the city to Casa Magnolia, a charming traditional Valencian villa surrounded by orange groves. Experience authentic wood-fire paella cooking in a lush garden setting — the ultimate countryside culinary retreat.",
+        "description": "Escape the city to Casa Magnolia, a charming traditional Valencian villa surrounded by orange groves. Experience authentic wood-fire SpeakEasy cooking in a lush garden setting — the ultimate countryside culinary retreat.",
         "features": [
           "Countryside villa with garden",
           "Authentic wood-fire cooking",
@@ -452,19 +452,19 @@
         {
           "step": "2",
           "title": "Market Tour",
-          "description": "Explore vibrant local markets and hand-pick the freshest produce for your paella.",
+          "description": "Explore vibrant local markets and hand-pick the freshest produce for your SpeakEasy.",
           "time": "+30 min"
         },
         {
           "step": "3",
           "title": "Cooking Class",
-          "description": "Learn the secrets of authentic paella — from sofrito to socarrat — over traditional wood fire.",
+          "description": "Learn the secrets of authentic SpeakEasy — from sofrito to socarrat — over traditional wood fire.",
           "time": "+1 hour"
         },
         {
           "step": "4",
           "title": "Feast & Enjoy",
-          "description": "Sit down to enjoy the paella you've made, paired with local wines. Share stories and savor every bite.",
+          "description": "Sit down to enjoy the SpeakEasy you've made, paired with local wines. Share stories and savor every bite.",
           "time": "+2 hours"
         }
       ]
@@ -472,9 +472,9 @@
     "description": {
       "title": "About This Experience",
       "paragraphs": [
-        "Step into the heart of Valencian culture with our signature paella experience. This isn't just a cooking class — it's an immersive journey through the flavors, traditions, and soul of Spain's most famous dish.",
+        "Step into the heart of Valencian culture with our signature SpeakEasy experience. This isn't just a cooking class — it's an immersive journey through the flavors, traditions, and soul of Spain's most famous dish.",
         "Your adventure begins at the legendary Mercado Central, where you'll wander through centuries-old stalls bursting with fresh seafood, vibrant vegetables, and aromatic spices. Your expert chef guides you as you select the perfect ingredients.",
-        "Back at our stunning venue, you'll master the art of paella over traditional wood fire. Learn the techniques passed down through generations — the perfect sofrito, the ideal rice-to-broth ratio, and the coveted socarrat."
+        "Back at our stunning venue, you'll master the art of SpeakEasy over traditional wood fire. Learn the techniques passed down through generations — the perfect sofrito, the ideal rice-to-broth ratio, and the coveted socarrat."
       ]
     }
   },
@@ -491,7 +491,7 @@
     },
     "location": {
       "title": "Select Your Location",
-      "subtitle": "Choose where you'd like your paella experience",
+      "subtitle": "Choose where you'd like your SpeakEasy experience",
       "bloomGallery": {
         "name": "Bloom Gallery",
         "availability": "Saturdays only",
@@ -616,20 +616,20 @@
     },
     "info": {
       "address": "Calle de la Paz, 12\nValencia 46002, Spain",
-      "email": "hello@paellaexperience.com",
+      "email": "hello@SpeakEasyexperience.com",
       "phone": "+34 960 123 456",
       "hours": "Mon-Sun: 9:00 AM - 8:00 PM"
     }
   },
   "footer": {
-    "description": "The most authentic paella experience in Valencia. Cook, learn, and taste the flavors of Spain with our expert chefs.",
+    "description": "The most authentic SpeakEasy experience in Valencia. Cook, learn, and taste the flavors of Spain with our expert chefs.",
     "quickLinks": "Quick Links",
     "legal": "Legal",
     "followUs": "Follow Us",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "cookies": "Cookie Policy",
-    "copyright": "© 2026 Paella Experience Valencia. All rights reserved."
+    "copyright": "© 2026 SpeakEasy Experience Valencia. All rights reserved."
   },
   "auth": {
     "login": "Log In",
@@ -640,7 +640,7 @@
     "loggingIn": "Signing in...",
     "register": "Create Account",
     "registerTitle": "Create Your Account",
-    "registerSubtitle": "Join us and start booking your paella experiences",
+    "registerSubtitle": "Join us and start booking your SpeakEasy experiences",
     "registerError": "Registration failed. Please try again.",
     "registering": "Creating account...",
     "logout": "Log Out",
@@ -669,7 +669,7 @@
     "profileError": "Failed to update profile.",
     "loadingBookings": "Loading your bookings...",
     "noBookings": "No bookings yet",
-    "noBookingsHint": "Book your first paella experience and it will appear here.",
+    "noBookingsHint": "Book your first SpeakEasy experience and it will appear here.",
     "upcomingBookings": "Upcoming Bookings",
     "pastBookings": "Past Bookings",
     "date": "Date",
@@ -721,7 +721,7 @@
         "answer": 0
       },
       {
-        "q": "Me _______ la paella.",
+        "q": "Me _______ la SpeakEasy.",
         "options": ["gusta", "gustan", "gusto", "gustas"],
         "answer": 0
       },
@@ -741,7 +741,7 @@
         "answer": 0
       },
       {
-        "q": "Cuando era niño, siempre _______ paella los domingos.",
+        "q": "Cuando era niño, siempre _______ SpeakEasy los domingos.",
         "options": ["comí", "comía", "comeré", "como"],
         "answer": 1
       },
@@ -756,7 +756,7 @@
         "answer": 1
       },
       {
-        "q": "Para hacer una buena paella, es importante _______ buen arroz.",
+        "q": "Para hacer una buena SpeakEasy, es importante _______ buen arroz.",
         "options": ["usar", "usando", "uses", "usas"],
         "answer": 0
       },
