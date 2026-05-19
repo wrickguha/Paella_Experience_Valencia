@@ -29,13 +29,31 @@ class CalendarService
         $experienceId = $experience?->id;
         $experiencePrice = $experience ? (float) $experience->price : 0;
 
-        // Fetch existing availability_slots for this range
+        // Fetch existing availability_slots for this range, grouped by date
         $existingSlots = AvailabilitySlot::forLocation($locationId)
             ->whereBetween('date', [$start, $end])
             ->get()
-            ->keyBy(function ($slot) {
-                return $slot->date->format('Y-m-d') . '_' . $slot->start_time;
-            });
+            ->groupBy(fn($s) => $s->date->format('Y-m-d'));
+
+        /**
+         * Find the DB slot closest in time to a schedule entry (within 90 min).
+         * This tolerates minor time mismatches (e.g. schedule=11:00, slot=11:25).
+         */
+        $findSlot = function (string $dateStr, string $scheduleTime) use ($existingSlots): ?AvailabilitySlot {
+            $dateSlots = $existingSlots->get($dateStr, collect());
+            if ($dateSlots->isEmpty()) {
+                return null;
+            }
+            $schedMin = Carbon::parse($scheduleTime)->hour * 60 + Carbon::parse($scheduleTime)->minute;
+            return $dateSlots
+                ->filter(fn($s) => abs(
+                    Carbon::parse($s->start_time)->hour * 60 + Carbon::parse($s->start_time)->minute - $schedMin
+                ) <= 90)
+                ->sortBy(fn($s) => abs(
+                    Carbon::parse($s->start_time)->hour * 60 + Carbon::parse($s->start_time)->minute - $schedMin
+                ))
+                ->first();
+        };
 
         $calendar = collect();
         $activeSchedules = $location->schedules->where('is_active', true);
@@ -56,18 +74,17 @@ class CalendarService
             $daySchedules = $weeklySchedules->where('day_of_week', $dayOfWeek);
 
             foreach ($daySchedules as $schedule) {
-                $slotKey = $date->format('Y-m-d') . '_' . $schedule->start_time;
+                $slot = $findSlot($date->format('Y-m-d'), $schedule->start_time);
 
-                if ($existingSlots->has($slotKey)) {
-                    $slot = $existingSlots->get($slotKey);
+                if ($slot !== null) {
                     $calendar->push([
                         'date'             => $date->format('Y-m-d'),
                         'location_id'      => $locationId,
                         'location'         => $location->name_en,
                         'experience_id'    => $experienceId,
                         'experience_price' => $experiencePrice,
-                        'start_time'       => $slot->start_time,
-                        'end_time'         => $slot->end_time,
+                        'start_time'       => $schedule->start_time,
+                        'end_time'         => $schedule->end_time,
                         'total_slots'      => $slot->total_slots,
                         'booked_slots'     => $slot->booked_slots,
                         'available_slots'  => $slot->remaining,
@@ -104,19 +121,18 @@ class CalendarService
                 continue;
             }
 
-            $dateStr  = $scheduleDate->format('Y-m-d');
-            $slotKey  = $dateStr . '_' . $schedule->start_time;
+            $dateStr = $scheduleDate->format('Y-m-d');
+            $slot    = $findSlot($dateStr, $schedule->start_time);
 
-            if ($existingSlots->has($slotKey)) {
-                $slot = $existingSlots->get($slotKey);
+            if ($slot !== null) {
                 $calendar->push([
                     'date'             => $dateStr,
                     'location_id'      => $locationId,
                     'location'         => $location->name_en,
                     'experience_id'    => $experienceId,
                     'experience_price' => $experiencePrice,
-                    'start_time'       => $slot->start_time,
-                    'end_time'         => $slot->end_time,
+                    'start_time'       => $schedule->start_time,
+                    'end_time'         => $schedule->end_time,
                     'total_slots'      => $slot->total_slots,
                     'booked_slots'     => $slot->booked_slots,
                     'available_slots'  => $slot->remaining,

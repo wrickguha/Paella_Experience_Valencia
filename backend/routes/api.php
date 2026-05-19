@@ -152,6 +152,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 
     // Bookings
     Route::get('/bookings', [AdminBookingController::class, 'index']);
+    Route::post('/bookings', [AdminBookingController::class, 'store']);
     Route::get('/bookings/{id}', [AdminBookingController::class, 'show']);
     Route::put('/bookings/{id}/status', [AdminBookingController::class, 'updateStatus']);
     Route::put('/bookings/{id}/booking-status', [AdminBookingController::class, 'updateBookingStatus']);

@@ -75,6 +75,7 @@ export const calendarApi = {
 export const bookingsApi = {
   list: (params?: Record<string, string | number>) => api.get('/admin/bookings', { params }),
   get: (id: number) => api.get(`/admin/bookings/${id}`),
+  create: (data: object) => api.post('/admin/bookings', data),
   updateStatus: (id: number, status: string) => api.put(`/admin/bookings/${id}/status`, { payment_status: status }),
   updateBookingStatus: (id: number, status: string) => api.put(`/admin/bookings/${id}/booking-status`, { status }),
   updateNotes: (id: number, notes: string) => api.put(`/admin/bookings/${id}/notes`, { notes }),
