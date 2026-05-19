@@ -50,7 +50,7 @@ function SnakeFlowchart() {
             <div className="flex-1 bg-white border border-neutral-sand/30 rounded-2xl px-5 py-4 shadow-card">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-lg">{step.emoji}</span>
-                <h4 className="font-heading font-bold text-neutral-dark text-sm">{step.title}</h4>
+                <h4 className="font-heading font-bold text-neutral-dark text-sm">{step.id === 5 ? <em>{step.title}</em> : step.title}</h4>
               </div>
               <p className="text-neutral-gray text-sm leading-relaxed">{step.description}</p>
             </div>
