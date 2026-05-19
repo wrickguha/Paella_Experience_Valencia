@@ -96,7 +96,7 @@ export default function ExperienceHighlights() {
               <span className="text-3xl">{iconMap[item.icon] || '✨'}</span>
             </div>
             <h3 className="font-heading font-semibold text-lg text-neutral-dark mb-3">
-              {item.title}
+              {item.title === 'Sobremesa' ? <em>{item.title}</em> : item.title}
             </h3>
             <p className="text-neutral-gray font-body text-sm leading-relaxed">
               {item.description}
