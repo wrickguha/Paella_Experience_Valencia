@@ -144,6 +144,10 @@ jobs:
           script: |
             BASE=/home/u679970628/domains/speakeasyvalencia.com
             mkdir -p $BASE/backend $BASE/public_html/admin
+            mkdir -p $BASE/backend/storage/framework/sessions
+            mkdir -p $BASE/backend/storage/framework/cache/data
+            mkdir -p $BASE/backend/storage/framework/views
+            mkdir -p $BASE/backend/storage/logs
             cd $BASE/backend
             php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
             php artisan config:cache
