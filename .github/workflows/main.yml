@@ -118,6 +118,20 @@ jobs:
           strip_components: 2
           overwrite: true
 
+      - name: Write .env on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 65002
+          envs: BACKEND_ENV
+          script: |
+            printf '%s' "$BACKEND_ENV" > /home/u679970628/domains/speakeasyvalencia.com/backend/.env
+            echo ".env written"
+        env:
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+
       - name: Post-deploy (composer + artisan + symlink)
         uses: appleboy/ssh-action@v1.0.3
         with:
