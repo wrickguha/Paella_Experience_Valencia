@@ -62,6 +62,20 @@ jobs:
           strip_components: 1
           overwrite: true
 
+      - name: Upload storage assets via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 65002
+          timeout: 300s
+          command_timeout: 30m
+          source: "backend/storage/app/public/"
+          target: "/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/"
+          strip_components: 4
+          overwrite: true
+
       - name: Upload frontend via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
