@@ -58,7 +58,7 @@ jobs:
           timeout: 300s
           command_timeout: 30m
           source: "backend_deploy/"
-          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/backend/"
+          target: "/home/u679970628/domains/speakeasyvalencia.com/backend/"
           strip_components: 1
           overwrite: true
 
@@ -72,7 +72,7 @@ jobs:
           timeout: 300s
           command_timeout: 30m
           source: "backend/public/frontend/"
-          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
+          target: "/home/u679970628/domains/speakeasyvalencia.com/public_html/"
           strip_components: 3
           overwrite: true
 
@@ -86,7 +86,7 @@ jobs:
           timeout: 300s
           command_timeout: 30m
           source: "backend/public/admin/"
-          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/admin/"
+          target: "/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/"
           strip_components: 3
           overwrite: true
 
@@ -100,7 +100,7 @@ jobs:
           timeout: 300s
           command_timeout: 30m
           source: "deploy/public_html/"
-          target: "/home/u679970628/domains/magenta-newt-861501.hostingersite.com/public_html/"
+          target: "/home/u679970628/domains/speakeasyvalencia.com/public_html/"
           strip_components: 2
           overwrite: true
 
@@ -114,7 +114,7 @@ jobs:
           timeout: 300s
           command_timeout: 30m
           script: |
-            BASE=/home/u679970628/domains/magenta-newt-861501.hostingersite.com
+            BASE=/home/u679970628/domains/speakeasyvalencia.com
             mkdir -p $BASE/backend $BASE/public_html/admin
             cd $BASE/backend
             php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
