@@ -63,10 +63,10 @@ export default function App() {
             <Route element={<MainLayout />}>
               <Route path="/" element={<HomePage />} />
               <Route path="/experience" element={<ExperiencePage />} />
-              <Route path="/booking" element={<ProtectedRoute><BookingPage /></ProtectedRoute>} />
-              <Route path="/payment" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
-              <Route path="/payment/success" element={<ProtectedRoute><PaymentReturnPage /></ProtectedRoute>} />
-              <Route path="/payment/cancel" element={<ProtectedRoute><PaymentCancelPage /></ProtectedRoute>} />
+              <Route path="/booking" element={<BookingPage />} />
+              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/payment/success" element={<PaymentReturnPage />} />
+              <Route path="/payment/cancel" element={<PaymentCancelPage />} />
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

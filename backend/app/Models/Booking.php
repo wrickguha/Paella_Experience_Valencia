@@ -34,6 +34,7 @@ class Booking extends Model
         'language_preference',
         'notes',
         'status',
+        'confirmation_sent',
     ];
 
     protected $casts = [
@@ -41,6 +42,7 @@ class Booking extends Model
         'total_price' => 'decimal:2',
         'discount_percent' => 'decimal:2',
         'discount_amount' => 'decimal:2',
+        'confirmation_sent' => 'boolean',
     ];
 
     protected static function booted(): void

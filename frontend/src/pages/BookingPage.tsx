@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -37,6 +37,11 @@ export default function BookingPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
   const [guests, setGuests] = useState(2);
+  const [customerFirstName, setCustomerFirstName] = useState('');
+  const [customerLastName, setCustomerLastName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleDateSelect = useCallback((date: string, events: CalendarEvent[]) => {
     // If prefill location, filter events to that location
@@ -62,10 +67,42 @@ export default function BookingPage() {
     setStep('guests');
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      const parts = (user.name || '').trim().split(' ');
+      setCustomerFirstName(parts[0] || '');
+      setCustomerLastName(parts.slice(1).join(' ') || '');
+      setCustomerEmail(user.email || '');
+      setCustomerPhone(user.phone || '');
+    }
+  }, [user]);
+
+  const validateCustomerInfo = () => {
+    const nextErrors: Record<string, string> = {};
+
+    if (!customerFirstName.trim()) {
+      nextErrors.firstName = 'First name is required.';
+    }
+
+    if (!customerLastName.trim()) {
+      nextErrors.lastName = 'Last name is required.';
+    }
+
+    if (!customerEmail.trim()) {
+      nextErrors.email = 'Email is required.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail.trim())) {
+      nextErrors.email = 'Enter a valid email address.';
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
   // Go straight to payment using auth user data
   const handleProceedToPayment = useCallback(() => {
-    if (!selectedEvent || !user) return;
-    const nameParts = (user.name || '').split(' ');
+    if (!selectedEvent) return;
+    if (!validateCustomerInfo()) return;
+
     sessionStorage.setItem(
       'booking',
       JSON.stringify({
@@ -78,14 +115,14 @@ export default function BookingPage() {
         total: selectedEvent.pricePerPerson * guests,
         pricePerPerson: selectedEvent.pricePerPerson,
         locationName: selectedEvent.locationName,
-        customerFirstName: nameParts[0] || '',
-        customerLastName: nameParts.slice(1).join(' ') || '',
-        customerEmail: user.email,
-        customerPhone: user.phone || '',
+        customerFirstName: customerFirstName.trim(),
+        customerLastName: customerLastName.trim(),
+        customerEmail: customerEmail.trim(),
+        customerPhone: customerPhone.trim(),
       }),
     );
     navigate('/payment');
-  }, [selectedEvent, guests, navigate, user]);
+  }, [selectedEvent, guests, navigate, customerFirstName, customerLastName, customerEmail, customerPhone]);
 
   const handleBackToCalendar = useCallback(() => {
     setStep('calendar');
@@ -172,6 +209,57 @@ export default function BookingPage() {
                 pricePerPerson={selectedEvent.pricePerPerson}
                 onUpdate={setGuests}
               />
+
+              <div className="mt-8 bg-white rounded-2xl shadow-card p-6">
+                <h2 className="font-heading font-semibold text-neutral-dark mb-4">Your contact details</h2>
+                <p className="text-sm text-neutral-gray mb-5">We only need your email to send a booking confirmation. No login required.</p>
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <label className="space-y-2 text-sm">
+                      <span className="font-medium text-neutral-dark">First name *</span>
+                      <input
+                        type="text"
+                        value={customerFirstName}
+                        onChange={(e) => { setCustomerFirstName(e.target.value); setErrors((prev) => { const next = { ...prev }; delete next.firstName; return next; }); }}
+                        className="w-full px-4 py-3 rounded-2xl border border-neutral-sand/70 focus:border-primary focus:outline-none"
+                      />
+                      {errors.firstName && <p className="text-xs text-red-500">{errors.firstName}</p>}
+                    </label>
+                    <label className="space-y-2 text-sm">
+                      <span className="font-medium text-neutral-dark">Last name *</span>
+                      <input
+                        type="text"
+                        value={customerLastName}
+                        onChange={(e) => { setCustomerLastName(e.target.value); setErrors((prev) => { const next = { ...prev }; delete next.lastName; return next; }); }}
+                        className="w-full px-4 py-3 rounded-2xl border border-neutral-sand/70 focus:border-primary focus:outline-none"
+                      />
+                      {errors.lastName && <p className="text-xs text-red-500">{errors.lastName}</p>}
+                    </label>
+                  </div>
+                  <div className="grid gap-4">
+                    <label className="space-y-2 text-sm">
+                      <span className="font-medium text-neutral-dark">Email *</span>
+                      <input
+                        type="email"
+                        value={customerEmail}
+                        onChange={(e) => { setCustomerEmail(e.target.value); setErrors((prev) => { const next = { ...prev }; delete next.email; return next; }); }}
+                        className="w-full px-4 py-3 rounded-2xl border border-neutral-sand/70 focus:border-primary focus:outline-none"
+                      />
+                      {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+                    </label>
+                    <label className="space-y-2 text-sm">
+                      <span className="font-medium text-neutral-dark">Phone</span>
+                      <input
+                        type="tel"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        placeholder="Optional"
+                        className="w-full px-4 py-3 rounded-2xl border border-neutral-sand/70 focus:border-primary focus:outline-none"
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
 
               {/* Price breakdown & CTA */}
               <div className="mt-8 bg-white rounded-2xl shadow-card p-6">

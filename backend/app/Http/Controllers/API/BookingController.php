@@ -23,8 +23,8 @@ class BookingController extends Controller
         try {
             $data = $request->validated();
 
-            // Associate booking with authenticated user
-            $data['user_id'] = $request->user()->id;
+            // Associate booking with authenticated user when available
+            $data['user_id'] = optional($request->user())->id;
 
             $booking = $this->bookingService->createBooking($data);
         } catch (\Exception $e) {
@@ -42,7 +42,7 @@ class BookingController extends Controller
                     'reference' => $booking->reference,
                     'total_price' => (float) $booking->total_price,
                     'guests' => $booking->guests,
-                    'date' => $booking->date->format('Y-m-d'),
+                    'date' => (string) $booking->date,
                     'time' => $booking->time,
                     'location' => $booking->location->name_en,
                     'experience' => $booking->experience->title_en,
