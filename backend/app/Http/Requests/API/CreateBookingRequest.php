@@ -23,6 +23,7 @@ class CreateBookingRequest extends FormRequest
             'date' => ['required', 'date', 'after_or_equal:today'],
             'time' => ['required', 'date_format:H:i'],
             'guests' => ['required', 'integer', 'min:1', 'max:12'],
+            'coupon_code' => ['nullable', 'string', 'max:50'],
             'language_preference' => ['nullable', 'in:spanish,english,both'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ];

@@ -25,6 +25,9 @@ class Booking extends Model
         'date',
         'time',
         'guests',
+        'coupon_code',
+        'discount_percent',
+        'discount_amount',
         'total_price',
         'payment_status',
         'payment_id',
@@ -36,6 +39,8 @@ class Booking extends Model
     protected $casts = [
         'date' => 'date',
         'total_price' => 'decimal:2',
+        'discount_percent' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
     ];
 
     protected static function booted(): void

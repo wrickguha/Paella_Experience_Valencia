@@ -81,6 +81,13 @@ export const bookingsApi = {
   updateNotes: (id: number, notes: string) => api.put(`/admin/bookings/${id}/notes`, { notes }),
 };
 
+// ── Coupons ──
+export const couponsApi = {
+  list: () => api.get('/admin/coupons'),
+  create: (data: object) => api.post('/admin/coupons', data),
+  delete: (id: number) => api.delete(`/admin/coupons/${id}`),
+};
+
 // ── Payments ──
 export const paymentsApi = {
   list: (params?: Record<string, string | number>) => api.get('/admin/payments', { params }),

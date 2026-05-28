@@ -18,6 +18,7 @@ import {
   Users,
   Languages,
   TrendingUp,
+  Percent,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,7 @@ const NAV_ITEMS = [
   { to: '/admin/languages', icon: Languages, label: 'Languages' },
   { to: '/admin/leads', icon: TrendingUp, label: 'Leads' },
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
+  { to: '/admin/coupons', icon: Percent, label: 'Coupons' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];
 

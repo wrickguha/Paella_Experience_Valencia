@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\AvailabilitySlot;
 use App\Models\Booking;
+use App\Models\Coupon;
 use App\Models\Experience;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +36,20 @@ class BookingService
 
             // Calculate total
             $totalPrice = $experience->price * $requestedGuests;
+            $couponCode = isset($data['coupon_code']) ? strtoupper(trim($data['coupon_code'])) : null;
+            $discountPercent = null;
+            $discountAmount = null;
+
+            if (!empty($couponCode)) {
+                $coupon = Coupon::active()->where('code', $couponCode)->first();
+                if (! $coupon) {
+                    throw new \Exception('Coupon code is invalid or inactive.');
+                }
+
+                $discountPercent = $coupon->discount_percent;
+                $discountAmount = round($totalPrice * ($discountPercent / 100), 2);
+                $totalPrice = max(0, $totalPrice - $discountAmount);
+            }
 
             // Create booking
             $booking = Booking::create([
@@ -49,6 +64,9 @@ class BookingService
                 'date' => $data['date'],
                 'time' => $data['time'],
                 'guests' => $requestedGuests,
+                'coupon_code' => $couponCode,
+                'discount_percent' => $discountPercent,
+                'discount_amount' => $discountAmount,
                 'total_price' => $totalPrice,
                 'payment_status' => 'pending',
                 'language_preference' => $data['language_preference'] ?? null,

@@ -277,6 +277,7 @@ export const paymentApi = {
     apiClient.post('/payment/create-order', { booking_id: bookingId }),
   capture: (orderId: string) =>
     apiClient.post('/payment/capture', { order_id: orderId }),
+  validateCoupon: (code: string) => apiClient.get('/coupons/validate', { params: { code } }),
 };
 
 // ── About API ──────────────────────────────────────────────────────

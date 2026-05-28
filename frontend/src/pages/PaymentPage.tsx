@@ -7,6 +7,12 @@ import { bookingApi, paymentApi } from '@/services/api';
 
 type PaymentState = 'review' | 'processing' | 'success' | 'failure';
 
+interface CouponValidation {
+  valid: boolean;
+  discountPercent: number;
+  message: string;
+}
+
 interface StoredBooking {
   locationId: string;
   locationNumericId: number;
@@ -29,6 +35,9 @@ export default function PaymentPage() {
   const [state, setState] = useState<PaymentState>('review');
   const [bookingRef, setBookingRef] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [couponCode, setCouponCode] = useState<string>('');
+  const [couponValidation, setCouponValidation] = useState<CouponValidation | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
   useScrollToTop();
 
   const stored = useMemo<StoredBooking | null>(() => {
@@ -60,8 +69,35 @@ export default function PaymentPage() {
    * 3. Redirect to PayPal    → user approves
    * 4. PayPal returns here   → /payment/success route captures
    */
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponValidation({ valid: false, discountPercent: 0, message: 'Please enter a coupon code.' });
+      return;
+    }
+
+    setCouponLoading(true);
+    setErrorMsg('');
+
+    try {
+      const res = await paymentApi.validateCoupon(couponCode.trim());
+      const discountPercent = Number(res.data.discount_percent || 0);
+      setCouponValidation({ valid: true, discountPercent, message: `Coupon applied: ${discountPercent}% off` });
+    } catch (error: unknown) {
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Coupon code is invalid or inactive.';
+      setCouponValidation({ valid: false, discountPercent: 0, message });
+    }
+
+    setCouponLoading(false);
+  };
+
   const handlePayPal = async () => {
     if (!stored) return;
+    if (couponCode.trim() && couponValidation?.valid === false) {
+      setErrorMsg('Please provide a valid coupon code before checkout.');
+      setState('failure');
+      return;
+    }
+
     setState('processing');
     setErrorMsg('');
 
@@ -77,6 +113,7 @@ export default function PaymentPage() {
         date: stored.date,
         time: stored.time,
         guests: stored.guests,
+        coupon_code: couponValidation?.valid ? couponCode.trim().toUpperCase() : undefined,
       });
 
       const bookingData = bookingRes.data?.data?.booking;
@@ -137,6 +174,35 @@ export default function PaymentPage() {
                 </h3>
 
                 <div className="space-y-4 text-sm">
+                  <div className="grid gap-3">
+                    <label className="text-sm font-medium text-neutral-dark">Coupon Code</label>
+                    <div className="grid grid-cols-[1fr_auto] gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => {
+                          setCouponCode(e.target.value);
+                          setCouponValidation(null);
+                        }}
+                        className="w-full px-3 py-2 border rounded-lg text-sm border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        placeholder="Enter coupon code"
+                      />
+                      <button
+                        type="button"
+                        onClick={applyCoupon}
+                        disabled={couponLoading}
+                        className="rounded-xl bg-primary px-4 text-white font-semibold transition-colors hover:bg-primary-dark disabled:opacity-60"
+                      >
+                        {couponLoading ? 'Checking...' : 'Apply'}
+                      </button>
+                    </div>
+                    {couponValidation && (
+                      <p className={couponValidation.valid ? 'text-sm text-green-600' : 'text-sm text-red-500'}>
+                        {couponValidation.message}
+                      </p>
+                    )}
+                  </div>
+
                   {stored.customerFirstName && (
                     <div className="flex justify-between">
                       <span className="text-neutral-gray">{t('booking.customerInfo.firstName')} &amp; {t('booking.customerInfo.lastName')}</span>
@@ -165,9 +231,15 @@ export default function PaymentPage() {
                     <span className="text-neutral-gray">{t('booking.summary.guestCount')}</span>
                     <span className="text-neutral-dark font-medium">{stored.guests}</span>
                   </div>
+                  {couponValidation?.valid && (
+                    <div className="flex justify-between text-sm text-green-700">
+                      <span>Discount ({couponValidation.discountPercent}%)</span>
+                      <span>-€{((stored.total * couponValidation.discountPercent) / 100).toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="border-t border-neutral-sand/40 pt-4 flex justify-between items-center">
                     <span className="font-heading font-bold text-neutral-dark">{t('booking.summary.total')}</span>
-                    <span className="font-display text-2xl text-primary">€{stored.total}</span>
+                    <span className="font-display text-2xl text-primary">€{couponValidation?.valid ? (stored.total - (stored.total * couponValidation.discountPercent) / 100).toFixed(2) : stored.total}</span>
                   </div>
                 </div>
               </div>

@@ -25,12 +25,14 @@ use App\Http\Controllers\API\AboutController;
 use App\Http\Controllers\API\ActivityController;
 use App\Http\Controllers\API\CommunityController;
 use App\Http\Controllers\API\ContactController;
+use App\Http\Controllers\API\CouponController as APICouponController;
 use App\Http\Controllers\API\LanguageSessionController;
 use App\Http\Controllers\API\LeadController;
 use App\Http\Controllers\Admin\AboutController as AdminAboutController;
 use App\Http\Controllers\Admin\ActivityController as AdminActivityController;
 use App\Http\Controllers\Admin\CommunityMemberController as AdminCommunityMemberController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\LanguageSessionController as AdminLanguageSessionController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +81,7 @@ Route::middleware(['auth:sanctum', 'throttle:10,1'])->group(function () {
 
 // PayPal webhook — no throttle, no CSRF
 Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
+Route::get('/coupons/validate', [APICouponController::class, 'validate']);
 
 /*
 |--------------------------------------------------------------------------
@@ -184,6 +187,11 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Settings
     Route::get('/settings', [AdminSettingController::class, 'index']);
     Route::put('/settings', [AdminSettingController::class, 'update']);
+
+    // Coupons
+    Route::get('/coupons', [AdminCouponController::class, 'index']);
+    Route::post('/coupons', [AdminCouponController::class, 'store']);
+    Route::delete('/coupons/{id}', [AdminCouponController::class, 'destroy']);
 
     // About
     Route::get('/about', [AdminAboutController::class, 'index']);

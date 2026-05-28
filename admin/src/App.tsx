@@ -17,6 +17,7 @@ const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
 const FaqsPage = lazy(() => import('@/pages/FaqsPage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const MessagesPage = lazy(() => import('@/pages/MessagesPage'));
+const CouponsPage = lazy(() => import('@/pages/CouponsPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const ActivitiesPage = lazy(() => import('@/pages/ActivitiesPage'));
 const CommunityPage = lazy(() => import('@/pages/CommunityPage'));
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="languages" element={<LanguageSessionsPage />} />
           <Route path="leads" element={<LeadsPage />} />
           <Route path="messages" element={<MessagesPage />} />
+          <Route path="coupons" element={<CouponsPage />} />
           <Route path="settings" element={<SettingsPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/admin" replace />} />
