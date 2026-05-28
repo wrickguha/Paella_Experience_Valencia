@@ -36,7 +36,7 @@ return [
     ],
 
     'paypal' => [
-        'mode' => env('PAYPAL_MODE', 'sandbox'),
+        'mode' => strtolower(env('PAYPAL_MODE', 'sandbox')),
         'client_id' => env('PAYPAL_CLIENT_ID', ''),
         'client_secret' => env('PAYPAL_SECRET', ''),
         'currency' => env('PAYPAL_CURRENCY', 'EUR'),

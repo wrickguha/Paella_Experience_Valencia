@@ -22,7 +22,8 @@ class PayPalService
         $this->clientSecret = config('services.paypal.client_secret', '');
         $this->currency = config('services.paypal.currency', 'EUR');
         $this->payeeEmail = config('services.paypal.payee_email', 'joy97ta@gmail.com');
-        $this->baseUrl = config('services.paypal.mode') === 'live'
+        $mode = strtolower(config('services.paypal.mode', 'sandbox'));
+        $this->baseUrl = $mode === 'live'
             ? 'https://api-m.paypal.com'
             : 'https://api-m.sandbox.paypal.com';
     }
