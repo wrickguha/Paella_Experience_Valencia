@@ -43,6 +43,50 @@ class PaymentController extends Controller
             ], 409);
         }
 
+        // Handle free bookings (100% off coupon code)
+        if ($booking->total_price <= 0.0) {
+            try {
+                \Illuminate\Support\Facades\DB::transaction(function () use ($booking) {
+                    $booking->update([
+                        'payment_status' => 'paid',
+                        'payment_id' => 'free-coupon',
+                        'status' => 'confirmed',
+                    ]);
+
+                    if ($booking->availabilitySlot) {
+                        $booking->availabilitySlot->increment('booked_slots', $booking->guests);
+                    }
+                });
+
+                // Send booking confirmation email
+                try {
+                    \Illuminate\Support\Facades\Mail::to($booking->email)
+                        ->send(new \App\Mail\BookingConfirmation($booking));
+                    $booking->update(['confirmation_sent' => true]);
+                } catch (\Throwable $mailError) {
+                    Log::error('Free booking confirmation email failed', [
+                        'booking' => $booking->reference,
+                        'email' => $booking->email,
+                        'error' => $mailError->getMessage(),
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'is_free' => true,
+                        'booking_reference' => $booking->reference,
+                    ],
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Failed to complete free booking', ['error' => $e->getMessage()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to process free booking.',
+                ], 500);
+            }
+        }
+
         try {
             $orderData = $this->payPalService->createOrder($booking);
 

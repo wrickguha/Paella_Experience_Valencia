@@ -122,8 +122,15 @@ export default function PaymentPage() {
       const ref = bookingData.reference ?? '';
       setBookingRef(ref);
 
-      // Step 2: Create PayPal order
+      // Step 2: Create PayPal order (or complete free booking directly)
       const orderRes = await paymentApi.createOrder(bookingData.id);
+      
+      if (orderRes.data?.data?.is_free) {
+        setBookingRef(orderRes.data.data.booking_reference);
+        setState('success');
+        return;
+      }
+
       const approvalUrl = orderRes.data?.data?.approval_url;
       const orderId = orderRes.data?.data?.order_id;
 
