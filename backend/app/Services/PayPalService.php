@@ -72,7 +72,7 @@ class PayPalService
         $token = $this->getAccessToken();
 
         $amount = number_format((float) $booking->total_price, 2, '.', '');
-        $appUrl = config('app.url');
+        $appUrl = config('app.frontend_url') ?: config('app.url');
 
         $response = Http::withToken($token)
             ->post("{$this->baseUrl}/v2/checkout/orders", [

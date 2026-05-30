@@ -73,7 +73,9 @@ Route::post('/leads', [LeadController::class, 'store']);
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['throttle:10,1'])->group(function () {
+$throttleMiddleware = app()->environment('local') ? 'throttle:100,1' : 'throttle:10,1';
+
+Route::middleware([$throttleMiddleware])->group(function () {
     Route::post('/booking/create', [BookingController::class, 'create']);
     Route::post('/payment/create-order', [PaymentController::class, 'createOrder']);
     Route::post('/payment/capture', [PaymentController::class, 'capture']);
