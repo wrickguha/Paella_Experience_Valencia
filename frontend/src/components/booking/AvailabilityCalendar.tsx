@@ -295,31 +295,90 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
             const weekIndex = Math.floor(cellIndex / 7);
             const weekHasEvents = weeksWithEvents.has(weekIndex);
 
+            // Determine styling based on location metadata & selection
+            let cellBgClass = 'bg-white hover:bg-neutral-cream/30';
+            let borderClass = 'border border-transparent';
+            let textClass = 'text-neutral-dark font-medium';
+            let ringClass = '';
+            
+            if (hasEvents && !past && weekHasEvents) {
+              if (dayLocationIds.includes('bloom') && dayLocationIds.includes('magnolia')) {
+                cellBgClass = 'bg-gradient-to-tr from-primary/[0.04] to-emerald-500/[0.04] hover:from-primary/[0.08] hover:to-emerald-500/[0.08]';
+                borderClass = 'border border-indigo-200/50 hover:border-indigo-300';
+                textClass = 'text-indigo-900 font-semibold';
+              } else if (dayLocationIds.includes('bloom')) {
+                cellBgClass = 'bg-primary/[0.04] hover:bg-primary/[0.08]';
+                borderClass = 'border border-primary/20 hover:border-primary/45';
+                textClass = 'text-primary font-semibold';
+              } else if (dayLocationIds.includes('magnolia')) {
+                cellBgClass = 'bg-emerald-500/[0.03] hover:bg-emerald-500/[0.08]';
+                borderClass = 'border border-emerald-500/20 hover:border-emerald-500/45';
+                textClass = 'text-emerald-700 font-semibold';
+              } else {
+                cellBgClass = 'bg-indigo-500/[0.03] hover:bg-indigo-500/[0.08]';
+                borderClass = 'border border-indigo-500/20 hover:border-indigo-500/45';
+                textClass = 'text-indigo-800 font-semibold';
+              }
+            }
+
+            if (isSelected) {
+              if (dayLocationIds.includes('bloom') && dayLocationIds.includes('magnolia')) {
+                cellBgClass = '!bg-gradient-to-tr !from-primary !to-emerald-500 text-white shadow-md shadow-indigo-500/30';
+                ringClass = 'ring-2 ring-offset-2 ring-indigo-500/40';
+              } else if (dayLocationIds.includes('bloom')) {
+                cellBgClass = '!bg-primary text-white shadow-md shadow-primary/30';
+                ringClass = 'ring-2 ring-offset-2 ring-primary/40';
+              } else if (dayLocationIds.includes('magnolia')) {
+                cellBgClass = '!bg-emerald-500 text-white shadow-md shadow-emerald-500/30';
+                ringClass = 'ring-2 ring-offset-2 ring-emerald-500/40';
+              } else {
+                cellBgClass = '!bg-primary text-white shadow-md shadow-primary/30';
+                ringClass = 'ring-2 ring-offset-2 ring-primary/40';
+              }
+              borderClass = 'border border-transparent';
+              textClass = 'text-white font-bold';
+            }
+
             return (
               <motion.button
                 key={day}
-                whileHover={hasEvents && !past && weekHasEvents ? { scale: 1.05 } : undefined}
+                whileHover={hasEvents && !past && weekHasEvents ? { 
+                  scale: 1.08, 
+                  y: -2,
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)'
+                } : undefined}
                 whileTap={hasEvents && !past && weekHasEvents ? { scale: 0.95 } : undefined}
+                transition={{ type: 'spring', stiffness: 450, damping: 15 }}
                 disabled={past || !hasEvents || !weekHasEvents}
                 onClick={() => handleDayClick(day)}
                 className={`
-                  aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 relative transition-all text-sm
-                  ${past ? 'text-neutral-sand cursor-not-allowed' : ''}
-                  ${!past && !hasEvents ? 'text-neutral-gray/50 cursor-default' : ''}
-                  ${!past && hasEvents ? 'cursor-pointer hover:bg-neutral-cream font-medium text-neutral-dark' : ''}
-                  ${isSelected ? '!bg-primary/10 ring-2 ring-primary' : ''}
+                  aspect-square rounded-xl flex flex-col items-center justify-center gap-1 relative text-sm
+                  transition-all duration-200
+                  ${past ? 'text-neutral-sand cursor-not-allowed opacity-30 bg-neutral-cream/[0.1]' : ''}
+                  ${!past && !hasEvents ? 'text-neutral-gray/40 cursor-default bg-neutral-cream/[0.15]' : ''}
                   ${!weekHasEvents ? 'opacity-25 pointer-events-none' : ''}
+                  ${borderClass}
+                  ${ringClass}
+                  ${cellBgClass}
+                  ${textClass}
                 `}
               >
-                <span className={isSelected ? 'text-primary font-bold' : ''}>{day}</span>
+                <span>{day}</span>
                 {hasEvents && !past && (
-                  <div className="flex gap-0.5">
+                  <div className="flex gap-1 items-center justify-center">
                     {dayLocationIds.map((locId) => {
                       const meta = locationMetadata.get(locId);
                       return meta ? (
-                        <span 
+                        <motion.span 
                           key={locId}
-                          className={`w-1.5 h-1.5 rounded-full ${meta.dotClass}`} 
+                          animate={isSelected ? { scale: 1 } : { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] }}
+                          transition={{
+                            repeat: Infinity,
+                            duration: 2.5,
+                            ease: 'easeInOut',
+                            delay: Math.random() * 2,
+                          }}
+                          className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : meta.dotClass}`} 
                           title={meta.label} 
                         />
                       ) : null;
