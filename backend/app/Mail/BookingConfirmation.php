@@ -21,7 +21,7 @@ class BookingConfirmation extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Paella Experience Booking Confirmation')
+        return $this->subject('Your Booking Confirmation - SpeakEasy Valencia')
             ->view('emails.booking_confirmation')
             ->with([
                 'booking' => $this->booking,
