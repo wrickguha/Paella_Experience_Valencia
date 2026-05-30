@@ -72,7 +72,7 @@ function EventCard({ event, index }: EventCardProps) {
 
         {/* Title */}
         <p className="font-heading font-semibold text-neutral-dark text-sm leading-snug">
-          The Paella Experience · {event.time} · {event.locationName}
+          {event.time} · {event.locationName}
         </p>
 
         {/* Address / Maps link */}
