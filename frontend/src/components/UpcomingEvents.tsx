@@ -44,7 +44,8 @@ function EventCard({ event, index }: EventCardProps) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }}
       transition={{ duration: 0.35, delay: index * 0.07, ease: 'easeOut' }}
-      className={`relative bg-white rounded-2xl shadow-card overflow-hidden border border-neutral-sand/30 flex flex-col border-l-4 ${isBloom ? 'border-l-primary' : 'border-l-emerald-500'}`}
+      onClick={() => navigate(`/booking?location=${event.locationId}&date=${event.date}&time=${event.time}`)}
+      className={`relative bg-white rounded-2xl shadow-card overflow-hidden border border-neutral-sand/30 flex flex-col border-l-4 cursor-pointer hover:shadow-lg transition-all duration-300 ${isBloom ? 'border-l-primary' : 'border-l-emerald-500'}`}
     >
       {/* Price badge */}
       <div className={`absolute top-4 right-4 text-sm font-heading font-bold ${isBloom ? 'text-primary' : 'text-emerald-600'}`}>
@@ -102,7 +103,10 @@ function EventCard({ event, index }: EventCardProps) {
               <span className="font-bold">{event.spotsLeft}</span> {t('upcomingEvents.slotsLeft')}
             </span>
             <button
-              onClick={() => navigate(`/booking?location=${event.locationId}&date=${event.date}`)}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/booking?location=${event.locationId}&date=${event.date}&time=${event.time}`);
+              }}
               className={`px-3 py-1 rounded-lg text-xs font-heading font-semibold text-white transition-opacity hover:opacity-90 ${isBloom ? 'bg-primary' : 'bg-emerald-600'}`}
             >
               {t('upcomingEvents.bookNow')}

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 import { useAuth } from '@/context/AuthContext';
+import { fetchCalendarMonth } from '@/services/api';
 import type { CalendarEvent, LocationId } from '@/services/api';
 import AvailabilityCalendar from '@/components/booking/AvailabilityCalendar';
 import EventDetailModal from '@/components/booking/EventDetailModal';
@@ -42,6 +43,7 @@ export default function BookingPage() {
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [prefillLoading, setPrefillLoading] = useState(false);
 
   const handleDateSelect = useCallback((date: string, events: CalendarEvent[]) => {
     // If prefill location, filter events to that location
@@ -66,6 +68,49 @@ export default function BookingPage() {
     setModalOpen(false);
     setStep('guests');
   }, []);
+
+  // Load prefilled event from query parameters if present (e.g. from homepage events)
+  useEffect(() => {
+    const prefillDate = searchParams.get('date');
+    const prefillTime = searchParams.get('time');
+
+    if (prefillLocation && prefillDate) {
+      const parts = prefillDate.split('-');
+      if (parts.length === 3) {
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // 0-indexed for fetchCalendarMonth
+        
+        setPrefillLoading(true);
+        fetchCalendarMonth(year, month)
+          .then((events) => {
+            const match = events.find(
+              (e) =>
+                e.locationId === prefillLocation &&
+                e.date === prefillDate &&
+                (!prefillTime || e.time === prefillTime)
+            );
+            if (match) {
+              setSelectedEvent({
+                locationId: match.locationId,
+                locationNumericId: match.locationNumericId,
+                experienceId: match.experienceId,
+                date: match.date,
+                time: match.time,
+                pricePerPerson: match.pricePerPerson,
+                locationName: match.locationName,
+              });
+              setStep('guests');
+            }
+          })
+          .catch((err) => {
+            console.error('Error prefilling event:', err);
+          })
+          .finally(() => {
+            setPrefillLoading(false);
+          });
+      }
+    }
+  }, [prefillLocation, searchParams]);
 
   useEffect(() => {
     if (user) {
@@ -127,7 +172,8 @@ export default function BookingPage() {
   const handleBackToCalendar = useCallback(() => {
     setStep('calendar');
     setSelectedEvent(null);
-  }, []);
+    navigate('/booking', { replace: true });
+  }, [navigate]);
 
   const locationLabel = selectedEvent
     ? selectedEvent.locationName
@@ -157,7 +203,18 @@ export default function BookingPage() {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {step === 'calendar' && (
+          {prefillLoading ? (
+            <motion.div
+              key="prefill-loading"
+              className="flex flex-col items-center justify-center py-20"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
+              <p className="text-neutral-gray text-sm">Loading event details...</p>
+            </motion.div>
+          ) : step === 'calendar' && (
             <motion.div
               key="calendar"
               initial={{ opacity: 0, x: -40 }}
