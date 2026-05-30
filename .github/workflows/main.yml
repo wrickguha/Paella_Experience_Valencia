@@ -138,5 +138,23 @@ jobs:
             STORAGE_LINK=$BASE/public_html/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
             ln -s $BASE/backend/storage/app/public "$STORAGE_LINK"
+
+            # Ensure correct ownership and permissions for web root (fix 403)
+            SSH_USER="$(id -un || echo u679970628)"
+            echo "Setting ownership to ${SSH_USER} on $BASE/public_html and $BASE/backend"
+            chown -R ${SSH_USER}:${SSH_USER} $BASE/public_html || true
+            chown -R ${SSH_USER}:${SSH_USER} $BASE/backend || true
+
+            echo "Fixing permissions: directories 755, files 644"
+            find $BASE/public_html -type d -exec chmod 755 {} + || true
+            find $BASE/public_html -type f -exec chmod 644 {} + || true
+
+            # Confirm index.php presence
+            if [ -f $BASE/public_html/index.php ]; then
+              echo "index.php present"
+            else
+              echo "WARNING: index.php missing from web root"
+            fi
+
             echo "=== Done ==="
             ls -la $BASE/public_html/

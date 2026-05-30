@@ -100,9 +100,9 @@ class CalendarService
                         'experience_price' => $experiencePrice,
                         'start_time'       => $schedule->start_time,
                         'end_time'         => $schedule->end_time,
-                        'total_slots'      => 12,
+                        'total_slots'      => $schedule->total_slots ?? 12,
                         'booked_slots'     => 0,
-                        'available_slots'  => 12,
+                        'available_slots'  => $schedule->total_slots ?? 12,
                         'is_available'     => true,
                         'slot_id'          => null,
                     ]);
@@ -148,9 +148,9 @@ class CalendarService
                     'experience_price' => $experiencePrice,
                     'start_time'       => $schedule->start_time,
                     'end_time'         => $schedule->end_time,
-                    'total_slots'      => 12,
+                    'total_slots'      => $schedule->total_slots ?? 12,
                     'booked_slots'     => 0,
-                    'available_slots'  => 12,
+                    'available_slots'  => $schedule->total_slots ?? 12,
                     'is_available'     => true,
                     'slot_id'          => null,
                 ]);
@@ -219,8 +219,8 @@ class CalendarService
                     'date'            => $date,
                     'start_time'      => $schedule->start_time,
                     'end_time'        => $schedule->end_time,
-                    'total_slots'     => 12,
-                    'available_slots' => 12,
+                    'total_slots'     => $schedule->total_slots ?? 12,
+                    'available_slots' => $schedule->total_slots ?? 12,
                     'is_available'    => true,
                 ];
             });
@@ -240,8 +240,8 @@ class CalendarService
                 'date'            => $date,
                 'start_time'      => $schedule->start_time,
                 'end_time'        => $schedule->end_time,
-                'total_slots'     => 12,
-                'available_slots' => 12,
+                'total_slots'     => $schedule->total_slots ?? 12,
+                'available_slots' => $schedule->total_slots ?? 12,
                 'is_available'    => true,
             ];
         });

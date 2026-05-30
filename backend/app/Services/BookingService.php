@@ -96,15 +96,23 @@ class BookingService
             ->first();
 
         if (!$slot) {
-            // Look up schedule end_time for proper duration
-            $scheduleEndTime = $this->getScheduleEndTime($locationId, $date, $canonicalTime);
+            // Look up matching schedule to copy duration and capacity
+            $dayOfWeek = \Carbon\Carbon::parse($date)->dayOfWeek;
+            $schedule = Schedule::where('location_id', $locationId)
+                ->where('is_active', true)
+                ->where('start_time', $canonicalTime)
+                ->where(function ($q) use ($dayOfWeek, $date) {
+                    $q->where(fn($q2) => $q2->where('day_of_week', $dayOfWeek)->whereNull('date'))
+                      ->orWhere(fn($q2) => $q2->where('date', $date)->whereNull('day_of_week'));
+                })
+                ->first();
 
             $slot = AvailabilitySlot::create([
                 'location_id' => $locationId,
                 'date'        => $date,
                 'start_time'  => $canonicalTime,
-                'end_time'    => $scheduleEndTime ?? \Carbon\Carbon::parse($canonicalTime)->addHours(4)->format('H:i'),
-                'total_slots' => 12,
+                'end_time'    => $schedule?->end_time ?? \Carbon\Carbon::parse($canonicalTime)->addHours(4)->format('H:i'),
+                'total_slots' => $schedule?->total_slots ?? 12,
                 'booked_slots' => 0,
             ]);
 

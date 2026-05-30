@@ -16,6 +16,7 @@ interface ScheduleEntry {
   date?: string | null;
   start_time: string;
   end_time: string;
+  total_slots?: number;
   is_active: boolean;
 }
 
@@ -23,6 +24,7 @@ interface CustomDateEntry {
   date: string;
   start_time: string;
   end_time: string;
+  total_slots?: number;
   is_active: boolean;
 }
 
@@ -65,8 +67,8 @@ const EMPTY: Partial<Location> = {
   subtitle_en: '', subtitle_es: '', price: null, duration: '', features: [],
 };
 
-const EMPTY_SCHEDULE: ScheduleEntry = { day_of_week: 1, start_time: '12:00', end_time: '16:00', is_active: true };
-const EMPTY_CUSTOM_DATE: CustomDateEntry = { date: '', start_time: '11:00', end_time: '20:00', is_active: true };
+const EMPTY_SCHEDULE: ScheduleEntry = { day_of_week: 1, start_time: '12:00', end_time: '16:00', total_slots: 12, is_active: true };
+const EMPTY_CUSTOM_DATE: CustomDateEntry = { date: '', start_time: '11:00', end_time: '20:00', total_slots: 12, is_active: true };
 
 export default function LocationsPage() {
   const [data, setData] = useState<Location[]>([]);
@@ -108,13 +110,19 @@ export default function LocationsPage() {
 
   const openEdit = (loc: Location) => {
     const allSchedules = loc.schedules || [];
-    const weeklySchedules = allSchedules.filter((s) => !s.date);
+    const weeklySchedules = allSchedules
+      .filter((s) => !s.date)
+      .map((s) => ({
+        ...s,
+        total_slots: s.total_slots ?? 12,
+      }));
     const customDatesFromServer: CustomDateEntry[] = allSchedules
       .filter((s) => s.date)
       .map((s) => ({
         date: s.date as string,
         start_time: s.start_time,
         end_time: s.end_time,
+        total_slots: s.total_slots ?? 12,
         is_active: s.is_active,
       }));
     setEditing({ ...loc, schedules: weeklySchedules });
@@ -346,6 +354,18 @@ export default function LocationsPage() {
                           }}
                           className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                         />
+                        <span className="text-xs text-neutral-gray ml-2">Slots:</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={cd.total_slots ?? 12}
+                          onChange={(e) => {
+                            const updated = [...customDates];
+                            updated[idx] = { ...updated[idx], total_slots: parseInt(e.target.value) || 12 };
+                            setCustomDates(updated);
+                          }}
+                          className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
                       </div>
                       <button
                         type="button"
@@ -425,6 +445,18 @@ export default function LocationsPage() {
                             setEditing({ ...editing, schedules: updated });
                           }}
                           className="px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        />
+                        <span className="text-xs text-neutral-gray ml-2">Slots:</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={sched.total_slots ?? 12}
+                          onChange={(e) => {
+                            const updated = [...(editing.schedules || [])];
+                            updated[idx] = { ...updated[idx], total_slots: parseInt(e.target.value) || 12 };
+                            setEditing({ ...editing, schedules: updated });
+                          }}
+                          className="w-16 px-2 py-1.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                         />
                       </div>
                       <button

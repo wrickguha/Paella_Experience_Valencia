@@ -70,6 +70,7 @@ class LocationController extends Controller
                     'date' => $s->date ? $s->date->format('Y-m-d') : null,
                     'start_time' => substr($s->start_time, 0, 5),
                     'end_time' => substr($s->end_time, 0, 5),
+                    'total_slots' => $s->total_slots ?? 12,
                     'is_active' => $s->is_active,
                 ])->values(),
             ], $this->primaryExperienceData($l)));
@@ -104,6 +105,7 @@ class LocationController extends Controller
                 'date' => $s->date ? $s->date->format('Y-m-d') : null,
                 'start_time' => substr($s->start_time, 0, 5),
                 'end_time' => substr($s->end_time, 0, 5),
+                'total_slots' => $s->total_slots ?? 12,
                 'is_active' => $s->is_active,
             ])->values(),
         ], $this->primaryExperienceData($l)));
@@ -266,6 +268,7 @@ class LocationController extends Controller
                 'day_of_week' => $isCustomDate ? null : (int) $s['day_of_week'],
                 'start_time' => $s['start_time'],
                 'end_time' => $s['end_time'],
+                'total_slots' => isset($s['total_slots']) ? (int) $s['total_slots'] : 12,
                 'is_active' => filter_var($s['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             ]);
         }
