@@ -117,37 +117,38 @@ function EventCard({ event, index }: EventCardProps) {
 export default function UpcomingEvents() {
   const { t, i18n } = useTranslation();
 
-  // Fixed window: today → today + 7 days (never changes during render)
+  // Base date set to today at 00:00:00 (never changes during render)
   const today = useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
   }, []);
 
-  const cutoff = useMemo(() => {
-    const d = new Date(today);
-    d.setDate(d.getDate() + 7);
-    return d;
-  }, [today]);
+  const todayStr = today.toISOString().slice(0, 10);
 
-  const todayStr  = today.toISOString().slice(0, 10);
-  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  // Compute 3 months to fetch: current month, next month, and the month after
+  const curYear = today.getFullYear();
+  const curMonth = today.getMonth();
 
-  // Always fetch current month; also fetch next month in case the 7-day
-  // window crosses a month boundary (e.g. Apr 28 → May 4).
-  const curYear   = today.getFullYear();
-  const curMonth  = today.getMonth();
-  const nxtMonthIdx = curMonth === 11 ? 0  : curMonth + 1;
-  const nxtYear  = curMonth === 11 ? curYear + 1 : curYear;
+  const m1Year = curYear;
+  const m1Month = curMonth;
 
-  const { events: curEvents,  loading: loadingCur  } = useCalendarMonth(curYear, curMonth);
-  const { events: nextEvents, loading: loadingNext } = useCalendarMonth(nxtYear, nxtMonthIdx);
-  const loading = loadingCur || loadingNext;
+  const m2Year = curMonth === 11 ? curYear + 1 : curYear;
+  const m2Month = curMonth === 11 ? 0 : curMonth + 1;
+
+  const m3Year = curMonth >= 10 ? curYear + 1 : curYear;
+  const m3Month = curMonth >= 10 ? (curMonth + 2) % 12 : curMonth + 2;
+
+  const { events: m1Events, loading: loadingM1 } = useCalendarMonth(m1Year, m1Month);
+  const { events: m2Events, loading: loadingM2 } = useCalendarMonth(m2Year, m2Month);
+  const { events: m3Events, loading: loadingM3 } = useCalendarMonth(m3Year, m3Month);
+  const loading = loadingM1 || loadingM2 || loadingM3;
 
   const monthNames = i18n.language.startsWith('es') ? MONTH_NAMES_ES : MONTH_NAMES;
 
+  // Get the next 3 upcoming events sequentially (no week limit)
   const events = useMemo(() => {
-    const all = [...curEvents, ...nextEvents];
+    const all = [...m1Events, ...m2Events, ...m3Events];
     // Deduplicate by date+locationId in case months overlap
     const seen = new Set<string>();
     return all
@@ -155,10 +156,11 @@ export default function UpcomingEvents() {
         const key = `${e.date}-${e.locationId}`;
         if (seen.has(key)) return false;
         seen.add(key);
-        return e.date >= todayStr && e.date <= cutoffStr;
+        return e.date >= todayStr;
       })
-      .sort((a, b) => a.date.localeCompare(b.date));
-  }, [curEvents, nextEvents, todayStr, cutoffStr]);
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 3);
+  }, [m1Events, m2Events, m3Events, todayStr]);
 
   // Derive unique locations for legend
   const uniqueLocations = useMemo(() => {
@@ -174,12 +176,19 @@ export default function UpcomingEvents() {
     return Array.from(map.values());
   }, [events]);
 
-  // Human-readable date range label e.g. "10 May — 17 May"
+  // Human-readable date range label showing the range of the 3 displayed events
   const rangeLabel = useMemo(() => {
-    const fmt = (d: Date) =>
-      `${d.getDate()} ${monthNames[d.getMonth()]}`;
-    return `${fmt(today)} — ${fmt(cutoff)}`;
-  }, [today, cutoff, monthNames]);
+    if (events.length === 0) return '';
+    const fmtStr = (dateStr: string) => {
+      const parts = dateStr.split('-');
+      const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+      return `${d.getDate()} ${monthNames[d.getMonth()]}`;
+    };
+    if (events.length === 1) {
+      return fmtStr(events[0].date);
+    }
+    return `${fmtStr(events[0].date)} — ${fmtStr(events[events.length - 1].date)}`;
+  }, [events, monthNames]);
 
   const monthKey = `week-${todayStr}`;
 
@@ -200,11 +209,13 @@ export default function UpcomingEvents() {
         </div>
 
         {/* Date range badge */}
-        <div className="shrink-0">
-          <span className="font-heading font-semibold text-neutral-dark text-base bg-neutral-cream px-4 py-2 rounded-full border border-neutral-sand/50">
-            {rangeLabel}
-          </span>
-        </div>
+        {rangeLabel && (
+          <div className="shrink-0">
+            <span className="font-heading font-semibold text-neutral-dark text-base bg-neutral-cream px-4 py-2 rounded-full border border-neutral-sand/50">
+              {rangeLabel}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* ── Legend ── */}
