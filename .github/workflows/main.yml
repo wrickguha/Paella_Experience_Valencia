@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+      SSH_OPTS: -o StrictHostKeyChecking=no -o ConnectTimeout=60 -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes -o BatchMode=yes -p 65002
 
     steps:
       # ── 1. Checkout ───────────────────────────────────────────────
@@ -65,162 +66,164 @@ jobs:
             --exclude=error_log.txt \
             --exclude=error_log_utf8.txt \
             --exclude=tests \
-            --exclude=*.md \
+            --exclude='*.md' \
             --exclude=phpunit.xml \
             --exclude=.editorconfig \
             backend/ backend_deploy/
           echo "=== Deploy size ==="
           du -sh backend_deploy/
-          echo "=== Top-level items ==="
-          ls -la backend_deploy/
 
-      # ── 7. Setup SSH once (reused by all rsync steps) ────────────
+      # ── 7. Fix line endings (CRLF → LF) for .htaccess ────────────
+      - name: Fix line endings
+        run: |
+          if command -v dos2unix &>/dev/null; then
+            dos2unix deploy/public_html/.htaccess 2>/dev/null || true
+          else
+            sed -i 's/\r$//' deploy/public_html/.htaccess
+          fi
+          echo "Line endings fixed for .htaccess"
+
+      # ── 8. Setup SSH ──────────────────────────────────────────────
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-          # Write a persistent SSH config to avoid repeating options
-          cat >> ~/.ssh/config <<EOF
-          Host hostinger
-            HostName $SSH_HOST
-            Port 65002
-            User $SSH_USERNAME
-            IdentityFile ~/.ssh/id_rsa
-            StrictHostKeyChecking no
-            ConnectTimeout 60
-            ServerAliveInterval 60
-            ServerAliveCountMax 10
-            BatchMode yes
-            TCPKeepAlive yes
-          EOF
-          chmod 600 ~/.ssh/config
-
-          # Pre-scan the host key
           ssh-keyscan -p 65002 "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-          echo "SSH configured for $SSH_HOST:65002"
+          echo "SSH key configured"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
 
-      # ── Helper: SSH options string ────────────────────────────────
-      # Defined as an env var used by all rsync steps below
-      # Using the SSH config alias "hostinger" for all connections
-
-      # ── 8. Upload backend (no --delete: keeps vendor/storage safe) ─
+      # ── 9. Upload backend (no --delete: keeps vendor/storage safe) ─
       - name: Rsync backend to server
         run: |
           for i in 1 2 3; do
-            rsync -az --checksum \
-              -e "ssh -F ~/.ssh/config" \
+            rsync -rltz --checksum --no-perms --chmod=D755,F644 \
+              -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend_deploy/ \
-              hostinger:/home/u679970628/domains/speakeasyvalencia.com/backend/ \
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/ \
             && echo "Backend rsync succeeded on attempt $i" && break \
-            || {
-              echo "Attempt $i failed. Waiting 15s before retry..."
-              sleep 15
-            }
+            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      # ── 9. Upload storage assets ──────────────────────────────────
+      # ── 10. Upload storage assets ─────────────────────────────────
       - name: Rsync storage assets to server
         run: |
           for i in 1 2 3; do
-            rsync -az --checksum \
-              -e "ssh -F ~/.ssh/config" \
+            rsync -rltz --checksum --no-perms --chmod=D755,F644 \
+              -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/storage/app/public/ \
-              hostinger:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/ \
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/ \
             && echo "Storage rsync succeeded on attempt $i" && break \
-            || {
-              echo "Attempt $i failed. Waiting 15s before retry..."
-              sleep 15
-            }
+            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      # ── 10. Upload public_html config (htaccess + api entry) ──────
+      # ── 11. Upload api entry point ────────────────────────────────
       - name: Rsync api entry point to server
         run: |
           for i in 1 2 3; do
-            rsync -az --delete --checksum \
-              -e "ssh -F ~/.ssh/config" \
+            rsync -rltz --delete --checksum --no-perms --chmod=D755,F644 \
+              -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               deploy/public_html/api/ \
-              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/ \
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/ \
             && echo "API rsync succeeded on attempt $i" && break \
-            || {
-              echo "Attempt $i failed. Waiting 15s before retry..."
-              sleep 15
-            }
+            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
+      # ── 12. Upload .htaccess ──────────────────────────────────────
       - name: Rsync htaccess to server
         run: |
           for i in 1 2 3; do
-            rsync -az --checksum \
-              -e "ssh -F ~/.ssh/config" \
+            rsync -ltz --checksum --no-perms --chmod=F644 \
+              -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               deploy/public_html/.htaccess \
-              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess \
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess \
             && echo "htaccess rsync succeeded on attempt $i" && break \
-            || {
-              echo "Attempt $i failed. Waiting 15s before retry..."
-              sleep 15
-            }
+            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      # ── 11. Upload frontend SPA ───────────────────────────────────
+      # ── 13. Upload frontend SPA ───────────────────────────────────
       - name: Rsync frontend to server
         run: |
           for i in 1 2 3; do
-            rsync -az --delete --checksum \
+            rsync -rltz --delete --checksum --no-perms --chmod=D755,F644 \
               --exclude=admin/ \
               --exclude=api/ \
               --exclude=storage/ \
               --exclude=.htaccess \
-              -e "ssh -F ~/.ssh/config" \
+              -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/public/frontend/ \
-              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/ \
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/ \
             && echo "Frontend rsync succeeded on attempt $i" && break \
-            || {
-              echo "Attempt $i failed. Waiting 15s before retry..."
-              sleep 15
-            }
+            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      # ── 12. Upload admin SPA ──────────────────────────────────────
+      # ── 14. Upload admin SPA ──────────────────────────────────────
       - name: Rsync admin to server
         run: |
           for i in 1 2 3; do
-            rsync -az --delete --checksum \
-              -e "ssh -F ~/.ssh/config" \
+            rsync -rltz --delete --checksum --no-perms --chmod=D755,F644 \
+              -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/public/admin/ \
-              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/ \
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/ \
             && echo "Admin rsync succeeded on attempt $i" && break \
-            || {
-              echo "Attempt $i failed. Waiting 15s before retry..."
-              sleep 15
-            }
+            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      # ── 13. Write .env on server ──────────────────────────────────
+      # ── 15. Verify files landed correctly ─────────────────────────
+      - name: Verify deployment files
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 65002
+          connect_timeout: 60s
+          script: |
+            WEBROOT=/home/u679970628/domains/speakeasyvalencia.com/public_html
+            echo "=== public_html permissions ==="
+            ls -la $WEBROOT/
+            echo ""
+            echo "=== Checking critical files ==="
+            [ -f $WEBROOT/index.html ]    && echo "✓ index.html present ($(stat -c '%a' $WEBROOT/index.html))" || echo "✗ index.html MISSING"
+            [ -f $WEBROOT/.htaccess ]     && echo "✓ .htaccess present ($(stat -c '%a' $WEBROOT/.htaccess))"  || echo "✗ .htaccess MISSING"
+            [ -f $WEBROOT/api/index.php ] && echo "✓ api/index.php present"                                   || echo "✗ api/index.php MISSING"
+            echo ""
+            echo "=== .htaccess content (check for CRLF) ==="
+            cat -A $WEBROOT/.htaccess | head -5
+            echo ""
+            echo "=== public_html dir permissions ==="
+            stat -c '%a %n' $WEBROOT
+            stat -c '%a %n' $WEBROOT/index.html
+            echo ""
+
+            # Force-fix permissions NOW before anything else
+            echo "=== Force-fixing public_html permissions ==="
+            chmod 755 $WEBROOT
+            find $WEBROOT -type d -exec chmod 755 {} + 2>/dev/null || true
+            find $WEBROOT -type f -exec chmod 644 {} + 2>/dev/null || true
+            echo "Permissions fixed"
+
+      # ── 16. Write .env on server ──────────────────────────────────
       - name: Write .env on server
         if: ${{ env.BACKEND_ENV != '' }}
         uses: appleboy/ssh-action@v1.0.3
@@ -237,7 +240,7 @@ jobs:
         env:
           BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
 
-      # ── 14. Post-deploy: composer + artisan + permissions ─────────
+      # ── 17. Post-deploy: composer + artisan + permissions ─────────
       - name: Post-deploy (composer + artisan + symlink + permissions)
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -276,7 +279,7 @@ jobs:
             php artisan db:seed --class=AdminSeeder --force
             php artisan cache:clear
 
-            # Storage permissions
+            # Storage permissions (must be writable by Laravel)
             chmod -R 775 $BACKEND/storage $BACKEND/bootstrap/cache
 
             # Storage symlink (public_html/storage -> backend/storage/app/public)
@@ -286,22 +289,21 @@ jobs:
             ln -s $BACKEND/storage/app/public "$STORAGE_LINK"
             echo "Storage symlink created: $STORAGE_LINK"
 
-            # Fix file permissions
-            find $WEBROOT -type d -exec chmod 755 {} + 2>/dev/null || true
-            find $WEBROOT -type f -exec chmod 644 {} + 2>/dev/null || true
+            # Final permission fix for webroot
+            chmod 755 $WEBROOT
+            find $WEBROOT -type d -exec chmod 755 {} +
+            find $WEBROOT -type f -exec chmod 644 {} +
 
             # Storage directory must stay 775 for Laravel writes
             chmod -R 775 $BACKEND/storage $BACKEND/bootstrap/cache
 
-            # Verify critical files exist
-            echo "=== Verifying deployment ==="
-            [ -f $WEBROOT/index.html ]    && echo "✓ index.html present"    || echo "✗ WARNING: index.html MISSING"
-            [ -f $WEBROOT/.htaccess ]     && echo "✓ .htaccess present"     || echo "✗ WARNING: .htaccess MISSING"
-            [ -f $WEBROOT/api/index.php ] && echo "✓ api/index.php present" || echo "✗ WARNING: api/index.php MISSING"
-            [ -L $WEBROOT/storage ]       && echo "✓ storage symlink OK"    || echo "✗ WARNING: storage symlink MISSING"
-
+            # Verify
+            echo "=== Final verification ==="
+            [ -f $WEBROOT/index.html ]    && echo "✓ index.html present"    || echo "✗ index.html MISSING"
+            [ -f $WEBROOT/.htaccess ]     && echo "✓ .htaccess present"     || echo "✗ .htaccess MISSING"
+            [ -f $WEBROOT/api/index.php ] && echo "✓ api/index.php present" || echo "✗ api/index.php MISSING"
+            [ -L $WEBROOT/storage ]       && echo "✓ storage symlink OK"    || echo "✗ storage symlink MISSING"
             echo ""
-            echo "=== public_html contents ==="
             ls -la $WEBROOT/
             echo ""
             echo "=== Deployment complete ==="

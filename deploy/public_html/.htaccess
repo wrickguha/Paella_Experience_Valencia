@@ -1,6 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Explicitly set the default index file
+    DirectoryIndex index.html index.php
+
     # ── API & Backend routes → Laravel ──────────────────────────────
     # Any request starting with /api goes to Laravel
     RewriteCond %{REQUEST_URI} ^/api(/|$) [NC]
