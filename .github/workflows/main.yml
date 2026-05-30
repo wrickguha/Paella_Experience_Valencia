@@ -1,42 +1,55 @@
 name: Deploy to Hostinger
+
 on:
   push:
     branches:
       - main
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
       BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
 
+    steps:
+      # ── 1. Checkout ───────────────────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ── 2. Node setup with caching ────────────────────────────────
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend/package-lock.json
+            admin/package-lock.json
 
+      # ── 3. Install & build frontend ───────────────────────────────
       - name: Install frontend deps
-        run: cd frontend && npm install
+        run: cd frontend && npm ci
 
       - name: Build frontend
         run: cd frontend && npm run build
 
+      # ── 4. Install & build admin ──────────────────────────────────
       - name: Install admin deps
-        run: cd admin && npm install
+        run: cd admin && npm ci
 
       - name: Build admin
         run: cd admin && npm run build
 
+      # ── 5. Verify build outputs ───────────────────────────────────
       - name: Check build output
         run: |
-          echo "=== Frontend ==="
-          ls -la backend/public/frontend/ || echo "MISSING"
-          echo "=== Admin ==="
-          ls -la backend/public/admin/ || echo "MISSING"
+          echo "=== Frontend (should contain index.html) ==="
+          ls -la backend/public/frontend/ || echo "MISSING - build failed!"
+          echo "=== Admin (should contain index.html) ==="
+          ls -la backend/public/admin/ || echo "MISSING - build failed!"
 
-      - name: Prepare backend for upload (strip vendor, node_modules, large storage)
+      # ── 6. Strip large/unnecessary files from backend ────────────
+      - name: Prepare backend for upload
         run: |
           rsync -a \
             --exclude=vendor \
@@ -45,56 +58,97 @@ jobs:
             --exclude=storage/logs \
             --exclude=storage/framework/cache \
             --exclude=storage/framework/sessions \
+            --exclude=storage/framework/views \
             --exclude=.git \
+            --exclude=error_log.txt \
+            --exclude=error_log_utf8.txt \
             backend/ backend_deploy/
           echo "=== Deploy size ==="
           du -sh backend_deploy/
 
-      - name: Setup SSH for rsync
+      # ── 7. Setup SSH once (reused by all rsync steps) ────────────
+      - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p 65002 $SSH_HOST >> ~/.ssh/known_hosts || true
+          ssh-keyscan -p 65002 "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
+      # ── 8. Upload backend (no --delete: keeps vendor/storage safe) ─
       - name: Rsync backend to server
         run: |
-          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend_deploy/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/
+          rsync -az --checksum \
+            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            backend_deploy/ \
+            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
+      # ── 9. Upload storage assets ──────────────────────────────────
       - name: Rsync storage assets to server
         run: |
-          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend/storage/app/public/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/
+          rsync -az --checksum \
+            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            backend/storage/app/public/ \
+            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
+      # ── 10. Upload public_html config (htaccess + api entry) ──────
+      #  IMPORTANT: Run this BEFORE frontend/admin so --delete only
+      #  applies to the api/ subdirectory, not the whole public_html.
+      - name: Rsync api entry point to server
+        run: |
+          rsync -az --delete --checksum \
+            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            deploy/public_html/api/ \
+            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      - name: Rsync htaccess to server
+        run: |
+          rsync -az --checksum \
+            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            deploy/public_html/.htaccess \
+            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
+      # ── 11. Upload frontend SPA (replaces all files in public_html root) ─
       - name: Rsync frontend to server
         run: |
-          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend/public/frontend/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/
+          rsync -az --delete --checksum \
+            --exclude=admin/ \
+            --exclude=api/ \
+            --exclude=storage/ \
+            --exclude=.htaccess \
+            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            backend/public/frontend/ \
+            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
+      # ── 12. Upload admin SPA ──────────────────────────────────────
       - name: Rsync admin to server
         run: |
-          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend/public/admin/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/
+          rsync -az --delete --checksum \
+            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
+            backend/public/admin/ \
+            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      - name: Rsync public_html config to server
-        run: |
-          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" deploy/public_html/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/
-        env:
-          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-
+      # ── 13. Write .env on server ──────────────────────────────────
       - name: Write .env on server
         if: ${{ env.BACKEND_ENV != '' }}
         uses: appleboy/ssh-action@v1.0.3
@@ -106,55 +160,77 @@ jobs:
           envs: BACKEND_ENV
           script: |
             printf '%s' "$BACKEND_ENV" > /home/u679970628/domains/speakeasyvalencia.com/backend/.env
-            echo ".env written"
+            echo ".env written successfully"
         env:
           BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
 
-      - name: Post-deploy (composer + artisan + symlink)
+      # ── 14. Post-deploy: composer + artisan + permissions ─────────
+      - name: Post-deploy (composer + artisan + symlink + permissions)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 65002
-          timeout: 300s
+          timeout: 60s
           command_timeout: 30m
           script: |
             BASE=/home/u679970628/domains/speakeasyvalencia.com
-            mkdir -p $BASE/backend $BASE/public_html/admin
-            mkdir -p $BASE/backend/storage/framework/sessions
-            mkdir -p $BASE/backend/storage/framework/cache/data
-            mkdir -p $BASE/backend/storage/framework/views
-            mkdir -p $BASE/backend/storage/logs
-            cd $BASE/backend
-            php composer.phar install --no-dev --optimize-autoloader 2>/dev/null || composer install --no-dev --optimize-autoloader
+            BACKEND=$BASE/backend
+            WEBROOT=$BASE/public_html
+
+            # Ensure required storage directories exist
+            mkdir -p $BACKEND/storage/framework/sessions
+            mkdir -p $BACKEND/storage/framework/cache/data
+            mkdir -p $BACKEND/storage/framework/views
+            mkdir -p $BACKEND/storage/logs
+            mkdir -p $WEBROOT/admin
+
+            # Run Composer install
+            cd $BACKEND
+            if [ -f composer.phar ]; then
+              php composer.phar install --no-dev --optimize-autoloader --no-interaction
+            else
+              composer install --no-dev --optimize-autoloader --no-interaction
+            fi
+
+            # Laravel artisan commands
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan migrate --force
             php artisan db:seed --class=AdminSeeder --force
             php artisan cache:clear
-            chmod -R 775 storage bootstrap/cache
-            STORAGE_LINK=$BASE/public_html/storage
+
+            # Storage permissions
+            chmod -R 775 $BACKEND/storage $BACKEND/bootstrap/cache
+
+            # Storage symlink (public_html/storage -> backend/storage/app/public)
+            STORAGE_LINK=$WEBROOT/storage
             if [ -L "$STORAGE_LINK" ]; then rm "$STORAGE_LINK"; fi
-            ln -s $BASE/backend/storage/app/public "$STORAGE_LINK"
+            if [ -e "$STORAGE_LINK" ]; then rm -rf "$STORAGE_LINK"; fi
+            ln -s $BACKEND/storage/app/public "$STORAGE_LINK"
+            echo "Storage symlink created: $STORAGE_LINK"
 
-            # Ensure correct ownership and permissions for web root (fix 403)
-            SSH_USER="$(id -un || echo u679970628)"
-            echo "Setting ownership to ${SSH_USER} on $BASE/public_html and $BASE/backend"
-            chown -R ${SSH_USER}:${SSH_USER} $BASE/public_html || true
-            chown -R ${SSH_USER}:${SSH_USER} $BASE/backend || true
+            # Fix file permissions
+            # Directories: 755, files: 644
+            find $WEBROOT -type d -exec chmod 755 {} + 2>/dev/null || true
+            find $WEBROOT -type f -exec chmod 644 {} + 2>/dev/null || true
 
-            echo "Fixing permissions: directories 755, files 644"
-            find $BASE/public_html -type d -exec chmod 755 {} + || true
-            find $BASE/public_html -type f -exec chmod 644 {} + || true
+            # api/index.php needs to be readable by PHP — 644 is correct
+            # .htaccess files need to be readable — 644 is correct
+            # Storage directory must stay 775 for Laravel writes
+            chmod -R 775 $BACKEND/storage $BACKEND/bootstrap/cache
 
-            # Confirm index.php presence
-            if [ -f $BASE/public_html/index.php ]; then
-              echo "index.php present"
-            else
-              echo "WARNING: index.php missing from web root"
-            fi
+            # Verify critical files exist
+            echo "=== Verifying deployment ==="
+            [ -f $WEBROOT/index.html ]    && echo "✓ index.html present"    || echo "✗ WARNING: index.html MISSING"
+            [ -f $WEBROOT/.htaccess ]     && echo "✓ .htaccess present"     || echo "✗ WARNING: .htaccess MISSING"
+            [ -f $WEBROOT/api/index.php ] && echo "✓ api/index.php present" || echo "✗ WARNING: api/index.php MISSING"
+            [ -L $WEBROOT/storage ]       && echo "✓ storage symlink OK"    || echo "✗ WARNING: storage symlink MISSING"
 
-            echo "=== Done ==="
-            ls -la $BASE/public_html/
+            echo ""
+            echo "=== public_html contents ==="
+            ls -la $WEBROOT/
+            echo ""
+            echo "=== Deployment complete ==="
