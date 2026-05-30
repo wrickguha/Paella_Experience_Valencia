@@ -197,7 +197,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 65002
-          connect_timeout: 60s
+          timeout: 120s
+          command_timeout: 10m
           script: |
             WEBROOT=/home/u679970628/domains/speakeasyvalencia.com/public_html
             echo "=== public_html permissions ==="
@@ -232,7 +233,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 65002
-          connect_timeout: 60s
+          timeout: 120s
+          command_timeout: 10m
           envs: BACKEND_ENV
           script: |
             printf '%s' "$BACKEND_ENV" > /home/u679970628/domains/speakeasyvalencia.com/backend/.env
@@ -248,8 +250,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 65002
-          connect_timeout: 60s
-          timeout: 60s
+          timeout: 120s
           command_timeout: 30m
           script: |
             BASE=/home/u679970628/domains/speakeasyvalencia.com
