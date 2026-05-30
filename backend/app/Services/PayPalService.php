@@ -171,22 +171,29 @@ class PayPalService
                     'response_json' => $captureData,
                 ]);
 
-                $payment->booking->update([
+                $booking = $payment->booking;
+                $oldPaymentStatus = $booking->payment_status;
+
+                $booking->update([
                     'payment_status' => 'paid',
                     'payment_id' => $transactionId ?? $paypalOrderId,
                 ]);
 
-                $this->sendBookingConfirmation($payment->booking);
+                if ($oldPaymentStatus !== 'paid' && $booking->availabilitySlot) {
+                    $booking->availabilitySlot->increment('booked_slots', $booking->guests);
+                }
+
+                $this->sendBookingConfirmation($booking);
 
                 Log::info('Payment captured', [
-                    'booking' => $payment->booking->reference,
+                    'booking' => $booking->reference,
                     'transaction_id' => $transactionId,
                     'amount' => $payment->amount,
                 ]);
 
                 return [
                     'success' => true,
-                    'booking_reference' => $payment->booking->reference,
+                    'booking_reference' => $booking->reference,
                     'transaction_id' => $transactionId,
                 ];
             }
@@ -198,12 +205,6 @@ class PayPalService
             ]);
 
             $payment->booking->update(['payment_status' => 'failed']);
-
-            // Release booked slots on failure
-            $slot = $payment->booking->availabilitySlot;
-            if ($slot) {
-                $slot->decrement('booked_slots', $payment->booking->guests);
-            }
 
             Log::error('PayPal capture failed', [
                 'order_id' => $paypalOrderId,
@@ -286,12 +287,19 @@ class PayPalService
                 'transaction_id' => $transactionId,
             ]);
 
-            $payment->booking->update([
+            $booking = $payment->booking;
+            $oldPaymentStatus = $booking->payment_status;
+
+            $booking->update([
                 'payment_status' => 'paid',
                 'payment_id' => $transactionId,
             ]);
 
-            $this->sendBookingConfirmation($payment->booking);
+            if ($oldPaymentStatus !== 'paid' && $booking->availabilitySlot) {
+                $booking->availabilitySlot->increment('booked_slots', $booking->guests);
+            }
+
+            $this->sendBookingConfirmation($booking);
 
             Log::info('Webhook captured payment', [
                 'booking' => $payment->booking->reference,

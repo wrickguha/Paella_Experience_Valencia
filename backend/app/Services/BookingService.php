@@ -74,9 +74,6 @@ class BookingService
                 'status' => 'pending',
             ]);
 
-            // Increment booked_slots
-            $slot->increment('booked_slots', $requestedGuests);
-
             return $booking->load(['location', 'experience']);
         });
     }

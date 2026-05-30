@@ -119,6 +119,10 @@ class BookingController extends Controller
             }
             $booking->update($update);
 
+            if ($request->payment_status === 'paid' && $booking->availabilitySlot) {
+                $booking->availabilitySlot->increment('booked_slots', $booking->guests);
+            }
+
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
@@ -143,9 +147,9 @@ class BookingController extends Controller
         $oldStatus = $booking->payment_status;
         $newStatus = $request->payment_status;
 
-        // Slot states: reserved = pending/paid, released = failed/refunded
-        $reserved = ['pending', 'paid'];
-        $released  = ['failed', 'refunded'];
+        // Slot states: reserved = paid only, released = pending/failed/refunded
+        $reserved = ['paid'];
+        $released  = ['pending', 'failed', 'refunded'];
 
         DB::transaction(function () use ($booking, $oldStatus, $newStatus, $reserved, $released) {
             if (in_array($oldStatus, $released) && in_array($newStatus, $reserved)) {
