@@ -99,8 +99,8 @@
       },
       {
         "number": "03",
-        "title": "Cook & Eat",
-        "description": "Arrive, roll up your sleeves, cook an authentic Valencian SpeakEasy alongside our chef, and enjoy every bite."
+        "title": "Enjoy the Experience",
+        "description": "Spend time enjoying great food, practicing languages, and connecting with people from around the world."
       }
     ],
     "cta": "View Available Dates"
@@ -240,11 +240,31 @@
   "flow": {
     "title": "The Experience Flow",
     "steps": [
-      { "id": 1, "title": "Meet & Greet", "description": "Welcome drink and introductions." },
-      { "id": 2, "title": "Interactive Activities", "description": "Fun games to break the ice." },
-      { "id": 3, "title": "Cook Together", "description": "Hands-on SpeakEasy preparation." },
-      { "id": 4, "title": "Language Interaction", "description": "Practice phrases while cooking." },
-      { "id": 5, "title": "Eat & Connect", "description": "Enjoy the meal and shared stories." }
+      {
+        "id": 1,
+        "title": "Meet & Greet",
+        "description": "Welcome drink and introductions."
+      },
+      {
+        "id": 2,
+        "title": "Interactive Activities",
+        "description": "Fun games to break the ice."
+      },
+      {
+        "id": 3,
+        "title": "Cook Together",
+        "description": "Hands-on SpeakEasy preparation."
+      },
+      {
+        "id": 4,
+        "title": "Language Interaction",
+        "description": "Practice phrases while cooking."
+      },
+      {
+        "id": 5,
+        "title": "Eat & Connect",
+        "description": "Enjoy the meal and shared stories."
+      }
     ]
   },
   "cta": {
@@ -302,9 +322,18 @@
       "subtitle": "Better Together",
       "content": "We believe experiences are better when shared. Our vision is to build a global community that celebrates diversity through authentic local experiences.",
       "highlights": [
-        { "title": "Diverse People", "description": "Meet travelers and locals from all walks of life." },
-        { "title": "Shared Tables", "description": "The magic happens when we sit down to eat together." },
-        { "title": "Cultural Exchange", "description": "Share your stories and learn about others." }
+        {
+          "title": "Diverse People",
+          "description": "Meet travelers and locals from all walks of life."
+        },
+        {
+          "title": "Shared Tables",
+          "description": "The magic happens when we sit down to eat together."
+        },
+        {
+          "title": "Cultural Exchange",
+          "description": "Share your stories and learn about others."
+        }
       ]
     },
     "language": {
@@ -312,18 +341,36 @@
       "subtitle": "Speak Naturally",
       "content": "No textbooks, no classrooms. Just real conversations in Spanish and English while you cook.",
       "points": [
-        { "title": "Learn Spanish naturally", "description": "Pick up phrases used in daily life." },
-        { "title": "Practice English confidently", "description": "A relaxed environment to improve your skills." },
-        { "title": "Cultural immersion", "description": "Understand the context behind the words." }
+        {
+          "title": "Learn Spanish naturally",
+          "description": "Pick up phrases used in daily life."
+        },
+        {
+          "title": "Practice English confidently",
+          "description": "A relaxed environment to improve your skills."
+        },
+        {
+          "title": "Cultural immersion",
+          "description": "Understand the context behind the words."
+        }
       ]
     },
     "different": {
       "title": "What Makes Us Different",
       "subtitle": "The SpeakEasy Way",
       "items": [
-        { "title": "Community-First", "description": "Every detail is designed to foster connection." },
-        { "title": "Interactive Activities", "description": "Fun games that break the ice instantly." },
-        { "title": "Real Human Connections", "description": "We prioritize quality interactions over everything." }
+        {
+          "title": "Community-First",
+          "description": "Every detail is designed to foster connection."
+        },
+        {
+          "title": "Interactive Activities",
+          "description": "Fun games that break the ice instantly."
+        },
+        {
+          "title": "Real Human Connections",
+          "description": "We prioritize quality interactions over everything."
+        }
       ]
     },
     "host": {
@@ -355,11 +402,26 @@
     "micro_flow": {
       "title": "What Happens During the Experience",
       "steps": [
-        { "title": "Welcome & Introductions", "description": "Meet your fellow travelers and hosts." },
-        { "title": "Interactive Activites Interactions", "description": "Fun activities to get the conversation flowing." },
-        { "title": "Cooking Together", "description": "Collaborate on the perfect SpeakEasy." },
-        { "title": "Language Interaction Moments", "description": "Learn key phrases in a natural setting." },
-        { "title": "Shared Dining & Bonding", "description": "Enjoy the feast and new friendships." }
+        {
+          "title": "Welcome & Introductions",
+          "description": "Meet your fellow travelers and hosts."
+        },
+        {
+          "title": "Interactive Activites Interactions",
+          "description": "Fun activities to get the conversation flowing."
+        },
+        {
+          "title": "Cooking Together",
+          "description": "Collaborate on the perfect SpeakEasy."
+        },
+        {
+          "title": "Language Interaction Moments",
+          "description": "Learn key phrases in a natural setting."
+        },
+        {
+          "title": "Shared Dining & Bonding",
+          "description": "Enjoy the feast and new friendships."
+        }
       ]
     },
     "inline_language": {
@@ -369,9 +431,18 @@
     "inline_activities": {
       "title": "Fun & Activities",
       "items": [
-        { "title": "Interactive Activites Games", "icon": "PartyPopper" },
-        { "title": "Cultural Exchange", "icon": "Globe2" },
-        { "title": "Music & Vibes", "icon": "Music" }
+        {
+          "title": "Interactive Activites Games",
+          "icon": "PartyPopper"
+        },
+        {
+          "title": "Cultural Exchange",
+          "icon": "Globe2"
+        },
+        {
+          "title": "Music & Vibes",
+          "icon": "Music"
+        }
       ]
     },
     "inline_testimonials": [
@@ -519,8 +590,29 @@
       "filterAll": "All Locations",
       "filterBloom": "Bloom Gallery",
       "filterMagnolia": "Casa Magnolia",
-      "monthNames": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-      "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      "monthNames": [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+      ],
+      "dayNames": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ]
     },
     "eventCard": {
       "at": "at",
@@ -712,102 +804,202 @@
     "questions": [
       {
         "q": "Hola, ¿Cómo _______?",
-        "options": ["estás", "eres", "es", "estoy"],
+        "options": [
+          "estás",
+          "eres",
+          "es",
+          "estoy"
+        ],
         "answer": 0
       },
       {
         "q": "Yo _______ de los Estados Unidos.",
-        "options": ["soy", "estoy", "es", "eres"],
+        "options": [
+          "soy",
+          "estoy",
+          "es",
+          "eres"
+        ],
         "answer": 0
       },
       {
         "q": "Me _______ la SpeakEasy.",
-        "options": ["gusta", "gustan", "gusto", "gustas"],
+        "options": [
+          "gusta",
+          "gustan",
+          "gusto",
+          "gustas"
+        ],
         "answer": 0
       },
       {
         "q": "¿Dónde _______ el baño?",
-        "options": ["es", "está", "hay", "tiene"],
+        "options": [
+          "es",
+          "está",
+          "hay",
+          "tiene"
+        ],
         "answer": 1
       },
       {
         "q": "Nosotros _______ español todos los días.",
-        "options": ["hablo", "hablan", "hablamos", "hablas"],
+        "options": [
+          "hablo",
+          "hablan",
+          "hablamos",
+          "hablas"
+        ],
         "answer": 2
       },
       {
         "q": "Ayer yo _______ al mercado central.",
-        "options": ["fui", "iba", "voy", "iré"],
+        "options": [
+          "fui",
+          "iba",
+          "voy",
+          "iré"
+        ],
         "answer": 0
       },
       {
         "q": "Cuando era niño, siempre _______ SpeakEasy los domingos.",
-        "options": ["comí", "comía", "comeré", "como"],
+        "options": [
+          "comí",
+          "comía",
+          "comeré",
+          "como"
+        ],
         "answer": 1
       },
       {
         "q": "No creo que _______ llover mañana.",
-        "options": ["va a", "vaya a", "irá", "va"],
+        "options": [
+          "va a",
+          "vaya a",
+          "irá",
+          "va"
+        ],
         "answer": 1
       },
       {
         "q": "Si yo _______ más dinero, viajaría más.",
-        "options": ["tengo", "tuviera", "tendré", "tenía"],
+        "options": [
+          "tengo",
+          "tuviera",
+          "tendré",
+          "tenía"
+        ],
         "answer": 1
       },
       {
         "q": "Para hacer una buena SpeakEasy, es importante _______ buen arroz.",
-        "options": ["usar", "usando", "uses", "usas"],
+        "options": [
+          "usar",
+          "usando",
+          "uses",
+          "usas"
+        ],
         "answer": 0
       },
       {
         "q": "Todavía no _______ terminado de comer.",
-        "options": ["he", "ha", "hemos", "han"],
+        "options": [
+          "he",
+          "ha",
+          "hemos",
+          "han"
+        ],
         "answer": 0
       },
       {
         "q": "Espero que tú _______ un buen viaje.",
-        "options": ["tienes", "tengas", "tendrías", "tuviste"],
+        "options": [
+          "tienes",
+          "tengas",
+          "tendrías",
+          "tuviste"
+        ],
         "answer": 1
       },
       {
         "q": "¿Has _______ alguna vez a Valencia?",
-        "options": ["ido", "estado", "sido", "andado"],
+        "options": [
+          "ido",
+          "estado",
+          "sido",
+          "andado"
+        ],
         "answer": 1
       },
       {
         "q": "Me pidió que le _______ la sal.",
-        "options": ["paso", "pase", "pasara", "pasar"],
+        "options": [
+          "paso",
+          "pase",
+          "pasara",
+          "pasar"
+        ],
         "answer": 2
       },
       {
         "q": "Llevo tres años _______ español.",
-        "options": ["estudiar", "estudiando", "estudiado", "estudio"],
+        "options": [
+          "estudiar",
+          "estudiando",
+          "estudiado",
+          "estudio"
+        ],
         "answer": 1
       },
       {
         "q": "El coche fue _______ por el mecánico.",
-        "options": ["arreglar", "arreglado", "arregló", "arreglando"],
+        "options": [
+          "arreglar",
+          "arreglado",
+          "arregló",
+          "arreglando"
+        ],
         "answer": 1
       },
       {
         "q": "Ojalá _______ sol este fin de semana.",
-        "options": ["hace", "haga", "hizo", "hará"],
+        "options": [
+          "hace",
+          "haga",
+          "hizo",
+          "hará"
+        ],
         "answer": 1
       },
       {
         "q": "Lo habría hecho si me lo _______ dicho antes.",
-        "options": ["habías", "habrías", "hubieras", "hayas"],
+        "options": [
+          "habías",
+          "habrías",
+          "hubieras",
+          "hayas"
+        ],
         "answer": 2
       },
       {
         "q": "Por mucho que _______, no conseguirá convencerme.",
-        "options": ["insiste", "insistirá", "insista", "insistió"],
+        "options": [
+          "insiste",
+          "insistirá",
+          "insista",
+          "insistió"
+        ],
         "answer": 2
       },
       {
         "q": "Es evidente que ellos no _______ la verdad.",
-        "options": ["saben", "sepan", "sabían", "sabrán"],
+        "options": [
+          "saben",
+          "sepan",
+          "sabían",
+          "sabrán"
+        ],
         "answer": 0
       }
     ]
