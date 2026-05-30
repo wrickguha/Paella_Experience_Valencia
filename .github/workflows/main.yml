@@ -60,11 +60,19 @@ jobs:
             --exclude=storage/framework/sessions \
             --exclude=storage/framework/views \
             --exclude=.git \
+            --exclude=.gitignore \
+            --exclude=.gitattributes \
             --exclude=error_log.txt \
             --exclude=error_log_utf8.txt \
+            --exclude=tests \
+            --exclude=*.md \
+            --exclude=phpunit.xml \
+            --exclude=.editorconfig \
             backend/ backend_deploy/
           echo "=== Deploy size ==="
           du -sh backend_deploy/
+          echo "=== Top-level items ==="
+          ls -la backend_deploy/
 
       # ── 7. Setup SSH once (reused by all rsync steps) ────────────
       - name: Setup SSH
@@ -72,18 +80,49 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+
+          # Write a persistent SSH config to avoid repeating options
+          cat >> ~/.ssh/config <<EOF
+          Host hostinger
+            HostName $SSH_HOST
+            Port 65002
+            User $SSH_USERNAME
+            IdentityFile ~/.ssh/id_rsa
+            StrictHostKeyChecking no
+            ConnectTimeout 60
+            ServerAliveInterval 60
+            ServerAliveCountMax 10
+            BatchMode yes
+            TCPKeepAlive yes
+          EOF
+          chmod 600 ~/.ssh/config
+
+          # Pre-scan the host key
           ssh-keyscan -p 65002 "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          echo "SSH configured for $SSH_HOST:65002"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+
+      # ── Helper: SSH options string ────────────────────────────────
+      # Defined as an env var used by all rsync steps below
+      # Using the SSH config alias "hostinger" for all connections
 
       # ── 8. Upload backend (no --delete: keeps vendor/storage safe) ─
       - name: Rsync backend to server
         run: |
-          rsync -az --checksum \
-            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
-            backend_deploy/ \
-            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/
+          for i in 1 2 3; do
+            rsync -az --checksum \
+              -e "ssh -F ~/.ssh/config" \
+              backend_deploy/ \
+              hostinger:/home/u679970628/domains/speakeasyvalencia.com/backend/ \
+            && echo "Backend rsync succeeded on attempt $i" && break \
+            || {
+              echo "Attempt $i failed. Waiting 15s before retry..."
+              sleep 15
+            }
+          done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -91,48 +130,74 @@ jobs:
       # ── 9. Upload storage assets ──────────────────────────────────
       - name: Rsync storage assets to server
         run: |
-          rsync -az --checksum \
-            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
-            backend/storage/app/public/ \
-            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/
+          for i in 1 2 3; do
+            rsync -az --checksum \
+              -e "ssh -F ~/.ssh/config" \
+              backend/storage/app/public/ \
+              hostinger:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/ \
+            && echo "Storage rsync succeeded on attempt $i" && break \
+            || {
+              echo "Attempt $i failed. Waiting 15s before retry..."
+              sleep 15
+            }
+          done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
       # ── 10. Upload public_html config (htaccess + api entry) ──────
-      #  IMPORTANT: Run this BEFORE frontend/admin so --delete only
-      #  applies to the api/ subdirectory, not the whole public_html.
       - name: Rsync api entry point to server
         run: |
-          rsync -az --delete --checksum \
-            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
-            deploy/public_html/api/ \
-            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/
+          for i in 1 2 3; do
+            rsync -az --delete --checksum \
+              -e "ssh -F ~/.ssh/config" \
+              deploy/public_html/api/ \
+              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/ \
+            && echo "API rsync succeeded on attempt $i" && break \
+            || {
+              echo "Attempt $i failed. Waiting 15s before retry..."
+              sleep 15
+            }
+          done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Rsync htaccess to server
         run: |
-          rsync -az --checksum \
-            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
-            deploy/public_html/.htaccess \
-            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess
+          for i in 1 2 3; do
+            rsync -az --checksum \
+              -e "ssh -F ~/.ssh/config" \
+              deploy/public_html/.htaccess \
+              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess \
+            && echo "htaccess rsync succeeded on attempt $i" && break \
+            || {
+              echo "Attempt $i failed. Waiting 15s before retry..."
+              sleep 15
+            }
+          done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
 
-      # ── 11. Upload frontend SPA (replaces all files in public_html root) ─
+      # ── 11. Upload frontend SPA ───────────────────────────────────
       - name: Rsync frontend to server
         run: |
-          rsync -az --delete --checksum \
-            --exclude=admin/ \
-            --exclude=api/ \
-            --exclude=storage/ \
-            --exclude=.htaccess \
-            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
-            backend/public/frontend/ \
-            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/
+          for i in 1 2 3; do
+            rsync -az --delete --checksum \
+              --exclude=admin/ \
+              --exclude=api/ \
+              --exclude=storage/ \
+              --exclude=.htaccess \
+              -e "ssh -F ~/.ssh/config" \
+              backend/public/frontend/ \
+              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/ \
+            && echo "Frontend rsync succeeded on attempt $i" && break \
+            || {
+              echo "Attempt $i failed. Waiting 15s before retry..."
+              sleep 15
+            }
+          done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -140,10 +205,17 @@ jobs:
       # ── 12. Upload admin SPA ──────────────────────────────────────
       - name: Rsync admin to server
         run: |
-          rsync -az --delete --checksum \
-            -e "ssh -p 65002 -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o ConnectTimeout=30" \
-            backend/public/admin/ \
-            ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/
+          for i in 1 2 3; do
+            rsync -az --delete --checksum \
+              -e "ssh -F ~/.ssh/config" \
+              backend/public/admin/ \
+              hostinger:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/ \
+            && echo "Admin rsync succeeded on attempt $i" && break \
+            || {
+              echo "Attempt $i failed. Waiting 15s before retry..."
+              sleep 15
+            }
+          done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
@@ -157,6 +229,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 65002
+          connect_timeout: 60s
           envs: BACKEND_ENV
           script: |
             printf '%s' "$BACKEND_ENV" > /home/u679970628/domains/speakeasyvalencia.com/backend/.env
@@ -172,6 +245,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 65002
+          connect_timeout: 60s
           timeout: 60s
           command_timeout: 30m
           script: |
@@ -213,12 +287,9 @@ jobs:
             echo "Storage symlink created: $STORAGE_LINK"
 
             # Fix file permissions
-            # Directories: 755, files: 644
             find $WEBROOT -type d -exec chmod 755 {} + 2>/dev/null || true
             find $WEBROOT -type f -exec chmod 644 {} + 2>/dev/null || true
 
-            # api/index.php needs to be readable by PHP — 644 is correct
-            # .htaccess files need to be readable — 644 is correct
             # Storage directory must stay 775 for Laravel writes
             chmod -R 775 $BACKEND/storage $BACKEND/bootstrap/cache
 
