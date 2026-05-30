@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-      SSH_OPTS: -o StrictHostKeyChecking=no -o ConnectTimeout=60 -o ServerAliveInterval=60 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes -o BatchMode=yes -p 65002
+      SSH_OPTS: -o StrictHostKeyChecking=no -o ConnectTimeout=30 -o ServerAliveInterval=30 -o ServerAliveCountMax=10 -o TCPKeepAlive=yes -o BatchMode=yes -p 65002
 
     steps:
       # ── 1. Checkout ───────────────────────────────────────────────
@@ -99,7 +99,7 @@ jobs:
       - name: Rsync backend to server
         run: |
           for i in 1 2 3; do
-            rsync -rltz --checksum --no-perms --chmod=D755,F644 \
+            rsync -rltz --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend_deploy/ \
               ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/ \
@@ -114,7 +114,7 @@ jobs:
       - name: Rsync storage assets to server
         run: |
           for i in 1 2 3; do
-            rsync -rltz --checksum --no-perms --chmod=D755,F644 \
+            rsync -rltz --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/storage/app/public/ \
               ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/ \
@@ -129,7 +129,7 @@ jobs:
       - name: Rsync api entry point to server
         run: |
           for i in 1 2 3; do
-            rsync -rltz --delete --checksum --no-perms --chmod=D755,F644 \
+            rsync -rltz --delete --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               deploy/public_html/api/ \
               ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/ \
@@ -144,7 +144,7 @@ jobs:
       - name: Rsync htaccess to server
         run: |
           for i in 1 2 3; do
-            rsync -ltz --checksum --no-perms --chmod=F644 \
+            rsync -ltz --no-perms --chmod=F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               deploy/public_html/.htaccess \
               ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess \
@@ -159,7 +159,7 @@ jobs:
       - name: Rsync frontend to server
         run: |
           for i in 1 2 3; do
-            rsync -rltz --delete --checksum --no-perms --chmod=D755,F644 \
+            rsync -rltz --delete --no-perms --chmod=D755,F644 \
               --exclude=admin/ \
               --exclude=api/ \
               --exclude=storage/ \
@@ -178,7 +178,7 @@ jobs:
       - name: Rsync admin to server
         run: |
           for i in 1 2 3; do
-            rsync -rltz --delete --checksum --no-perms --chmod=D755,F644 \
+            rsync -rltz --delete --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/public/admin/ \
               ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/ \
