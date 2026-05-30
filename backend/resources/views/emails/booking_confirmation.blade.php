@@ -67,7 +67,7 @@
 
                 <!-- Outro -->
                 <p style="font-size: 15px; line-height: 1.5; color: #475569; margin: 0 0 24px 0;">
-                    If you need to reschedule or have any other questions, feel free to reply to this email or visit our website's contact section.
+                    If you need to reschedule or have any other questions, feel free to reply to this email, call/WhatsApp us at <strong>+34 695 86 90 40</strong>, or visit our website's contact section.
                 </p>
                 <p style="font-size: 15px; color: #475569; margin: 0 0 4px 0;">We look forward to meeting you!</p>
                 <p style="font-size: 15px; color: #475569; margin: 0;">Warm regards,</p>
@@ -78,7 +78,7 @@
         <!-- Email Footer -->
         <div style="text-align: center; margin-top: 28px; font-size: 12px; color: #94a3b8; line-height: 1.6;">
             <p style="margin: 0;">&copy; {{ date('Y') }} SpeakEasy Valencia. All rights reserved.</p>
-            <p style="margin: 4px 0 0 0;">Carrer de la Paz, Valencia, Spain</p>
+            <p style="margin: 4px 0 0 0;">Carrer de la Paz, Valencia, Spain &bull; +34 695 86 90 40</p>
         </div>
     </div>
 </body>
