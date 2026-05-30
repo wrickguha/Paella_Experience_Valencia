@@ -50,60 +50,50 @@ jobs:
           echo "=== Deploy size ==="
           du -sh backend_deploy/
 
+      - name: Setup SSH for rsync
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -p 65002 $SSH_HOST >> ~/.ssh/known_hosts || true
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+
       - name: Rsync backend to server
-        uses: burnett01/rsync-deployments@v2
-        with:
-          switches: -avz --delete
-          local_dir: backend_deploy/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USERNAME }}
-          remote_port: 65002
-          remote_path: /home/u679970628/domains/speakeasyvalencia.com/backend/
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend_deploy/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Rsync storage assets to server
-        uses: burnett01/rsync-deployments@v2
-        with:
-          switches: -avz --delete
-          local_dir: backend/storage/app/public/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USERNAME }}
-          remote_port: 65002
-          remote_path: /home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend/storage/app/public/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Rsync frontend to server
-        uses: burnett01/rsync-deployments@v2
-        with:
-          switches: -avz --delete
-          local_dir: backend/public/frontend/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USERNAME }}
-          remote_port: 65002
-          remote_path: /home/u679970628/domains/speakeasyvalencia.com/public_html/
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend/public/frontend/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Rsync admin to server
-        uses: burnett01/rsync-deployments@v2
-        with:
-          switches: -avz --delete
-          local_dir: backend/public/admin/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USERNAME }}
-          remote_port: 65002
-          remote_path: /home/u679970628/domains/speakeasyvalencia.com/public_html/admin/
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" backend/public/admin/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Rsync public_html config to server
-        uses: burnett01/rsync-deployments@v2
-        with:
-          switches: -avz --delete
-          local_dir: deploy/public_html/
-          remote_host: ${{ secrets.SSH_HOST }}
-          remote_user: ${{ secrets.SSH_USERNAME }}
-          remote_port: 65002
-          remote_path: /home/u679970628/domains/speakeasyvalencia.com/public_html/
-          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          rsync -avz --delete -e "ssh -p 65002 -i ~/.ssh/id_rsa" deploy/public_html/ ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/
+        env:
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
 
       - name: Write .env on server
         if: ${{ env.BACKEND_ENV != '' }}
