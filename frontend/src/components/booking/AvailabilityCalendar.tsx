@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCalendarMonth } from '@/hooks/useCalendarMonth';
@@ -13,15 +13,49 @@ interface Props {
 
 export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Props) {
   const { t } = useTranslation();
-  const today = new Date();
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [filter, setFilter] = useState<LocationFilter>('all');
+  const [hasNavigatedBack, setHasNavigatedBack] = useState(false);
 
   const monthNames = t('booking.calendar.monthNames', { returnObjects: true }) as string[];
   const dayNames = t('booking.calendar.dayNames', { returnObjects: true }) as string[];
 
   const { events: allEvents, loading } = useCalendarMonth(viewYear, viewMonth);
+
+  // Automatically advance to the next month if there are no upcoming events in the current month
+  useEffect(() => {
+    if (loading || hasNavigatedBack) return;
+
+    const todayStr = today.toISOString().slice(0, 10);
+    // Filter events to only future/today events if it's the current month, or all events if it's a future month
+    const hasUpcomingEvents = allEvents.some((e) => {
+      if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
+        return e.date >= todayStr;
+      }
+      return true;
+    });
+
+    if (!hasUpcomingEvents) {
+      // Limit automatic search to 12 months ahead to avoid infinite loops
+      const maxSearchDate = new Date(today.getFullYear(), today.getMonth() + 12, 1);
+      const currentViewDate = new Date(viewYear, viewMonth, 1);
+      
+      if (currentViewDate < maxSearchDate) {
+        if (viewMonth === 11) {
+          setViewYear((y) => y + 1);
+          setViewMonth(0);
+        } else {
+          setViewMonth((m) => m + 1);
+        }
+      }
+    }
+  }, [allEvents, loading, viewYear, viewMonth, today, hasNavigatedBack]);
 
   // Derive unique locations from events for filters and legend
   const locationMetadata = useMemo(() => {
@@ -85,7 +119,27 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDayOfWeek = ((new Date(viewYear, viewMonth, 1).getDay() + 6) % 7);
 
+  // Determine which week indices have active/upcoming events
+  const weeksWithEvents = useMemo(() => {
+    const activeWeeks = new Set<number>();
+    const todayStr = today.toISOString().slice(0, 10);
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const hasEvents = (eventsByDate.get(dateStr) ?? []).length > 0;
+      const isPastDate = dateStr < todayStr;
+      
+      if (hasEvents && !isPastDate) {
+        const cellIndex = firstDayOfWeek + (day - 1);
+        const weekIndex = Math.floor(cellIndex / 7);
+        activeWeeks.add(weekIndex);
+      }
+    }
+    return activeWeeks;
+  }, [daysInMonth, firstDayOfWeek, eventsByDate, today, viewYear, viewMonth]);
+
   const prevMonth = useCallback(() => {
+    setHasNavigatedBack(true);
     if (viewMonth === 0) {
       setViewYear((y) => y - 1);
       setViewMonth(11);
@@ -95,6 +149,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
   }, [viewMonth]);
 
   const nextMonth = useCallback(() => {
+    setHasNavigatedBack(false);
     if (viewMonth === 11) {
       setViewYear((y) => y + 1);
       setViewMonth(0);
@@ -235,13 +290,17 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
             const dayLocationIds = getLocationBadgeIds(dateStr);
             const hasEvents = dayLocationIds.length > 0;
             const isSelected = dateStr === selectedDate;
+            
+            const cellIndex = firstDayOfWeek + i;
+            const weekIndex = Math.floor(cellIndex / 7);
+            const weekHasEvents = weeksWithEvents.has(weekIndex);
 
             return (
               <motion.button
                 key={day}
-                whileHover={hasEvents && !past ? { scale: 1.05 } : undefined}
-                whileTap={hasEvents && !past ? { scale: 0.95 } : undefined}
-                disabled={past || !hasEvents}
+                whileHover={hasEvents && !past && weekHasEvents ? { scale: 1.05 } : undefined}
+                whileTap={hasEvents && !past && weekHasEvents ? { scale: 0.95 } : undefined}
+                disabled={past || !hasEvents || !weekHasEvents}
                 onClick={() => handleDayClick(day)}
                 className={`
                   aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 relative transition-all text-sm
@@ -249,6 +308,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
                   ${!past && !hasEvents ? 'text-neutral-gray/50 cursor-default' : ''}
                   ${!past && hasEvents ? 'cursor-pointer hover:bg-neutral-cream font-medium text-neutral-dark' : ''}
                   ${isSelected ? '!bg-primary/10 ring-2 ring-primary' : ''}
+                  ${!weekHasEvents ? 'opacity-25 pointer-events-none' : ''}
                 `}
               >
                 <span className={isSelected ? 'text-primary font-bold' : ''}>{day}</span>
