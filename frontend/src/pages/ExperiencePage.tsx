@@ -256,7 +256,7 @@ function LocationsIntro() {
             </svg>
           </motion.div>
           <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-dark mb-6 tracking-tight">
-            Experiences & Places
+            Experiences & Locations
           </h2>
           <div className="space-y-6 max-w-3xl mx-auto">
             <p className="text-xl sm:text-2xl text-neutral-dark font-body leading-relaxed font-medium">

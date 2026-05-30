@@ -13,7 +13,7 @@ const iconMap: Record<string, string> = {
 
 const flowSteps = [
   { id: 1, emoji: '👋', title: 'Meet & Greet',    description: 'Welcome drink and introductions.' },
-  { id: 2, emoji: '🎯', title: 'Icebreaker',      description: 'Fun games to break the ice.' },
+  { id: 2, emoji: '🎯', title: 'Interactive Activities', description: 'Fun games to break the ice.' },
   { id: 3, emoji: '🍳', title: 'Cook Together',   description: 'Hands-on paella preparation.' },
   { id: 4, emoji: '🥘', title: 'Eat & Connect',   description: 'Enjoy the meal and shared stories.' },
   { id: 5, emoji: '🍷', title: 'Sobremesa',       description: 'Linger at the table, share stories, and let conversations flow naturally.' },

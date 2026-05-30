@@ -100,7 +100,7 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
                   {/* Content */}
                   <div className="p-4">
                     <h4 className="font-heading font-semibold text-neutral-dark mb-2">
-                      Paella Experience {t('booking.eventCard.at')} {event.locationName}
+                      {event.locationName}
                     </h4>
 
                     <div className="flex flex-wrap gap-3 text-sm text-neutral-gray mb-3">

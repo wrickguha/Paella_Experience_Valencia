@@ -1,7 +1,7 @@
 {
   "nav": {
     "home": "Home",
-    "experience": "Experiences & Places",
+    "experience": "Experiences & Locations",
     "booking": "Book Now",
     "contact": "Contact",
     "about": "About",
@@ -44,7 +44,7 @@
       {
         "icon": "meals",
         "title": "Shared Meals",
-        "description": "From SpeakEasy to tapas, food becomes part of the experience."
+        "description": "From tapas to paella, food becomes part of the experience."
       },
       {
         "icon": "sobremesa",
@@ -220,7 +220,7 @@
     "title": "More Than Cooking",
     "items": [
       {
-        "title": "Icebreaker Games",
+        "title": "Interactive Activites",
         "description": "Fun activities to get everyone talking and laughing."
       },
       {
@@ -241,7 +241,7 @@
     "title": "The Experience Flow",
     "steps": [
       { "id": 1, "title": "Meet & Greet", "description": "Welcome drink and introductions." },
-      { "id": 2, "title": "Icebreaker", "description": "Fun games to break the ice." },
+      { "id": 2, "title": "Interactive Activities", "description": "Fun games to break the ice." },
       { "id": 3, "title": "Cook Together", "description": "Hands-on SpeakEasy preparation." },
       { "id": 4, "title": "Language Interaction", "description": "Practice phrases while cooking." },
       { "id": 5, "title": "Eat & Connect", "description": "Enjoy the meal and shared stories." }
@@ -356,7 +356,7 @@
       "title": "What Happens During the Experience",
       "steps": [
         { "title": "Welcome & Introductions", "description": "Meet your fellow travelers and hosts." },
-        { "title": "Icebreaker Interactions", "description": "Fun activities to get the conversation flowing." },
+        { "title": "Interactive Activites Interactions", "description": "Fun activities to get the conversation flowing." },
         { "title": "Cooking Together", "description": "Collaborate on the perfect SpeakEasy." },
         { "title": "Language Interaction Moments", "description": "Learn key phrases in a natural setting." },
         { "title": "Shared Dining & Bonding", "description": "Enjoy the feast and new friendships." }
@@ -369,7 +369,7 @@
     "inline_activities": {
       "title": "Fun & Activities",
       "items": [
-        { "title": "Icebreaker Games", "icon": "PartyPopper" },
+        { "title": "Interactive Activites Games", "icon": "PartyPopper" },
         { "title": "Cultural Exchange", "icon": "Globe2" },
         { "title": "Music & Vibes", "icon": "Music" }
       ]
@@ -622,7 +622,7 @@
     }
   },
   "footer": {
-    "description": "The most authentic SpeakEasy experience in Valencia. Cook, learn, and taste the flavors of Spain with our expert chefs.",
+    "description": "The most authentic SpeakEasy experience in Valencia. Cook, learn, and taste the flavors of Spain and beyond",
     "quickLinks": "Quick Links",
     "legal": "Legal",
     "followUs": "Follow Us",

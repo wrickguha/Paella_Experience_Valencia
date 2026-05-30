@@ -76,19 +76,16 @@ jobs:
           strip_components: 4
           overwrite: true
 
-      - name: Upload frontend via SCP
-        uses: appleboy/scp-action@v0.1.7
+      - name: Rsync frontend to server
+        uses: burnett01/rsync-deployments@v2
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 65002
-          timeout: 300s
-          command_timeout: 30m
-          source: "backend/public/frontend/"
-          target: "/home/u679970628/domains/speakeasyvalencia.com/public_html/"
-          strip_components: 3
-          overwrite: true
+          switches: -avz --delete
+          local_dir: backend/public/frontend/
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USERNAME }}
+          remote_port: 65002
+          remote_path: /home/u679970628/domains/speakeasyvalencia.com/public_html/
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Upload admin via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -119,6 +116,7 @@ jobs:
           overwrite: true
 
       - name: Write .env on server
+        if: ${{ secrets.BACKEND_ENV != '' }}
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
