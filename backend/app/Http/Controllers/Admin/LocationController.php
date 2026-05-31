@@ -262,15 +262,36 @@ class LocationController extends Controller
             if (empty($s['start_time']) || empty($s['end_time'])) continue;
 
             $isCustomDate = !empty($s['date']);
+            $totalSlots = isset($s['total_slots']) ? (int) $s['total_slots'] : 12;
 
             $location->schedules()->create([
                 'date' => $isCustomDate ? $s['date'] : null,
                 'day_of_week' => $isCustomDate ? null : (int) $s['day_of_week'],
                 'start_time' => $s['start_time'],
                 'end_time' => $s['end_time'],
-                'total_slots' => isset($s['total_slots']) ? (int) $s['total_slots'] : 12,
+                'total_slots' => $totalSlots,
                 'is_active' => filter_var($s['is_active'] ?? true, FILTER_VALIDATE_BOOLEAN),
             ]);
+
+            // Sync future availability slots matching this schedule's time and day/date
+            $today = \Carbon\Carbon::today()->toDateString();
+            if ($isCustomDate) {
+                \App\Models\AvailabilitySlot::where('location_id', $location->id)
+                    ->where('date', $s['date'])
+                    ->where('start_time', $s['start_time'])
+                    ->update(['total_slots' => $totalSlots]);
+            } else {
+                $futureSlots = \App\Models\AvailabilitySlot::where('location_id', $location->id)
+                    ->where('date', '>=', $today)
+                    ->where('start_time', $s['start_time'])
+                    ->get();
+
+                foreach ($futureSlots as $slot) {
+                    if ($slot->date->dayOfWeek === (int) $s['day_of_week']) {
+                        $slot->update(['total_slots' => $totalSlots]);
+                    }
+                }
+            }
         }
     }
 
