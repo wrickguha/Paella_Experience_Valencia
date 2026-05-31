@@ -17,6 +17,16 @@ export function useCalendarMonth(year: number, month: number): UseCalendarMonthR
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Keep track of the last requested parameters to reset state synchronously on render if they change
+  const [prevParams, setPrevParams] = useState({ year, month });
+
+  if (prevParams.year !== year || prevParams.month !== month) {
+    setPrevParams({ year, month });
+    setLoading(true);
+    setEvents([]);
+    setError(null);
+  }
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
