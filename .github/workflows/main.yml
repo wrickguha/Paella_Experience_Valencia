@@ -102,9 +102,13 @@ jobs:
             rsync -rltz --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend_deploy/ \
-              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/ \
-            && echo "Backend rsync succeeded on attempt $i" && break \
-            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/ && break
+            if [ $i -eq 3 ]; then
+              echo "Error: Backend rsync failed after 3 attempts."
+              exit 1
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
@@ -117,9 +121,13 @@ jobs:
             rsync -rltz --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/storage/app/public/ \
-              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/ \
-            && echo "Storage rsync succeeded on attempt $i" && break \
-            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/backend/storage/app/public/ && break
+            if [ $i -eq 3 ]; then
+              echo "Error: Storage rsync failed after 3 attempts."
+              exit 1
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
@@ -132,9 +140,13 @@ jobs:
             rsync -rltz --delete --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               deploy/public_html/api/ \
-              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/ \
-            && echo "API rsync succeeded on attempt $i" && break \
-            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/api/ && break
+            if [ $i -eq 3 ]; then
+              echo "Error: API rsync failed after 3 attempts."
+              exit 1
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
@@ -147,9 +159,13 @@ jobs:
             rsync -ltz --no-perms --chmod=F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               deploy/public_html/.htaccess \
-              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess \
-            && echo "htaccess rsync succeeded on attempt $i" && break \
-            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/.htaccess && break
+            if [ $i -eq 3 ]; then
+              echo "Error: htaccess rsync failed after 3 attempts."
+              exit 1
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
@@ -166,9 +182,13 @@ jobs:
               --exclude=.htaccess \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/public/frontend/ \
-              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/ \
-            && echo "Frontend rsync succeeded on attempt $i" && break \
-            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/ && break
+            if [ $i -eq 3 ]; then
+              echo "Error: Frontend rsync failed after 3 attempts."
+              exit 1
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
@@ -181,9 +201,13 @@ jobs:
             rsync -rltz --delete --no-perms --chmod=D755,F644 \
               -e "ssh -i ~/.ssh/id_rsa $SSH_OPTS" \
               backend/public/admin/ \
-              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/ \
-            && echo "Admin rsync succeeded on attempt $i" && break \
-            || { echo "Attempt $i failed, retrying in 15s..."; sleep 15; }
+              ${SSH_USERNAME}@${SSH_HOST}:/home/u679970628/domains/speakeasyvalencia.com/public_html/admin/ && break
+            if [ $i -eq 3 ]; then
+              echo "Error: Admin rsync failed after 3 attempts."
+              exit 1
+            fi
+            echo "Attempt $i failed, retrying in 15s..."
+            sleep 15
           done
         env:
           SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
@@ -199,6 +223,7 @@ jobs:
           port: 65002
           timeout: 120s
           command_timeout: 10m
+          debug: true
           script: |
             WEBROOT=/home/u679970628/domains/speakeasyvalencia.com/public_html
             echo "=== public_html permissions ==="
@@ -235,6 +260,7 @@ jobs:
           port: 65002
           timeout: 120s
           command_timeout: 10m
+          debug: true
           envs: BACKEND_ENV
           script: |
             printf '%s' "$BACKEND_ENV" > /home/u679970628/domains/speakeasyvalencia.com/backend/.env
@@ -252,6 +278,7 @@ jobs:
           port: 65002
           timeout: 120s
           command_timeout: 30m
+          debug: true
           script: |
             BASE=/home/u679970628/domains/speakeasyvalencia.com
             BACKEND=$BASE/backend
