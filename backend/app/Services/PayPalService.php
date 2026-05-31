@@ -179,10 +179,6 @@ class PayPalService
                     'payment_id' => $transactionId ?? $paypalOrderId,
                 ]);
 
-                if ($oldPaymentStatus !== 'paid' && $booking->availabilitySlot) {
-                    $booking->availabilitySlot->increment('booked_slots', $booking->guests);
-                }
-
                 $this->sendBookingConfirmation($booking);
 
                 Log::info('Payment captured', [
@@ -294,10 +290,6 @@ class PayPalService
                 'payment_status' => 'paid',
                 'payment_id' => $transactionId,
             ]);
-
-            if ($oldPaymentStatus !== 'paid' && $booking->availabilitySlot) {
-                $booking->availabilitySlot->increment('booked_slots', $booking->guests);
-            }
 
             $this->sendBookingConfirmation($booking);
 

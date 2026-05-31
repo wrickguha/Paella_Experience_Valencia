@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\AvailabilitySlot;
 use Illuminate\Support\Str;
 
 class Booking extends Model
@@ -50,6 +51,64 @@ class Booking extends Model
         static::creating(function (Booking $booking) {
             if (empty($booking->reference)) {
                 $booking->reference = 'PEV-' . strtoupper(Str::random(8));
+            }
+        });
+
+        static::created(function (Booking $booking) {
+            if ($booking->payment_status === 'paid' && $booking->status !== 'cancelled') {
+                if ($booking->availability_slot_id && $slot = AvailabilitySlot::find($booking->availability_slot_id)) {
+                    $slot->increment('booked_slots', $booking->guests);
+                }
+            }
+        });
+
+        static::updated(function (Booking $booking) {
+            $oldSlotId = $booking->getOriginal('availability_slot_id');
+            $newSlotId = $booking->availability_slot_id;
+            $oldGuests = (int) $booking->getOriginal('guests');
+            $newGuests = (int) $booking->guests;
+
+            $wasOccupying = ($booking->getOriginal('payment_status') === 'paid') && ($booking->getOriginal('status') !== 'cancelled');
+            $isOccupying = ($booking->payment_status === 'paid') && ($booking->status !== 'cancelled');
+
+            if ($oldSlotId === $newSlotId) {
+                if ($wasOccupying && !$isOccupying) {
+                    if ($oldSlotId && $slot = AvailabilitySlot::find($oldSlotId)) {
+                        $slot->decrement('booked_slots', $oldGuests);
+                    }
+                } elseif (!$wasOccupying && $isOccupying) {
+                    if ($newSlotId && $slot = AvailabilitySlot::find($newSlotId)) {
+                        $slot->increment('booked_slots', $newGuests);
+                    }
+                } elseif ($wasOccupying && $isOccupying && $oldGuests !== $newGuests) {
+                    if ($newSlotId && $slot = AvailabilitySlot::find($newSlotId)) {
+                        $diff = $newGuests - $oldGuests;
+                        if ($diff > 0) {
+                            $slot->increment('booked_slots', $diff);
+                        } else {
+                            $slot->decrement('booked_slots', abs($diff));
+                        }
+                    }
+                }
+            } else {
+                if ($wasOccupying && $oldSlotId) {
+                    if ($slot = AvailabilitySlot::find($oldSlotId)) {
+                        $slot->decrement('booked_slots', $oldGuests);
+                    }
+                }
+                if ($isOccupying && $newSlotId) {
+                    if ($slot = AvailabilitySlot::find($newSlotId)) {
+                        $slot->increment('booked_slots', $newGuests);
+                    }
+                }
+            }
+        });
+
+        static::deleted(function (Booking $booking) {
+            if ($booking->payment_status === 'paid' && $booking->status !== 'cancelled') {
+                if ($booking->availability_slot_id && $slot = AvailabilitySlot::find($booking->availability_slot_id)) {
+                    $slot->decrement('booked_slots', $booking->guests);
+                }
             }
         });
     }

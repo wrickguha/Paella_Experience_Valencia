@@ -52,10 +52,6 @@ class PaymentController extends Controller
                         'payment_id' => 'free-coupon',
                         'status' => 'confirmed',
                     ]);
-
-                    if ($booking->availabilitySlot) {
-                        $booking->availabilitySlot->increment('booked_slots', $booking->guests);
-                    }
                 });
 
                 // Send booking confirmation email

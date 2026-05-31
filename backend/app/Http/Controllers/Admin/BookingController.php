@@ -119,10 +119,6 @@ class BookingController extends Controller
             }
             $booking->update($update);
 
-            if ($request->payment_status === 'paid' && $booking->availabilitySlot) {
-                $booking->availabilitySlot->increment('booked_slots', $booking->guests);
-            }
-
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
@@ -143,30 +139,10 @@ class BookingController extends Controller
             'payment_status' => 'required|in:paid,pending,failed,refunded',
         ]);
 
-        $booking = Booking::with('availabilitySlot')->findOrFail($id);
-        $oldStatus = $booking->payment_status;
-        $newStatus = $request->payment_status;
+        $booking = Booking::findOrFail($id);
+        $booking->update(['payment_status' => $request->payment_status]);
 
-        // Slot states: reserved = paid only, released = pending/failed/refunded
-        $reserved = ['paid'];
-        $released  = ['pending', 'failed', 'refunded'];
-
-        DB::transaction(function () use ($booking, $oldStatus, $newStatus, $reserved, $released) {
-            if (in_array($oldStatus, $released) && in_array($newStatus, $reserved)) {
-                // Re-acquire slots that were previously released
-                if ($booking->availabilitySlot) {
-                    $booking->availabilitySlot->increment('booked_slots', $booking->guests);
-                }
-            } elseif (in_array($oldStatus, $reserved) && in_array($newStatus, $released)) {
-                // Release the reserved slots
-                if ($booking->availabilitySlot) {
-                    $booking->availabilitySlot->decrement('booked_slots', max(0, $booking->guests));
-                }
-            }
-            $booking->update(['payment_status' => $newStatus]);
-        });
-
-        return response()->json(['message' => 'Status updated', 'payment_status' => $newStatus]);
+        return response()->json(['message' => 'Status updated', 'payment_status' => $request->payment_status]);
     }
 
     public function updateBookingStatus(Request $request, $id)
