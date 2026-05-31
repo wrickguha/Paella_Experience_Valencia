@@ -179,7 +179,6 @@ class PayPalService
                     'payment_id' => $transactionId ?? $paypalOrderId,
                 ]);
 
-                $this->sendBookingConfirmation($booking);
 
                 Log::info('Payment captured', [
                     'booking' => $booking->reference,
@@ -274,7 +273,6 @@ class PayPalService
 
             // Already completed — nothing to do
             if ($payment->status === 'completed') {
-                $this->sendBookingConfirmation($payment->booking);
                 return;
             }
 
@@ -290,31 +288,6 @@ class PayPalService
                 'payment_status' => 'paid',
                 'payment_id' => $transactionId,
             ]);
-
-            $this->sendBookingConfirmation($booking);
-
-            Log::info('Webhook captured payment', [
-                'booking' => $payment->booking->reference,
-                'transaction_id' => $transactionId,
-            ]);
         });
     }
-    private function sendBookingConfirmation(Booking $booking): void
-    {
-        if (empty($booking->email) || $booking->confirmation_sent) {
-            return;
-        }
-
-        try {
-            Mail::to($booking->email)
-                ->send(new BookingConfirmation($booking));
-
-            $booking->update(['confirmation_sent' => true]);
-        } catch (\Throwable $e) {
-            Log::error('Booking confirmation email failed', [
-                'booking' => $booking->reference,
-                'email' => $booking->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }}
+}

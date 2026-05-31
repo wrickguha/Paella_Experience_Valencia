@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\AvailabilitySlot;
+use App\Mail\BookingConfirmation;
+use App\Mail\NewBookingAdminNotification;
 use Illuminate\Support\Str;
 
 class Booking extends Model
@@ -100,6 +102,37 @@ class Booking extends Model
                     if ($slot = AvailabilitySlot::find($newSlotId)) {
                         $slot->increment('booked_slots', $newGuests);
                     }
+                }
+            }
+
+            // Send emails when booking transitions to paid status
+            $oldPaymentStatus = $booking->getOriginal('payment_status');
+            $newPaymentStatus = $booking->payment_status;
+
+            if ($oldPaymentStatus !== 'paid' && $newPaymentStatus === 'paid') {
+                // 1. Send confirmation email to customer
+                if (!empty($booking->email) && !$booking->confirmation_sent) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($booking->email)
+                            ->send(new BookingConfirmation($booking));
+                        $booking->updateQuietly(['confirmation_sent' => true]);
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Customer confirmation email failed', [
+                            'booking' => $booking->reference,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
+                }
+
+                // 2. Send notification email to admin
+                try {
+                    \Illuminate\Support\Facades\Mail::to('Info@speakeasyvalencia.com')
+                        ->send(new NewBookingAdminNotification($booking));
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::error('Admin booking notification email failed', [
+                        'booking' => $booking->reference,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
         });
