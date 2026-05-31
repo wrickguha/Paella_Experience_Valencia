@@ -158,7 +158,7 @@ class PayPalService
 
             $response = Http::withToken($token)
                 ->withHeaders(['PayPal-Request-Id' => "capture-{$paypalOrderId}"])
-                ->post("{$this->baseUrl}/v2/checkout/orders/{$paypalOrderId}/capture");
+                ->post("{$this->baseUrl}/v2/checkout/orders/{$paypalOrderId}/capture", []);
 
             $captureData = $response->json();
 
