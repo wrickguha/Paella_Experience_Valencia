@@ -15,6 +15,10 @@ class BookingController extends Controller
 
     public function index(Request $request)
     {
+        Booking::where('payment_status', 'pending')
+            ->where('created_at', '<', now()->subHours(24))
+            ->delete();
+
         $query = Booking::with(['location', 'experience']);
 
         if ($request->filled('date')) {
@@ -58,6 +62,10 @@ class BookingController extends Controller
 
     public function show($id)
     {
+        Booking::where('payment_status', 'pending')
+            ->where('created_at', '<', now()->subHours(24))
+            ->delete();
+
         $b = Booking::with(['location', 'experience', 'payment'])->findOrFail($id);
 
         return response()->json([

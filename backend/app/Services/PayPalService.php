@@ -177,6 +177,7 @@ class PayPalService
                 $booking->update([
                     'payment_status' => 'paid',
                     'payment_id' => $transactionId ?? $paypalOrderId,
+                    'status' => 'confirmed',
                 ]);
 
 
@@ -287,6 +288,7 @@ class PayPalService
             $booking->update([
                 'payment_status' => 'paid',
                 'payment_id' => $transactionId,
+                'status' => 'confirmed',
             ]);
         });
     }

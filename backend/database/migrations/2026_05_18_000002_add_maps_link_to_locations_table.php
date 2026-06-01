@@ -14,7 +14,9 @@ return new class extends Migration
         });
 
         // Make address nullable (no longer required in the UI)
-        DB::statement('ALTER TABLE locations MODIFY COLUMN address VARCHAR(500) NULL DEFAULT NULL');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE locations MODIFY COLUMN address VARCHAR(500) NULL DEFAULT NULL');
+        }
     }
 
     public function down(): void
@@ -23,6 +25,8 @@ return new class extends Migration
             $table->dropColumn('maps_link');
         });
 
-        DB::statement('ALTER TABLE locations MODIFY COLUMN address VARCHAR(500) NOT NULL');
+        if (DB::getDriverName() !== 'sqlite') {
+            DB::statement('ALTER TABLE locations MODIFY COLUMN address VARCHAR(500) NOT NULL');
+        }
     }
 };

@@ -15,6 +15,10 @@ class DashboardController extends Controller
 {
     public function stats()
     {
+        Booking::where('payment_status', 'pending')
+            ->where('created_at', '<', Carbon::now()->subHours(24))
+            ->delete();
+
         $now = Carbon::now();
         $startOfMonth = $now->copy()->startOfMonth();
         $lastMonthStart = $now->copy()->subMonth()->startOfMonth();
@@ -54,6 +58,10 @@ class DashboardController extends Controller
 
     public function recentBookings()
     {
+        Booking::where('payment_status', 'pending')
+            ->where('created_at', '<', Carbon::now()->subHours(24))
+            ->delete();
+
         $bookings = Booking::with(['location', 'experience'])
             ->orderBy('created_at', 'desc')
             ->take(10)

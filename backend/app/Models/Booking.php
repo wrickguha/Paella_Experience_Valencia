@@ -56,6 +56,14 @@ class Booking extends Model
             }
         });
 
+        static::updating(function (Booking $booking) {
+            if ($booking->isDirty('payment_status') && $booking->payment_status === 'paid') {
+                if ($booking->status === 'pending') {
+                    $booking->status = 'confirmed';
+                }
+            }
+        });
+
         static::created(function (Booking $booking) {
             if ($booking->payment_status === 'paid' && $booking->status !== 'cancelled') {
                 if ($booking->availability_slot_id && $slot = AvailabilitySlot::find($booking->availability_slot_id)) {
