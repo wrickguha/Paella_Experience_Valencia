@@ -265,4 +265,30 @@ class BookingPaymentTest extends TestCase
         $this->assertDatabaseMissing('bookings', ['id' => $oldPendingBooking->id]);
         $this->assertDatabaseHas('bookings', ['id' => $newPendingBooking->id]);
     }
+
+    public function test_migration_corrects_existing_unconfirmed_paid_bookings()
+    {
+        $bookingPending = Booking::create([
+            'first_name' => 'ExistingPending',
+            'last_name' => 'Paid',
+            'email' => 'pending@example.com',
+            'location_id' => $this->location->id,
+            'experience_id' => $this->experience->id,
+            'availability_slot_id' => $this->slot->id,
+            'date' => '2026-06-05',
+            'time' => '20:00:00',
+            'guests' => 1,
+            'total_price' => 50.00,
+            'payment_status' => 'paid',
+            'status' => 'pending',
+        ]);
+
+        // Load and run the migration
+        $migration = require database_path('migrations/2026_06_01_105700_fix_existing_paid_bookings_status.php');
+        $migration->up();
+
+        $bookingPending->refresh();
+
+        $this->assertEquals('confirmed', $bookingPending->status);
+    }
 }

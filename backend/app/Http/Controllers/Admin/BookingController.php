@@ -148,7 +148,11 @@ class BookingController extends Controller
         ]);
 
         $booking = Booking::findOrFail($id);
-        $booking->update(['payment_status' => $request->payment_status]);
+        $update = ['payment_status' => $request->payment_status];
+        if ($request->payment_status === 'paid' && $booking->status !== 'confirmed' && $booking->status !== 'cancelled') {
+            $update['status'] = 'confirmed';
+        }
+        $booking->update($update);
 
         return response()->json(['message' => 'Status updated', 'payment_status' => $request->payment_status]);
     }

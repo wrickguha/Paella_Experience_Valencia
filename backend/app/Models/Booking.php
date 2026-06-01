@@ -58,7 +58,7 @@ class Booking extends Model
 
         static::updating(function (Booking $booking) {
             if ($booking->isDirty('payment_status') && $booking->payment_status === 'paid') {
-                if ($booking->status === 'pending') {
+                if ($booking->status !== 'confirmed' && $booking->status !== 'cancelled') {
                     $booking->status = 'confirmed';
                 }
             }
