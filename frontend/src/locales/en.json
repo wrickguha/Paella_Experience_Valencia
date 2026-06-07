@@ -650,7 +650,7 @@
     },
     "next": "Continue",
     "back": "Back",
-    "payNow": "Pay with PayPal",
+    "payNow": "Pay",
     "customerInfo": {
       "title": "Your Information",
       "firstName": "First Name",
@@ -675,9 +675,10 @@
     "title": "Complete Your Payment",
     "subtitle": "You're one step away from an unforgettable experience",
     "bookingSummary": "Booking Summary",
-    "paypal": "Pay with PayPal",
-    "secure": "Secure payment via PayPal",
-    "redirecting": "Redirecting to PayPal...",
+    "paypal": "Pay",
+    "secure": "Secure payment via PayPal & Stripe",
+    "redirectingStripe": "Redirecting to Stripe...",
+    "redirectingPaypal": "Redirecting to PayPal...",
     "success": {
       "title": "Booking Confirmed!",
       "subtitle": "We can't wait to welcome you to Valencia",
@@ -722,6 +723,14 @@
     "terms": "Terms of Service",
     "cookies": "Cookie Policy",
     "copyright": "© 2026 SpeakEasy Experience Valencia. All rights reserved."
+  },
+  "cookieConsent": {
+    "title": "We Value Your Privacy",
+    "message": "We use cookies to enhance your browsing experience, analyze our site traffic, and deliver personalized content. By clicking \"Accept All\", you consent to our use of analytics cookies. You can choose to decline these non-essential cookies.",
+    "accept": "Accept All",
+    "decline": "Decline Analytics",
+    "policyLink": "Read our Cookie Policy",
+    "settings": "Cookie Settings"
   },
   "auth": {
     "login": "Log In",

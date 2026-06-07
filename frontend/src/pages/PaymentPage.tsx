@@ -38,6 +38,7 @@ export default function PaymentPage() {
   const [couponCode, setCouponCode] = useState<string>('');
   const [couponValidation, setCouponValidation] = useState<CouponValidation | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [processingMethod, setProcessingMethod] = useState<'stripe' | 'paypal' | null>(null);
   useScrollToTop();
 
   const stored = useMemo<StoredBooking | null>(() => {
@@ -90,6 +91,77 @@ export default function PaymentPage() {
     setCouponLoading(false);
   };
 
+  const handleStripe = async () => {
+    if (!stored) return;
+    if (couponCode.trim() && couponValidation?.valid === false) {
+      setErrorMsg('Please provide a valid coupon code before checkout.');
+      setState('failure');
+      return;
+    }
+
+    setState('processing');
+    setProcessingMethod('stripe');
+    setErrorMsg('');
+
+    try {
+      // Step 1: Create booking
+      const bookingRes = await bookingApi.create({
+        first_name: stored.customerFirstName ?? '',
+        last_name: stored.customerLastName ?? '',
+        email: stored.customerEmail ?? '',
+        phone: stored.customerPhone ?? null,
+        location_id: stored.locationNumericId,
+        experience_id: stored.experienceId,
+        date: stored.date,
+        time: stored.time,
+        guests: stored.guests,
+        coupon_code: couponValidation?.valid ? couponCode.trim().toUpperCase() : undefined,
+      });
+
+      const bookingData = bookingRes.data?.data?.booking;
+      if (!bookingData?.id) throw new Error('Booking creation failed.');
+
+      const ref = bookingData.reference ?? '';
+      setBookingRef(ref);
+
+      // Step 2: Handle free bookings
+      if (bookingData.total_price <= 0) {
+        setState('success');
+        setProcessingMethod(null);
+        return;
+      }
+
+      // Step 3: Create Stripe Checkout Session → redirect
+      const sessionRes = await paymentApi.stripeCreateSession(bookingData.id);
+
+      if (sessionRes.data?.data?.is_free) {
+        setBookingRef(sessionRes.data.data.booking_reference);
+        setState('success');
+        setProcessingMethod(null);
+        return;
+      }
+
+      const sessionUrl = sessionRes.data?.data?.session_url;
+      const sessionId  = sessionRes.data?.data?.session_id;
+
+      if (sessionUrl) {
+        sessionStorage.setItem('stripe_session_id', sessionId);
+        sessionStorage.setItem('booking_ref', ref);
+        window.location.href = sessionUrl;
+      } else {
+        throw new Error('No Stripe session URL returned.');
+      }
+    } catch (err: unknown) {
+      console.error('Stripe payment flow failed', err);
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message
+        || (err instanceof Error ? err.message : 'Something went wrong.');
+      setErrorMsg(msg);
+      setState('failure');
+      setProcessingMethod(null);
+    }
+  };
+
   const handlePayPal = async () => {
     if (!stored) return;
     if (couponCode.trim() && couponValidation?.valid === false) {
@@ -99,6 +171,7 @@ export default function PaymentPage() {
     }
 
     setState('processing');
+    setProcessingMethod('paypal');
     setErrorMsg('');
 
     try {
@@ -128,6 +201,7 @@ export default function PaymentPage() {
       if (orderRes.data?.data?.is_free) {
         setBookingRef(orderRes.data.data.booking_reference);
         setState('success');
+        setProcessingMethod(null);
         return;
       }
 
@@ -151,6 +225,7 @@ export default function PaymentPage() {
         || (err instanceof Error ? err.message : 'Something went wrong.');
       setErrorMsg(msg);
       setState('failure');
+      setProcessingMethod(null);
     }
   };
 
@@ -251,28 +326,69 @@ export default function PaymentPage() {
                 </div>
               </div>
 
-              {/* PayPal button */}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                disabled={state === 'processing'}
-                onClick={handlePayPal}
-                className="w-full py-4 rounded-2xl font-semibold text-white bg-[#0070ba] hover:bg-[#005ea6] shadow-lg transition-all flex items-center justify-center gap-3 disabled:opacity-60"
-              >
-                {state === 'processing' ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    {t('payment.redirecting')}
-                  </>
-                ) : (
-                  <>
-                    {/* PayPal logo mark */}
-                    <svg className="h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
-                    </svg>
-                    {t('payment.paypal')}
-                  </>
-                )}
-              </motion.button>
+              {/* Payment buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Stripe */}
+                {/* Stripe Button - Temporarily disabled for live keys */}
+                <motion.button
+                  whileHover={false}
+                  whileTap={false}
+                  disabled={true}
+                  onClick={handleStripe}
+                  className="w-full py-4 px-6 rounded-2xl font-semibold text-white bg-gradient-to-r from-[#635bff] to-[#7a73ff] opacity-50 cursor-not-allowed flex items-center justify-center gap-2.5 border border-white/10"
+                  title="Stripe payments are temporarily disabled"
+                >
+                  {state === 'processing' && processingMethod === 'stripe' ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin flex-shrink-0" />
+                      <span className="text-sm sm:text-base">{t('payment.redirectingStripe')}</span>
+                    </>
+                  ) : (
+                    <>
+                      {/* Stripe icon */}
+                      <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.04 9.36c0-.93.76-1.29 2.02-1.29 1.8 0 4.09.55 5.89 1.52V4.07C18.98 3.38 17.01 3 15.07 3c-4.16 0-6.93 2.17-6.93 5.79 0 5.65 7.78 4.75 7.78 7.18 0 1.1-.96 1.46-2.28 1.46-1.97 0-4.49-.81-6.49-1.9v5.61c2.2.95 4.43 1.35 6.49 1.35 4.27 0 7.21-2.12 7.21-5.78-.04-6.1-7.81-5.02-7.81-7.35z" fill="currentColor"/>
+                      </svg>
+                      <span className="text-sm sm:text-base whitespace-nowrap">Pay with Stripe</span>
+                      {/* Card logos */}
+                      <span className="flex items-center gap-1 opacity-70 scale-90 flex-shrink-0">
+                        <span className="bg-white/20 rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wider">VISA</span>
+                        <span className="bg-white/20 rounded px-1.5 py-0.5 text-[9px] font-bold tracking-wider">MC</span>
+                      </span>
+                    </>
+                  )}
+                </motion.button>
+
+                {/* PayPal */}
+                <motion.button
+                  whileHover={state !== 'processing' ? { y: -3, scale: 1.02, boxShadow: '0 12px 30px -4px rgba(0, 112, 186, 0.4)' } : {}}
+                  whileTap={state !== 'processing' ? { scale: 0.98 } : {}}
+                  disabled={state === 'processing'}
+                  onClick={handlePayPal}
+                  className={`w-full py-4 px-6 rounded-2xl font-semibold text-white bg-[#0070ba] hover:bg-[#005ea6] shadow-lg transition-all flex items-center justify-center gap-2.5 border border-white/10 ${
+                    state === 'processing'
+                      ? processingMethod === 'paypal'
+                        ? 'cursor-wait shadow-inner'
+                        : 'opacity-30 cursor-not-allowed pointer-events-none scale-95'
+                      : 'cursor-pointer'
+                  }`}
+                >
+                  {state === 'processing' && processingMethod === 'paypal' ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin flex-shrink-0" />
+                      <span className="text-sm sm:text-base">{t('payment.redirectingPaypal')}</span>
+                    </>
+                  ) : (
+                    <>
+                      {/* PayPal logo mark */}
+                      <svg className="h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7.076 21.337H2.47a.641.641 0 01-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z" />
+                      </svg>
+                      <span className="text-sm sm:text-base">Pay</span>
+                    </>
+                  )}
+                </motion.button>
+              </div>
 
               <p className="text-xs text-neutral-gray text-center mt-4 flex items-center justify-center gap-1">
                 🔒 {t('payment.secure')}

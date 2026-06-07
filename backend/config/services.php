@@ -43,4 +43,11 @@ return [
         'payee_email' => env('PAYPAL_PAYEE_EMAIL', 'joy97ta@gmail.com'),
     ],
 
+    'stripe' => [
+        'key'             => env('STRIPE_KEY', ''),
+        'secret'          => env('STRIPE_SECRET', ''),
+        'currency'        => env('STRIPE_CURRENCY', 'EUR'),
+        'webhook_secret'  => env('STRIPE_WEBHOOK_SECRET', ''),
+    ],
+
 ];

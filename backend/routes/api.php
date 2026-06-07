@@ -77,12 +77,18 @@ $throttleMiddleware = app()->environment('local') ? 'throttle:100,1' : 'throttle
 
 Route::middleware([$throttleMiddleware])->group(function () {
     Route::post('/booking/create', [BookingController::class, 'create']);
+    // PayPal
     Route::post('/payment/create-order', [PaymentController::class, 'createOrder']);
     Route::post('/payment/capture', [PaymentController::class, 'capture']);
+    // Stripe
+    Route::post('/payment/stripe/create-session', [PaymentController::class, 'stripeCreateSession']);
+    Route::post('/payment/stripe/capture', [PaymentController::class, 'stripeCapture']);
 });
 
 // PayPal webhook — no throttle, no CSRF
 Route::post('/payment/webhook', [PaymentController::class, 'webhook']);
+// Stripe webhook — no throttle, no CSRF
+Route::post('/payment/stripe/webhook', [PaymentController::class, 'stripeWebhook']);
 Route::get('/coupons/validate', [APICouponController::class, 'validate']);
 
 /*

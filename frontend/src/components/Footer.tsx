@@ -65,6 +65,16 @@ export default function Footer() {
                   {t('footer.cookies')}
                 </Link>
               </li>
+              <li>
+                <button
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('open-cookie-settings'));
+                  }}
+                  className="text-gray-400 text-sm hover:text-accent transition-colors text-left font-modern focus:outline-none"
+                >
+                  {t('cookieConsent.settings')}
+                </button>
+              </li>
             </ul>
           </div>
 

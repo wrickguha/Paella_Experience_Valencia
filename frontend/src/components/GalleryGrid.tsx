@@ -5,6 +5,9 @@ import SectionWrapper from './SectionWrapper';
 import { fetchGallery } from '@/services/api';
 import type { GalleryImage } from '@/services/api';
 
+// Module-level cache so gallery isn't re-fetched on every language toggle
+const galleryCache = new Map<string, GalleryImage[]>();
+
 // Real event photos — used as fallback when API returns no data
 const LOCAL_GALLERY: GalleryImage[] = [
   { src: '/storage/assets/images/casa-magnolia/Chef Gene.jpg',       alt: 'Chef Gene presenting the paella at Casa Magnolia' },
@@ -18,13 +21,27 @@ const LOCAL_GALLERY: GalleryImage[] = [
 export default function GalleryGrid() {
   const { t, i18n } = useTranslation();
   const [images, setImages] = useState<GalleryImage[]>([]);
-
+  const lang = i18n.language.startsWith('es') ? 'es' : 'en';
   useEffect(() => {
-    const lang = i18n.language.startsWith('es') ? 'es' : 'en';
+    const cacheKey = `homepage-${lang}`;
+    if (galleryCache.has(cacheKey)) {
+      setImages(galleryCache.get(cacheKey)!);
+      return;
+    }
+
+    let cancelled = false;
     fetchGallery('homepage', lang)
-      .then((data) => setImages(data.length > 0 ? data : LOCAL_GALLERY))
-      .catch(() => setImages(LOCAL_GALLERY));
-  }, [i18n.language]);
+      .then((data) => {
+        if (cancelled) return;
+        const result = data.length > 0 ? data : LOCAL_GALLERY;
+        galleryCache.set(cacheKey, result);
+        setImages(result);
+      })
+      .catch(() => {
+        if (!cancelled) setImages(LOCAL_GALLERY);
+      });
+    return () => { cancelled = true; };
+  }, [lang]);
 
   const captions = [
     "Strangers → Friends",
@@ -61,7 +78,8 @@ export default function GalleryGrid() {
             <img
               src={image.src}
               alt={image.alt}
-              loading="lazy"
+              loading={index === 0 ? 'eager' : 'lazy'}
+              fetchPriority={index === 0 ? 'high' : 'auto'}
               className="w-full h-full object-cover transition-transform duration-500
                          group-hover:scale-110"
             />

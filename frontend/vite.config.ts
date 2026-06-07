@@ -8,6 +8,24 @@ export default defineConfig({
   build: {
     outDir: '../backend/public/frontend',
     emptyOutDir: true,
+    // Raise chunk size warning threshold (framer-motion is large)
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        // Manual chunk splitting: isolate large vendor libraries so they are
+        // cached separately from app code that changes frequently
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-router': ['react-router-dom'],
+          'vendor-motion': ['framer-motion'],
+          'vendor-i18n': ['i18next', 'react-i18next'],
+          'vendor-axios': ['axios'],
+          'vendor-icons': ['react-icons'],
+        },
+      },
+    },
+    // Generate source maps only in development
+    sourcemap: false,
   },
   resolve: {
     alias: {

@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import StickyMobileCTA from '@/components/StickyMobileCTA';
+import CookieConsent from '@/components/CookieConsent';
 
 export default function MainLayout() {
   return (
@@ -12,6 +13,8 @@ export default function MainLayout() {
       </main>
       <Footer />
       <StickyMobileCTA />
+      <CookieConsent />
     </div>
   );
 }
+

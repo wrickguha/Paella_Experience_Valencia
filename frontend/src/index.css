@@ -21,6 +21,9 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Always reserve scrollbar space so it never causes a layout shift */
+    scrollbar-gutter: stable;
+    overflow-y: scroll;
   }
 
   body {

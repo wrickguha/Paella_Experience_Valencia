@@ -4,7 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 import { useAuth } from '@/context/AuthContext';
-import { fetchCalendarMonth } from '@/services/api';
+import { fetchCalendarMonthCached } from '@/hooks/useCalendarMonth';
 import type { CalendarEvent, LocationId } from '@/services/api';
 import AvailabilityCalendar from '@/components/booking/AvailabilityCalendar';
 import EventDetailModal from '@/components/booking/EventDetailModal';
@@ -81,7 +81,7 @@ export default function BookingPage() {
         const month = parseInt(parts[1], 10) - 1; // 0-indexed for fetchCalendarMonth
         
         setPrefillLoading(true);
-        fetchCalendarMonth(year, month)
+        fetchCalendarMonthCached(year, month)
           .then((events) => {
             const match = events.find(
               (e) =>

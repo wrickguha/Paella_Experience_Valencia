@@ -15,6 +15,7 @@ class Payment extends Model
         'payment_method',
         'transaction_id',
         'paypal_order_id',
+        'stripe_session_id',
         'amount',
         'status',
         'response_json',

@@ -273,11 +273,17 @@ export const bookingApi = {
 };
 
 export const paymentApi = {
+  // PayPal
   createOrder: (bookingId: number) =>
     apiClient.post('/payment/create-order', { booking_id: bookingId }),
   capture: (orderId: string) =>
     apiClient.post('/payment/capture', { order_id: orderId }),
   validateCoupon: (code: string) => apiClient.get('/coupons/validate', { params: { code } }),
+  // Stripe
+  stripeCreateSession: (bookingId: number) =>
+    apiClient.post('/payment/stripe/create-session', { booking_id: bookingId }),
+  stripeCapture: (sessionId: string) =>
+    apiClient.post('/payment/stripe/capture', { session_id: sessionId }),
 };
 
 // ── About API ──────────────────────────────────────────────────────

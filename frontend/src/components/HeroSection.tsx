@@ -29,6 +29,7 @@ export default function HeroSection() {
           loop
           muted
           playsInline
+          preload="none"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
