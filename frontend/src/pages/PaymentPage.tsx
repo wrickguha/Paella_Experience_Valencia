@@ -331,8 +331,8 @@ export default function PaymentPage() {
                 {/* Stripe */}
                 {/* Stripe Button - Temporarily disabled for live keys */}
                 <motion.button
-                  whileHover={false}
-                  whileTap={false}
+                  whileHover={undefined}
+                  whileTap={undefined}
                   disabled={true}
                   onClick={handleStripe}
                   className="w-full py-4 px-6 rounded-2xl font-semibold text-white bg-gradient-to-r from-[#635bff] to-[#7a73ff] opacity-50 cursor-not-allowed flex items-center justify-center gap-2.5 border border-white/10"
