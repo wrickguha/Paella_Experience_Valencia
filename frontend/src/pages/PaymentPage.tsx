@@ -329,14 +329,18 @@ export default function PaymentPage() {
               {/* Payment buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Stripe */}
-                {/* Stripe Button - Temporarily disabled for live keys */}
                 <motion.button
-                  whileHover={undefined}
-                  whileTap={undefined}
-                  disabled={true}
+                  whileHover={state !== 'processing' ? { y: -3, scale: 1.02, boxShadow: '0 12px 30px -4px rgba(99, 91, 255, 0.4)' } : {}}
+                  whileTap={state !== 'processing' ? { scale: 0.98 } : {}}
+                  disabled={state === 'processing'}
                   onClick={handleStripe}
-                  className="w-full py-4 px-6 rounded-2xl font-semibold text-white bg-gradient-to-r from-[#635bff] to-[#7a73ff] opacity-50 cursor-not-allowed flex items-center justify-center gap-2.5 border border-white/10"
-                  title="Stripe payments are temporarily disabled"
+                  className={`w-full py-4 px-6 rounded-2xl font-semibold text-white bg-gradient-to-r from-[#635bff] to-[#7a73ff] shadow-lg transition-all flex items-center justify-center gap-2.5 border border-white/10 ${
+                    state === 'processing'
+                      ? processingMethod === 'stripe'
+                        ? 'cursor-wait shadow-inner'
+                        : 'opacity-30 cursor-not-allowed pointer-events-none scale-95'
+                      : 'cursor-pointer'
+                  }`}
                 >
                   {state === 'processing' && processingMethod === 'stripe' ? (
                     <>
