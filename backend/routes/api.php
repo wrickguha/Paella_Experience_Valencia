@@ -73,7 +73,7 @@ Route::post('/leads', [LeadController::class, 'store']);
 |--------------------------------------------------------------------------
 */
 
-$throttleMiddleware = app()->environment('local') ? 'throttle:100,1' : 'throttle:10,1';
+$throttleMiddleware = app()->environment('local') ? 'throttle:100,1' : 'throttle:30,1';
 
 Route::middleware([$throttleMiddleware])->group(function () {
     Route::post('/booking/create', [BookingController::class, 'create']);
