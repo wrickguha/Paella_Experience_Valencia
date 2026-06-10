@@ -24,10 +24,13 @@
     /* Always reserve scrollbar space so it never causes a layout shift */
     scrollbar-gutter: stable;
     overflow-y: scroll;
+    overflow-x: hidden;
+    max-width: 100%;
   }
 
   body {
-    @apply font-modern text-text-primary bg-bg-main;
+    @apply font-modern text-text-primary bg-bg-main overflow-x-hidden;
+    max-width: 100%;
   }
 
   h1, h2, h3, h4 {
