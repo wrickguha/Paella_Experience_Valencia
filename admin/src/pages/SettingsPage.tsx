@@ -20,20 +20,6 @@ interface GroupConfig {
 
 const GROUPS: GroupConfig[] = [
   {
-    label: 'General',
-    icon: '🏠',
-    fields: [
-      { key: 'site_name_en', label: 'Site Name (EN)', type: 'text' },
-      { key: 'site_name_es', label: 'Site Name (ES)', type: 'text' },
-      { key: 'tagline_en', label: 'Tagline (EN)', type: 'text' },
-      { key: 'tagline_es', label: 'Tagline (ES)', type: 'text' },
-      { key: 'hero_title_en', label: 'Hero Title (EN)', type: 'text' },
-      { key: 'hero_title_es', label: 'Hero Title (ES)', type: 'text' },
-      { key: 'hero_subtitle_en', label: 'Hero Subtitle (EN)', type: 'textarea' },
-      { key: 'hero_subtitle_es', label: 'Hero Subtitle (ES)', type: 'textarea' },
-    ],
-  },
-  {
     label: 'Contact',
     icon: '📞',
     fields: [
@@ -53,42 +39,6 @@ const GROUPS: GroupConfig[] = [
       { key: 'social_facebook', label: 'Facebook URL', type: 'url' },
       { key: 'social_tripadvisor', label: 'TripAdvisor URL', type: 'url' },
       { key: 'social_google', label: 'Google Maps URL', type: 'url' },
-    ],
-  },
-  {
-    label: 'Stats Bar',
-    icon: '📊',
-    fields: [
-      { key: 'stat_events', label: 'Events Count', type: 'number' },
-      { key: 'stat_events_label_en', label: 'Events Label (EN)', type: 'text' },
-      { key: 'stat_events_label_es', label: 'Events Label (ES)', type: 'text' },
-      { key: 'stat_guests', label: 'Guests Count', type: 'number' },
-      { key: 'stat_guests_label_en', label: 'Guests Label (EN)', type: 'text' },
-      { key: 'stat_guests_label_es', label: 'Guests Label (ES)', type: 'text' },
-      { key: 'stat_rating', label: 'Rating', type: 'text' },
-      { key: 'stat_rating_label_en', label: 'Rating Label (EN)', type: 'text' },
-      { key: 'stat_rating_label_es', label: 'Rating Label (ES)', type: 'text' },
-    ],
-  },
-  {
-    label: 'Footer',
-    icon: '📄',
-    fields: [
-      { key: 'footer_text_en', label: 'Footer Text (EN)', type: 'textarea' },
-      { key: 'footer_text_es', label: 'Footer Text (ES)', type: 'textarea' },
-      { key: 'privacy_url', label: 'Privacy Policy URL', type: 'url' },
-      { key: 'terms_url', label: 'Terms & Conditions URL', type: 'url' },
-    ],
-  },
-  {
-    label: 'Booking',
-    icon: '📅',
-    fields: [
-      { key: 'booking_enabled', label: 'Booking Enabled', type: 'toggle' },
-      { key: 'max_guests_per_booking', label: 'Max Guests per Booking', type: 'number' },
-      { key: 'booking_notice_hours', label: 'Booking Notice (hours)', type: 'number' },
-      { key: 'cancellation_hours', label: 'Cancellation Window (hours)', type: 'number' },
-      { key: 'currency', label: 'Currency', type: 'text' },
     ],
   },
 ];
