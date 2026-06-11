@@ -5,17 +5,7 @@ import {
   Euro,
   CalendarDays,
   Users,
-  TrendingUp,
 } from 'lucide-react';
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
 import { dashboardApi } from '@/services/api';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import PageHeader, { Card, StatCard, Badge, Spinner } from '@/components/ui';
@@ -45,12 +35,6 @@ interface RecentBooking {
   location_name: string;
 }
 
-interface ChartPoint {
-  month: string;
-  revenue: number;
-  bookings: number;
-}
-
 const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
   paid: 'success',
   pending: 'warning',
@@ -61,19 +45,16 @@ const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'danger' | 'info'> 
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [bookings, setBookings] = useState<RecentBooking[]>([]);
-  const [chart, setChart] = useState<ChartPoint[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       dashboardApi.stats(),
       dashboardApi.recentBookings(),
-      dashboardApi.revenueChart(),
     ])
-      .then(([s, b, c]) => {
+      .then(([s, b]) => {
         setStats(s.data);
         setBookings(b.data);
-        setChart(c.data);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -171,40 +152,6 @@ export default function DashboardPage() {
       </div>
 
 
-
-      {/* Revenue Chart */}
-      {chart.length > 0 && (
-        <Card className="p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-neutral-dark">Revenue Overview</h2>
-            <TrendingUp className="w-5 h-5 text-neutral-gray" />
-          </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chart}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 8,
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 2px 8px rgba(0,0,0,.08)',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#E86F2C"
-                  fill="#E86F2C"
-                  fillOpacity={0.1}
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      )}
 
       {/* Recent Bookings */}
       <Card>
