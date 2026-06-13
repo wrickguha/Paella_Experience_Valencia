@@ -56,8 +56,6 @@ export default function MeetupWidget() {
         aria-label="Find us on Meetup"
         style={{
           position: 'fixed',
-          bottom: 24,
-          right: 20,
           zIndex: 9000,
           display: 'flex',
           alignItems: 'center',
@@ -78,7 +76,7 @@ export default function MeetupWidget() {
           // smooth entrance
           animation: 'meetup-pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both',
           animationDelay: '0.8s',
-          transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+          transition: 'transform 0.2s ease, box-shadow 0.2s ease, bottom 0.2s ease',
         }}
         /* hover handled via CSS class below */
         className="meetup-widget"
@@ -88,6 +86,12 @@ export default function MeetupWidget() {
       </a>
 
       <style>{`
+        /* Default position for desktop and tablets (bottom-left) */
+        .meetup-widget {
+          left: 20px;
+          bottom: 24px;
+        }
+
         /* Pop-in entrance */
         @keyframes meetup-pop-in {
           from { opacity: 0; transform: scale(0.6) translateY(20px); }
@@ -103,10 +107,20 @@ export default function MeetupWidget() {
           transform: translateY(0) scale(0.97);
         }
 
-        /* Mobile: hide label text, show icon-only pill */
+        /* Mobile / Small Screens: shift up to clear the StickyMobileCTA bottom bar */
+        @media (max-width: 767px) {
+          .meetup-widget {
+            bottom: 96px;
+            left: 20px;
+          }
+        }
+
+        /* Extra Small Mobile: hide label text, show icon-only pill */
         @media (max-width: 480px) {
           .meetup-widget {
             padding: 10px 12px;
+            bottom: 92px;
+            left: 16px;
           }
           .meetup-widget-label {
             display: none;
