@@ -142,6 +142,18 @@ function ImageSlider({ images, alt }: ImageSliderProps) {
 export default function EventDetailModal({ events, date, isOpen, onClose, onBook }: Props) {
   const { t } = useTranslation();
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const formattedDate = new Date(date + 'T00:00:00').toLocaleDateString(undefined, {
     weekday: 'long',
     year: 'numeric',
@@ -168,8 +180,19 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
             exit={{ opacity: 0, y: 40, scale: 0.97 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative bg-white rounded-2xl shadow-elevated w-full max-w-lg max-h-[85vh] overflow-y-auto"
+            className="relative bg-white rounded-2xl shadow-elevated w-full max-w-lg max-h-[85vh] overflow-y-auto hide-scrollbar"
           >
+            {/* Scoped style to hide scrollbar */}
+            <style>{`
+              .hide-scrollbar::-webkit-scrollbar {
+                display: none;
+              }
+              .hide-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+              }
+            `}</style>
+
             {/* Close button */}
             <button
               onClick={onClose}

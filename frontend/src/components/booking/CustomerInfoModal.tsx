@@ -66,6 +66,18 @@ export default function CustomerInfoModal({ isOpen, onClose, onContinue }: Props
     }
   }, [isOpen, user]);
 
+  // Prevent background scrolling when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const clearError = (key: string) =>
     setErrors((prev) => { const next = { ...prev }; delete next[key]; return next; });
 
