@@ -176,6 +176,7 @@ export interface CalendarEvent {
   spotsLeft: number;
   pricePerPerson: number;
   image: string;
+  gallery: string[];
 }
 
 /**
@@ -217,6 +218,7 @@ export function getAllEventsForMonth(year: number, month: number): CalendarEvent
           spotsLeft: slot.spotsLeft,
           pricePerPerson: loc.pricePerPerson,
           image: loc.image,
+          gallery: [loc.image],
         });
       }
     }

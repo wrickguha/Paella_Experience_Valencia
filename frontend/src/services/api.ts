@@ -31,6 +31,7 @@ export interface CalendarEvent {
   spotsLeft: number;
   pricePerPerson: number;
   image: string;
+  gallery: string[];
   address: string;
   maps_link: string | null;
 }
@@ -122,6 +123,12 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
     .filter((e) => e.is_available)
     .map((e) => {
       const loc = locations.find((l) => l.id === e.location_id);
+      const primaryImage = getFullImageUrl(loc?.image ?? loc?.hero_image ?? loc?.gallery?.[0] ?? '');
+      const galleryImages = (loc?.gallery ?? []).map(getFullImageUrl).filter(Boolean);
+      // Build the full gallery: primary image first, then any additional gallery images
+      const allImages = primaryImage
+        ? [primaryImage, ...galleryImages.filter((g) => g !== primaryImage)]
+        : galleryImages;
       return {
         date: e.date,
         locationId: slugFromName(e.location),
@@ -131,7 +138,8 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
         spotsLeft: e.available_slots,
         pricePerPerson: e.experience_price || loc?.price || 59,
-        image: getFullImageUrl(loc?.image ?? loc?.hero_image ?? loc?.gallery?.[0] ?? ''),
+        image: primaryImage,
+        gallery: allImages,
         address: loc?.address ?? '',
         maps_link: loc?.maps_link ?? null,
       };
