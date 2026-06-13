@@ -70,11 +70,11 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
                   className="group rounded-xl border border-neutral-sand/40 overflow-hidden hover:shadow-card transition-shadow"
                 >
                   {/* Image */}
-                  <div className="relative h-36 overflow-hidden">
+                  <div className="relative h-56 sm:h-64 bg-neutral-cream overflow-hidden flex items-center justify-center">
                     <img
                       src={event.image}
                       alt={event.locationName}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                       onError={(e) => {
                         const target = e.currentTarget;
