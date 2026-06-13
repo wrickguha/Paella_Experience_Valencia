@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { CalendarEvent } from '@/services/api';
@@ -20,6 +20,7 @@ interface ImageSliderProps {
 function ImageSlider({ images, alt }: ImageSliderProps) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0); // +1 = forward, -1 = backward
+  const paused = useRef(false);
 
   const go = useCallback(
     (next: number) => {
@@ -33,6 +34,18 @@ function ImageSlider({ images, alt }: ImageSliderProps) {
   const next = useCallback(() => go((index + 1) % images.length), [go, index, images.length]);
 
   const hasMultiple = images.length > 1;
+
+  // Auto-advance every 5 s; pauses while the user hovers or drags
+  useEffect(() => {
+    if (!hasMultiple) return;
+    const id = setInterval(() => {
+      if (!paused.current) {
+        setDirection(1);
+        setIndex((i) => (i + 1) % images.length);
+      }
+    }, 5000);
+    return () => clearInterval(id);
+  }, [hasMultiple, images.length]);
 
   // Swipe handling via drag
   const handleDragEnd = useCallback(
@@ -50,7 +63,11 @@ function ImageSlider({ images, alt }: ImageSliderProps) {
   };
 
   return (
-    <div className="relative h-56 sm:h-64 bg-neutral-cream overflow-hidden">
+    <div
+      className="relative h-56 sm:h-64 bg-neutral-cream overflow-hidden"
+      onMouseEnter={() => { paused.current = true; }}
+      onMouseLeave={() => { paused.current = false; }}
+    >
       <AnimatePresence initial={false} custom={direction} mode="popLayout">
         <motion.img
           key={index}
