@@ -19,6 +19,7 @@ class Location extends Model
         'maps_link',
         'image',
         'availability_type',
+        'category',
         'is_active',
     ];
 

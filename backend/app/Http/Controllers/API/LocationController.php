@@ -60,6 +60,7 @@ class LocationController extends Controller
             'hero_image' => $this->imageUrl($firstExp?->hero_image ?? $loc->image),
             'gallery' => $loc->images->map(fn ($img) => $this->imageUrl($img->image))->values()->toArray(),
             'availability_type' => $loc->availability_type,
+            'category' => $loc->category ?? 'city',
             'price' => $firstExp
                 ? (float) $firstExp->price
                 : null,

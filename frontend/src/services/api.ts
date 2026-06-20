@@ -165,6 +165,7 @@ export interface FrontendLocation {
   hero_image: string | null;
   gallery: string[];
   availability_type: string;
+  category: 'city' | 'countryside';
   price: number | null;
   features: string[];
   schedules: LocationSchedule[];

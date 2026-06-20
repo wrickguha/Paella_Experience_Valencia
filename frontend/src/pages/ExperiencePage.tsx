@@ -128,6 +128,15 @@ function LocationSection({
                 {availability}
               </span>
             )}
+            {location.category && (
+              <span className={`absolute top-4 right-4 text-white text-xs font-semibold px-3 py-1.5 rounded-full ${
+                location.category === 'countryside'
+                  ? 'bg-emerald-600'
+                  : 'bg-slate-700'
+              }`}>
+                {location.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+              </span>
+            )}
             {/* Dots indicator */}
             {images.length > 1 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">

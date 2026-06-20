@@ -62,6 +62,7 @@ class LocationController extends Controller
                 'maps_link' => $l->maps_link,
                 'image' => $this->imageUrl($l->image),
                 'availability_type' => $l->availability_type,
+                'category' => $l->category ?? 'city',
                 'is_active' => $l->is_active,
                 'gallery' => $this->galleryData($l),
                 'schedules' => $l->schedules->map(fn ($s) => [
@@ -97,6 +98,7 @@ class LocationController extends Controller
             'maps_link' => $l->maps_link,
             'image' => $this->imageUrl($l->image),
             'availability_type' => $l->availability_type,
+            'category' => $l->category ?? 'city',
             'is_active' => $l->is_active,
             'gallery' => $this->galleryData($l),
             'schedules' => $l->schedules->map(fn ($s) => [
@@ -121,6 +123,7 @@ class LocationController extends Controller
             'address' => 'nullable|string|max:500',
             'maps_link' => 'nullable|string|max:1000',
             'availability_type' => 'nullable|in:weekly,custom',
+            'category' => 'nullable|in:city,countryside',
             'is_active' => 'nullable',
         ]);
 
@@ -130,6 +133,7 @@ class LocationController extends Controller
         $data['description_es'] = $data['description_es'] ?? '';
         $data['address'] = $data['address'] ?? '';
         $data['maps_link'] = $data['maps_link'] ?? null;
+        $data['category'] = $data['category'] ?? 'city';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('locations', 'public');
@@ -157,6 +161,7 @@ class LocationController extends Controller
             'address' => 'nullable|string|max:500',
             'maps_link' => 'nullable|string|max:1000',
             'availability_type' => 'nullable|in:weekly,custom',
+            'category' => 'nullable|in:city,countryside',
             'is_active' => 'nullable',
         ]);
 
@@ -166,6 +171,7 @@ class LocationController extends Controller
         $data['description_es'] = $data['description_es'] ?? '';
         $data['address'] = $data['address'] ?? '';
         $data['maps_link'] = $data['maps_link'] ?? null;
+        $data['category'] = $data['category'] ?? 'city';
 
         if ($request->hasFile('image')) {
             if ($location->image) {

@@ -49,6 +49,7 @@ interface Location {
   maps_link?: string;
   image: string;
   availability_type: string;
+  category: 'city' | 'countryside';
   is_active: boolean;
   schedules?: ScheduleEntry[];
   // Experience fields
@@ -63,7 +64,7 @@ interface Location {
 
 const EMPTY: Partial<Location> = {
   name_en: '', name_es: '', description_en: '', description_es: '',
-  address: '', maps_link: '', availability_type: 'weekly', is_active: true, schedules: [],
+  address: '', maps_link: '', availability_type: 'weekly', category: 'city', is_active: true, schedules: [],
   subtitle_en: '', subtitle_es: '', price: null, duration: '', features: [],
 };
 
@@ -146,6 +147,7 @@ export default function LocationsPage() {
       fd.append('description_es', editing.description_es || '');
       fd.append('maps_link', editing.maps_link || '');
       fd.append('availability_type', editing.availability_type || 'weekly');
+      fd.append('category', editing.category || 'city');
       fd.append('is_active', editing.is_active ? '1' : '0');
       // Combine weekly and custom date schedules into one array
       const schedulesData =
@@ -215,6 +217,15 @@ export default function LocationsPage() {
       key: 'price',
       header: 'Price',
       render: (r: Location) => r.price != null ? formatCurrency(r.price) : '—',
+    },
+    {
+      key: 'category',
+      header: 'Category',
+      render: (r: Location) => (
+        <Badge variant={r.category === 'countryside' ? 'success' : 'info'}>
+          {r.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+        </Badge>
+      ),
     },
     {
       key: 'availability_type',
@@ -293,6 +304,15 @@ export default function LocationsPage() {
               setEditing({ ...editing, availability_type: e.target.value });
             }}
             options={[{ value: 'weekly', label: 'Weekly Schedule' }, { value: 'custom', label: 'Custom Dates' }]}
+          />
+          <FormSelect
+            label="Category"
+            value={editing.category || 'city'}
+            onChange={(e) => setEditing({ ...editing, category: e.target.value as 'city' | 'countryside' })}
+            options={[
+              { value: 'city', label: '🏙️ City' },
+              { value: 'countryside', label: '🌿 Countryside' },
+            ]}
           />
           <div className="flex items-end">
             <FormToggle label="Active" checked={editing.is_active ?? true} onChange={(v) => setEditing({ ...editing, is_active: v })} />
