@@ -209,7 +209,7 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
       </div>
 
       {/* Right Column: Title, Description, Features & Booking CTA */}
-      <div className="md:col-span-6 flex flex-col justify-between h-full gap-4">
+      <div className="md:col-span-6 flex flex-col justify-between h-full gap-4 md:overflow-y-auto md:pr-2">
         <div>
           <h3 className="font-display text-2xl sm:text-3xl font-bold text-neutral-dark mb-1">
             {location.name}
@@ -217,7 +217,7 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
           {location.subtitle && (
             <p className="text-primary font-heading font-semibold text-xs sm:text-sm mb-3">{location.subtitle}</p>
           )}
-          <div className="text-neutral-gray font-body leading-relaxed text-xs sm:text-sm mb-4 overflow-y-auto max-h-[160px] md:max-h-[220px] pr-2 space-y-3">
+          <div className="text-neutral-gray font-body leading-relaxed text-xs sm:text-sm mb-4 space-y-3">
             {location.description.split('\n').filter(Boolean).map((para, i) => (
               <p key={i}>{para.trim()}</p>
             ))}
