@@ -217,9 +217,11 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
           {location.subtitle && (
             <p className="text-primary font-heading font-semibold text-xs sm:text-sm mb-3">{location.subtitle}</p>
           )}
-          <p className="text-neutral-gray font-body leading-relaxed text-xs sm:text-sm mb-4 overflow-y-auto max-h-[160px] md:max-h-[220px] pr-2">
-            {location.description}
-          </p>
+          <div className="text-neutral-gray font-body leading-relaxed text-xs sm:text-sm mb-4 overflow-y-auto max-h-[160px] md:max-h-[220px] pr-2 space-y-3">
+            {location.description.split('\n').filter(Boolean).map((para, i) => (
+              <p key={i}>{para.trim()}</p>
+            ))}
+          </div>
 
           {/* Features */}
           {location.features && location.features.length > 0 && (

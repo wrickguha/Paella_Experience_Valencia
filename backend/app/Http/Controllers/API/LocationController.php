@@ -56,11 +56,13 @@ class LocationController extends Controller
     {
         $firstExp = $loc->experiences->where('is_active', true)->sortBy('sort_order')->first();
 
+        $expDesc = $firstExp ? ($lang === 'es' ? $firstExp->description_es : $firstExp->description_en) : null;
+
         $data = [
             'id' => $loc->id,
             'name' => $loc->getLocalizedName($lang),
             'subtitle' => $firstExp ? ($lang === 'es' ? $firstExp->title_es : $firstExp->title_en) : null,
-            'description' => $loc->getLocalizedDescription($lang),
+            'description' => $expDesc ?: $loc->getLocalizedDescription($lang),
             'address' => $loc->address,
             'maps_link' => $loc->maps_link,
             'image' => $this->imageUrl($loc->image),
