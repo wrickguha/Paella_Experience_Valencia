@@ -50,18 +50,57 @@ function formatTime(schedules: LocationSchedule[]): string {
   return `${start} – ${end}`;
 }
 
+function cleanImageUrl(url: string | null): string {
+  if (!url) return '';
+  if (url.startsWith('http')) {
+    const storageIndex = url.indexOf('/storage/');
+    if (storageIndex !== -1) {
+      return url.substring(storageIndex);
+    }
+    const assetsIndex = url.indexOf('/assets/');
+    if (assetsIndex !== -1) {
+      return url.substring(assetsIndex);
+    }
+  }
+  return url;
+}
+
+function SafeImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [error, setError] = useState(false);
+
+  if (error || !src) {
+    return (
+      <div className="w-full h-full bg-neutral-sand/10 border-b border-neutral-sand/10 flex flex-col items-center justify-center text-neutral-dark p-4 gap-2 text-center min-h-[180px]">
+        <span className="text-3xl">📍</span>
+        <span className="text-[10px] font-semibold text-neutral-gray uppercase tracking-wider">Image unavailable</span>
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      onError={() => setError(true)}
+      loading="lazy"
+    />
+  );
+}
+
 // ── ModalLocationDetails ──────────────────────────────────────────
 function ModalLocationDetails({ location }: { location: FrontendLocation }) {
   const { t } = useTranslation();
   const locationSlug = slugFromName(location.name);
   const availability = formatAvailability(location.schedules, location.availability_type);
   const time = formatTime(location.schedules);
-  const fallbackImage = location.hero_image || location.image || '';
+  const fallbackImage = cleanImageUrl(location.hero_image || location.image || '');
   const images = location.gallery && location.gallery.length > 0
-    ? location.gallery
+    ? location.gallery.map(cleanImageUrl)
     : fallbackImage ? [fallbackImage] : [];
   const [currentSlide, setCurrentSlide] = useState(0);
   const [slideDir, setSlideDir] = useState(1);
+  const [slideErrors, setSlideErrors] = useState<Record<number, boolean>>({});
 
   const nextSlide = useCallback(() => {
     setSlideDir(1);
@@ -81,23 +120,31 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
         <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:h-[400px]">
           <AnimatePresence initial={false} custom={slideDir}>
             {images.length > 0 && (
-              <motion.img
-                key={currentSlide}
-                custom={slideDir}
-                src={images[currentSlide]}
-                alt={`${location.name} ${currentSlide + 1}`}
-                className="absolute inset-0 w-full h-full object-cover"
-                variants={{
-                  enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
-                  center: { opacity: 1, x: 0 },
-                  exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
-                }}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                loading="lazy"
-              />
+              slideErrors[currentSlide] ? (
+                <div key={`err-${currentSlide}`} className="absolute inset-0 bg-neutral-sand/10 flex flex-col items-center justify-center text-neutral-dark p-4 gap-2 text-center">
+                  <span className="text-4xl">📍</span>
+                  <span className="text-xs font-semibold text-neutral-gray uppercase tracking-wider">Image unavailable</span>
+                </div>
+              ) : (
+                <motion.img
+                  key={currentSlide}
+                  custom={slideDir}
+                  src={images[currentSlide]}
+                  onError={() => setSlideErrors(prev => ({ ...prev, [currentSlide]: true }))}
+                  alt={`${location.name} ${currentSlide + 1}`}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  variants={{
+                    enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
+                    center: { opacity: 1, x: 0 },
+                    exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
+                  }}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  loading="lazy"
+                />
+              )
             )}
           </AnimatePresence>
         </div>
@@ -475,29 +522,22 @@ export default function ExperiencePage() {
                             </p>
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div className="flex flex-wrap justify-center gap-6 items-stretch">
                             {filteredLocations.map((loc) => {
-                              const fallbackImage = loc.hero_image || loc.image || '';
+                              const fallbackImage = cleanImageUrl(loc.hero_image || loc.image || '');
                               return (
                                 <motion.div
                                   key={loc.id}
                                   whileHover={{ y: -6, scale: 1.02 }}
-                                  className="bg-neutral-cream/40 border border-neutral-sand/20 rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col h-full transition-all duration-300 group"
+                                  className="w-full max-w-[320px] bg-neutral-cream/40 border border-neutral-sand/20 rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col h-auto transition-all duration-300 group"
                                   onClick={() => setSelectedLocation(loc)}
                                 >
                                   <div className="relative aspect-[4/3] overflow-hidden">
-                                    {fallbackImage ? (
-                                      <img
-                                        src={fallbackImage}
-                                        alt={loc.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                        loading="lazy"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-neutral-sand/20 flex items-center justify-center text-4xl">
-                                        📍
-                                      </div>
-                                    )}
+                                    <SafeImage
+                                      src={fallbackImage}
+                                      alt={loc.name}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
                                     {loc.category && (
                                       <span className="absolute top-3 right-3 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
                                         {loc.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
