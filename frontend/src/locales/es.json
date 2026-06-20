@@ -322,6 +322,18 @@
     }
   },
   "experience": {
+    "categories": {
+      "city": {
+        "title": "Experiencias en la Ciudad",
+        "tag": "Ciudad",
+        "desc": "Saborea cenas de primera calidad y clases prácticas en los barrios históricos y creativos de Valencia."
+      },
+      "countryside": {
+        "title": "Experiencias en el Campo",
+        "tag": "Campo/Villa",
+        "desc": "Escápate a alquerías tradicionales del siglo XIX y villas privadas rodeadas de olivos y campos de naranjos."
+      }
+    },
     "hero": {
       "title": "Auténtica Experiencia de SpeakEasy en Valencia",
       "subtitle": "Un viaje culinario práctico a través del plato más icónico de Valencia"

@@ -385,6 +385,18 @@
     }
   },
   "experience": {
+    "categories": {
+      "city": {
+        "title": "City Experiences",
+        "tag": "City",
+        "desc": "Savor premium dining and hands-on classes nestled in the historic and creative neighborhoods of Valencia."
+      },
+      "countryside": {
+        "title": "Countryside Experiences",
+        "tag": "Countryside",
+        "desc": "Escape to traditional 19th-century farmhouses and private villas surrounded by olive trees and orange groves."
+      }
+    },
     "hero": {
       "title": "Authentic SpeakEasy Experience in Valencia",
       "subtitle": "A hands-on culinary journey through Valencia's most iconic dish"

@@ -288,6 +288,7 @@ export default function ExperiencePage() {
 
   const [locations, setLocations] = useState<FrontendLocation[]>([]);
   const [locLoading, setLocLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<'city' | 'countryside'>('city');
 
   useEffect(() => {
     setLocLoading(true);
@@ -297,33 +298,89 @@ export default function ExperiencePage() {
       .finally(() => setLocLoading(false));
   }, [i18n.language]);
 
+  const filteredLocations = locations.filter((loc) => (loc.category || 'city') === selectedCategory);
+
   return (
     <>
       {/* ── Location Sections ─────────────────────────── */}
       <LocationsIntro />
       <div id="locations" />
-      {locLoading ? (
-        <div className="flex justify-center py-24">
-          <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-        </div>
-      ) : locations.length === 0 ? (
-        <div className="section-padding">
-          <div className="container-max">
-            <div className="mx-auto max-w-3xl rounded-3xl border border-primary/10 bg-neutral-cream px-6 py-12 text-center">
-              <p className="font-heading text-xl font-semibold text-neutral-dark">No Locations Found</p>
-            </div>
+
+      {/* Category Selection Tabs */}
+      <section className="pb-12 bg-white">
+        <div className="container-max px-4 flex justify-center">
+          <div className="inline-flex p-1 bg-neutral-cream rounded-full border border-neutral-sand/30 shadow-inner">
+            {/* City Button */}
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setSelectedCategory('city')}
+              className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+                selectedCategory === 'city'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-neutral-gray hover:text-neutral-dark'
+              }`}
+            >
+              <span>🏙️</span>
+              <span>{t('experience.categories.city.tag', 'City')}</span>
+            </motion.button>
+
+            {/* Countryside Button */}
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setSelectedCategory('countryside')}
+              className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
+                selectedCategory === 'countryside'
+                  ? 'bg-primary text-white shadow-md'
+                  : 'text-neutral-gray hover:text-neutral-dark'
+              }`}
+            >
+              <span>🌿</span>
+              <span>{t('experience.categories.countryside.tag', 'Countryside')}</span>
+            </motion.button>
           </div>
         </div>
-      ) : (
-        locations.map((loc, index) => (
-          <LocationSection
-            key={loc.id}
-            location={loc}
-            side={index % 2 === 0 ? 'left' : 'right'}
-            badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]}
-          />
-        ))
-      )}
+      </section>
+
+      {/* Locations Display */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={selectedCategory}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.5, ease: 'easeInOut' }}
+        >
+          {locLoading ? (
+            <div className="flex justify-center py-24">
+              <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+          ) : filteredLocations.length === 0 ? (
+            <div className="section-padding">
+              <div className="container-max">
+                <div className="mx-auto max-w-3xl rounded-3xl border border-primary/10 bg-neutral-cream px-6 py-12 text-center">
+                  <p className="font-heading text-xl font-semibold text-neutral-dark">
+                    {t('experience.noLocations', 'No Locations Found')}
+                  </p>
+                  <p className="text-neutral-gray mt-2 font-body">
+                    {t('experience.noLocationsDesc', 'We are currently curating more premium experiences for this category. Please check back soon!')}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            filteredLocations.map((loc, index) => (
+              <LocationSection
+                key={loc.id}
+                location={loc}
+                side={index % 2 === 0 ? 'left' : 'right'}
+                badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]}
+              />
+            ))
+          )}
+        </motion.div>
+      </AnimatePresence>
     </>
   );
 }
