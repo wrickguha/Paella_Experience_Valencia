@@ -477,14 +477,24 @@ export default function ExperiencePage() {
                       {t('experience.back', 'Back')}
                     </button>
                   )}
-                  <h3 className="font-display font-bold text-neutral-dark text-lg md:text-xl">
-                    {selectedLocation
-                      ? selectedLocation.name
-                      : activeCategory === 'city'
-                        ? t('experience.categories.city.title', 'City Experiences')
-                        : t('experience.categories.countryside.title', 'Countryside Experiences')
-                    }
-                  </h3>
+                  <div className="flex flex-col">
+                    <h3 className="font-display font-bold text-neutral-dark text-lg md:text-xl leading-tight">
+                      {selectedLocation
+                        ? selectedLocation.name
+                        : activeCategory === 'city'
+                          ? t('experience.categories.city.title', 'City Experiences')
+                          : t('experience.categories.countryside.title', 'Countryside Experiences')
+                      }
+                    </h3>
+                    {!selectedLocation && (
+                      <p className="text-neutral-gray text-xs font-body mt-0.5">
+                        {activeCategory === 'city'
+                          ? t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life')
+                          : t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves')
+                        }
+                      </p>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={closeModal}
