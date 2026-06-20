@@ -50,18 +50,9 @@ function formatTime(schedules: LocationSchedule[]): string {
   return `${start} – ${end}`;
 }
 
-// ── LocationSection ───────────────────────────────────────────────
-function LocationSection({
-  location,
-  side,
-  badgeColor,
-}: {
-  location: FrontendLocation;
-  side: 'left' | 'right';
-  badgeColor: string;
-}) {
+// ── ModalLocationDetails ──────────────────────────────────────────
+function ModalLocationDetails({ location }: { location: FrontendLocation }) {
   const { t } = useTranslation();
-  const { ref, isInView } = useScrollReveal();
   const locationSlug = slugFromName(location.name);
   const availability = formatAvailability(location.schedules, location.availability_type);
   const time = formatTime(location.schedules);
@@ -84,148 +75,141 @@ function LocationSection({
   }, [images.length, nextSlide]);
 
   return (
-    <motion.section
-      ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: 0.7 }}
-      className="section-padding"
-    >
-      <div className="container-max">
-        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center ${side === 'right' ? 'lg:flex-row-reverse' : ''}`}>
-          {/* Image Slideshow */}
-          <motion.div
-            className={`relative rounded-2xl overflow-hidden shadow-elevated ${side === 'right' ? 'lg:order-2' : ''}`}
-            whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.4 }}
-          >
-            <div className="relative w-full h-72 sm:h-96 lg:h-[480px]">
-              <AnimatePresence initial={false} custom={slideDir}>
-                {images.length > 0 && (
-                  <motion.img
-                    key={currentSlide}
-                    custom={slideDir}
-                    src={images[currentSlide]}
-                    alt={`${location.name} ${currentSlide + 1}`}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    variants={{
-                      enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
-                      center: { opacity: 1, x: 0 },
-                      exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
-                    }}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
-                    loading="lazy"
-                  />
-                )}
-              </AnimatePresence>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
-            {availability && (
-              <span className={`absolute top-4 left-4 ${badgeColor} text-white text-xs font-semibold px-3 py-1.5 rounded-full`}>
-                {availability}
-              </span>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+      {/* Image Slideshow */}
+      <div className="relative rounded-2xl overflow-hidden shadow-md">
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:h-[400px]">
+          <AnimatePresence initial={false} custom={slideDir}>
+            {images.length > 0 && (
+              <motion.img
+                key={currentSlide}
+                custom={slideDir}
+                src={images[currentSlide]}
+                alt={`${location.name} ${currentSlide + 1}`}
+                className="absolute inset-0 w-full h-full object-cover"
+                variants={{
+                  enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
+                  center: { opacity: 1, x: 0 },
+                  exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
+                }}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                loading="lazy"
+              />
             )}
-            {location.category && (
-              <span className={`absolute top-4 right-4 text-white text-xs font-semibold px-3 py-1.5 rounded-full ${
-                location.category === 'countryside'
-                  ? 'bg-emerald-600'
-                  : 'bg-slate-700'
-              }`}>
-                {location.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
-              </span>
-            )}
-            {/* Dots indicator */}
-            {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                {images.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => { setSlideDir(idx > currentSlide ? 1 : -1); setCurrentSlide(idx); }}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      idx === currentSlide ? 'bg-white w-5' : 'bg-white/50'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </motion.div>
+          </AnimatePresence>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+        {availability && (
+          <span className="absolute top-4 left-4 bg-primary text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full">
+            {availability}
+          </span>
+        )}
+        {location.category && (
+          <span className={`absolute top-4 right-4 text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full ${
+            location.category === 'countryside'
+              ? 'bg-emerald-600'
+              : 'bg-slate-700'
+          }`}>
+            {location.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+          </span>
+        )}
+        {/* Dots indicator */}
+        {images.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            {images.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => { setSlideDir(idx > currentSlide ? 1 : -1); setCurrentSlide(idx); }}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  idx === currentSlide ? 'bg-white w-5' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-          {/* Content */}
-          <div className={side === 'right' ? 'lg:order-1' : ''}>
-            <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral-dark mb-2">
-              {location.name}
-            </h3>
-            {location.subtitle && (
-              <p className="text-primary font-heading font-semibold text-sm mb-4">{location.subtitle}</p>
-            )}
-            <p className="text-neutral-gray font-body leading-relaxed mb-6">
-              {location.description}
-            </p>
+      {/* Content */}
+      <div className="flex flex-col h-full justify-between">
+        <div>
+          <h3 className="font-display text-2xl sm:text-3xl font-bold text-neutral-dark mb-1">
+            {location.name}
+          </h3>
+          {location.subtitle && (
+            <p className="text-primary font-heading font-semibold text-xs sm:text-sm mb-3">{location.subtitle}</p>
+          )}
+          <p className="text-neutral-gray font-body leading-relaxed text-sm sm:text-base mb-6 whitespace-pre-line">
+            {location.description}
+          </p>
 
-            {/* Details */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-neutral-cream rounded-xl p-3">
-                <p className="text-xs text-neutral-gray uppercase tracking-wider">📍 {t('booking.eventCard.location')}</p>
-                {location.maps_link ? (
-                  <a
-                    href={location.maps_link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-heading font-semibold text-sm text-primary hover:underline mt-0.5"
-                  >
-                    View on Maps
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
-                ) : (
-                  <p className="font-heading font-semibold text-sm text-neutral-dark">{location.address}</p>
-                )}
-              </div>
-              {time && (
-                <div className="bg-neutral-cream rounded-xl p-3">
-                  <p className="text-xs text-neutral-gray uppercase tracking-wider">⏱ {t('booking.eventCard.time')}</p>
-                  <p className="font-heading font-semibold text-sm text-neutral-dark">{time}</p>
-                </div>
+          {/* Details */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-neutral-cream rounded-xl p-3">
+              <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-1">📍 {t('booking.eventCard.location')}</p>
+              {location.maps_link ? (
+                <a
+                  href={location.maps_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-heading font-semibold text-xs sm:text-sm text-primary hover:underline"
+                >
+                  View on Maps
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              ) : (
+                <p className="font-heading font-semibold text-xs sm:text-sm text-neutral-dark">{location.address}</p>
               )}
             </div>
+            {time && (
+              <div className="bg-neutral-cream rounded-xl p-3">
+                <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-1">⏱ {t('booking.eventCard.time')}</p>
+                <p className="font-heading font-semibold text-xs sm:text-sm text-neutral-dark">{time}</p>
+              </div>
+            )}
+          </div>
 
-            {/* Features */}
-            {location.features.length > 0 && (
-              <ul className="space-y-2 mb-8">
+          {/* Features */}
+          {location.features && location.features.length > 0 && (
+            <div className="mb-6">
+              <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-2">✨ Highlights</p>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {location.features.map((feat, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-neutral-dark font-body">
-                    <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <li key={i} className="flex items-start gap-1.5 text-xs sm:text-sm text-neutral-dark font-body">
+                    <svg className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     {feat}
                   </li>
                 ))}
               </ul>
-            )}
-
-            {/* Price + CTA */}
-            <div className="flex items-center gap-4 flex-wrap">
-              <Link
-                to={`/booking?location=${locationSlug}`}
-                className="btn-primary !px-8 !py-3.5"
-              >
-                Save your seat at the table
-              </Link>
-              {location.price != null && (
-                <p className="font-display text-2xl font-bold text-neutral-dark">
-                  €{location.price}
-                  <span className="text-sm font-normal text-neutral-gray"> /{t('booking.eventCard.perPerson')}</span>
-                </p>
-              )}
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* Price + CTA */}
+        <div className="flex items-center justify-between gap-4 flex-wrap pt-6 border-t border-neutral-sand/20 mt-auto">
+          {location.price != null && (
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-0.5">Price per person</p>
+              <p className="font-display text-2xl font-bold text-neutral-dark">
+                €{location.price}
+              </p>
+            </div>
+          )}
+          <Link
+            to={`/booking?location=${locationSlug}`}
+            className="btn-primary !px-6 sm:!px-8 !py-3.5 text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg flex-1 sm:flex-initial text-center"
+          >
+            Save your seat at the table
+          </Link>
         </div>
       </div>
-    </motion.section>
+    </div>
   );
 }
 
@@ -288,7 +272,9 @@ export default function ExperiencePage() {
 
   const [locations, setLocations] = useState<FrontendLocation[]>([]);
   const [locLoading, setLocLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<'city' | 'countryside'>('city');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<'city' | 'countryside' | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<FrontendLocation | null>(null);
 
   useEffect(() => {
     setLocLoading(true);
@@ -298,7 +284,37 @@ export default function ExperiencePage() {
       .finally(() => setLocLoading(false));
   }, [i18n.language]);
 
-  const filteredLocations = locations.filter((loc) => (loc.category || 'city') === selectedCategory);
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isModalOpen]);
+
+  const getCountForCategory = (cat: 'city' | 'countryside') => {
+    return locations.filter((loc) => (loc.category || 'city') === cat).length;
+  };
+
+  const handleOpenCategory = (cat: 'city' | 'countryside') => {
+    setActiveCategory(cat);
+    setIsModalOpen(true);
+    setSelectedLocation(null);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setActiveCategory(null);
+    setSelectedLocation(null);
+  };
+
+  const filteredLocations = locations.filter(
+    (loc) => (loc.category || 'city') === activeCategory
+  );
 
   return (
     <>
@@ -306,80 +322,231 @@ export default function ExperiencePage() {
       <LocationsIntro />
       <div id="locations" />
 
-      {/* Category Selection Tabs */}
-      <section className="pb-12 bg-white">
-        <div className="container-max px-4 flex justify-center">
-          <div className="inline-flex p-1 bg-neutral-cream rounded-full border border-neutral-sand/30 shadow-inner">
-            {/* City Button */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setSelectedCategory('city')}
-              className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                selectedCategory === 'city'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-neutral-gray hover:text-neutral-dark'
-              }`}
+      {/* Category Selection Cards */}
+      <section className="pb-24 bg-white">
+        <div className="container-max px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* City Card */}
+            <motion.div
+              whileHover={{ y: -8, scale: 1.01 }}
+              transition={{ duration: 0.4 }}
+              onClick={() => handleOpenCategory('city')}
+              className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
             >
-              <span>🏙️</span>
-              <span>{t('experience.categories.city.tag', 'City')}</span>
-            </motion.button>
+              <img
+                src="https://images.unsplash.com/photo-1558642084-fd074ec78a2d?q=80&w=800&auto=format&fit=crop"
+                alt="City Experiences"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-955/90 via-slate-900/40 to-transparent bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
+                  🏙️
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[10px] font-bold text-primary bg-white/95 border border-primary/20 uppercase tracking-widest px-2.5 py-1 rounded-md backdrop-blur-sm">
+                      {getCountForCategory('city')} {getCountForCategory('city') === 1 ? 'Location' : 'Locations'}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
+                    {t('experience.categories.city.title', 'City Experiences')}
+                  </h3>
+                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm">
+                    {t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life')}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
 
-            {/* Countryside Button */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setSelectedCategory('countryside')}
-              className={`px-8 py-3 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 ${
-                selectedCategory === 'countryside'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-neutral-gray hover:text-neutral-dark'
-              }`}
+            {/* Countryside Card */}
+            <motion.div
+              whileHover={{ y: -8, scale: 1.01 }}
+              transition={{ duration: 0.4 }}
+              onClick={() => handleOpenCategory('countryside')}
+              className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
             >
-              <span>🌿</span>
-              <span>{t('experience.categories.countryside.tag', 'Countryside')}</span>
-            </motion.button>
+              <img
+                src="https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=800&auto=format&fit=crop"
+                alt="Countryside Experiences"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-955/40 to-transparent bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-transparent" />
+              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
+                  🌿
+                </div>
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-[10px] font-bold text-emerald-600 bg-white/95 border border-emerald-100 uppercase tracking-widest px-2.5 py-1 rounded-md backdrop-blur-sm">
+                      {getCountForCategory('countryside')} {getCountForCategory('countryside') === 1 ? 'Location' : 'Locations'}
+                    </span>
+                  </div>
+                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
+                    {t('experience.categories.countryside.title', 'Countryside Experiences')}
+                  </h3>
+                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm">
+                    {t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves')}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Locations Display */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={selectedCategory}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -30 }}
-          transition={{ duration: 0.5, ease: 'easeInOut' }}
-        >
-          {locLoading ? (
-            <div className="flex justify-center py-24">
-              <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
-            </div>
-          ) : filteredLocations.length === 0 ? (
-            <div className="section-padding">
-              <div className="container-max">
-                <div className="mx-auto max-w-3xl rounded-3xl border border-primary/10 bg-neutral-cream px-6 py-12 text-center">
-                  <p className="font-heading text-xl font-semibold text-neutral-dark">
-                    {t('experience.noLocations', 'No Locations Found')}
-                  </p>
-                  <p className="text-neutral-gray mt-2 font-body">
-                    {t('experience.noLocationsDesc', 'We are currently curating more premium experiences for this category. Please check back soon!')}
-                  </p>
+      {/* Two-Stage Modal Overlay */}
+      <AnimatePresence>
+        {isModalOpen && activeCategory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md overflow-hidden"
+            onClick={closeModal}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 180 }}
+              className="relative w-full max-w-5xl h-[90vh] md:h-[80vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-sand/20 bg-neutral-cream/40">
+                <div className="flex items-center gap-3">
+                  {selectedLocation && (
+                    <button
+                      onClick={() => setSelectedLocation(null)}
+                      className="p-2 -ml-2 rounded-full hover:bg-neutral-sand/10 text-neutral-dark transition-colors flex items-center gap-1 text-sm font-semibold"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                      </svg>
+                      {t('experience.back', 'Back')}
+                    </button>
+                  )}
+                  <h3 className="font-display font-bold text-neutral-dark text-lg md:text-xl">
+                    {selectedLocation
+                      ? selectedLocation.name
+                      : activeCategory === 'city'
+                        ? t('experience.categories.city.title', 'City Experiences')
+                        : t('experience.categories.countryside.title', 'Countryside Experiences')
+                    }
+                  </h3>
                 </div>
+                <button
+                  onClick={closeModal}
+                  className="p-2 rounded-full hover:bg-neutral-sand/15 text-neutral-gray hover:text-neutral-dark transition-all duration-200"
+                  aria-label={t('experience.close', 'Close')}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
               </div>
-            </div>
-          ) : (
-            filteredLocations.map((loc, index) => (
-              <LocationSection
-                key={loc.id}
-                location={loc}
-                side={index % 2 === 0 ? 'left' : 'right'}
-                badgeColor={BADGE_COLORS[index % BADGE_COLORS.length]}
-              />
-            ))
-          )}
-        </motion.div>
+
+              {/* Modal Content */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-8">
+                {locLoading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+                  </div>
+                ) : (
+                  <AnimatePresence mode="wait">
+                    {!selectedLocation ? (
+                      /* Stage 1: Location Selection Grid */
+                      <motion.div
+                        key="stage-1"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.3 }}
+                        className="h-full"
+                      >
+                        {filteredLocations.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center h-full py-12 text-center">
+                            <p className="font-heading text-lg font-semibold text-neutral-dark">
+                              {t('experience.noLocations', 'No Locations Found')}
+                            </p>
+                            <p className="text-neutral-gray mt-2 font-body max-w-md">
+                              {t('experience.noLocationsDesc', 'We are currently curating more premium experiences for this category. Please check back soon!')}
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {filteredLocations.map((loc) => {
+                              const fallbackImage = loc.hero_image || loc.image || '';
+                              return (
+                                <motion.div
+                                  key={loc.id}
+                                  whileHover={{ y: -6, scale: 1.02 }}
+                                  className="bg-neutral-cream/40 border border-neutral-sand/20 rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col h-full transition-all duration-300 group"
+                                  onClick={() => setSelectedLocation(loc)}
+                                >
+                                  <div className="relative aspect-[4/3] overflow-hidden">
+                                    {fallbackImage ? (
+                                      <img
+                                        src={fallbackImage}
+                                        alt={loc.name}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        loading="lazy"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full bg-neutral-sand/20 flex items-center justify-center text-4xl">
+                                        📍
+                                      </div>
+                                    )}
+                                    {loc.category && (
+                                      <span className="absolute top-3 right-3 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
+                                        {loc.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="p-5 flex-1 flex flex-col">
+                                    <h4 className="font-display font-bold text-neutral-dark text-lg mb-1 group-hover:text-primary transition-colors">
+                                      {loc.name}
+                                    </h4>
+                                    {loc.subtitle && (
+                                      <p className="text-primary font-heading font-semibold text-xs mb-3">
+                                        {loc.subtitle}
+                                      </p>
+                                    )}
+                                    <p className="text-neutral-gray font-body text-sm line-clamp-3 mb-4 flex-1">
+                                      {loc.description}
+                                    </p>
+                                    <div className="flex items-center justify-between pt-3 border-t border-neutral-sand/20 text-xs font-semibold text-neutral-dark">
+                                      <span>{formatAvailability(loc.schedules, loc.availability_type)}</span>
+                                      {loc.price != null && (
+                                        <span className="text-primary">€{loc.price}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </motion.div>
+                    ) : (
+                      /* Stage 2: Location Details View */
+                      <motion.div
+                        key="stage-2"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <ModalLocationDetails location={selectedLocation} />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </>
   );

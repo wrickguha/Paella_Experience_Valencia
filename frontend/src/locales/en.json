@@ -1024,5 +1024,27 @@
         "answer": 0
       }
     ]
+  },
+  "experience": {
+    "title": "Experiences & Locations",
+    "subtitle": "Discover our curated spaces where language and life meet",
+    "categories": {
+      "city": {
+        "title": "City Experiences",
+        "subtitle": "Immersion in urban cooking studios, historical venues, and local life",
+        "tag": "City"
+      },
+      "countryside": {
+        "title": "Countryside Experiences",
+        "subtitle": "Gatherings in quiet fincas, surrounded by nature and orange groves",
+        "tag": "Countryside"
+      }
+    },
+    "noLocations": "No Locations Found",
+    "noLocationsDesc": "We are currently curating more premium experiences for this category. Please check back soon!",
+    "back": "Back",
+    "close": "Close",
+    "explore": "Explore",
+    "viewLocations": "View Locations"
   }
 }

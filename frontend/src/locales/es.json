@@ -687,5 +687,27 @@
     "acceptTerms": "He leído y acepto los términos y condiciones y la política de privacidad",
     "isOver18": "Tengo más de 18 años",
     "disclaimerRequired": "Por favor, acepta los términos y confirma que eres mayor de 18 años para continuar"
+  },
+  "experience": {
+    "title": "Experiencias y Lugares",
+    "subtitle": "Descubre nuestros espacios seleccionados donde el idioma y la vida se encuentran",
+    "categories": {
+      "city": {
+        "title": "Experiencias en la Ciudad",
+        "subtitle": "Inmersión en estudios de cocina urbanos, locales históricos y vida local",
+        "tag": "Ciudad"
+      },
+      "countryside": {
+        "title": "Experiencias en el Campo",
+        "subtitle": "Encuentros en fincas tranquilas, rodeados de naturaleza y campos de naranjos",
+        "tag": "Campo"
+      }
+    },
+    "noLocations": "No se encontraron lugares",
+    "noLocationsDesc": "Actualmente estamos preparando más experiencias premium para esta categoría. ¡Por favor, vuelve pronto!",
+    "back": "Atrás",
+    "close": "Cerrar",
+    "explore": "Explorar",
+    "viewLocations": "Ver Lugares"
   }
 }
