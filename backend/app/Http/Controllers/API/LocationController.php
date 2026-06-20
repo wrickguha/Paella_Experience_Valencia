@@ -42,7 +42,14 @@ class LocationController extends Controller
     private function imageUrl(?string $path): ?string
     {
         if (!$path) return null;
-        return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+        if (str_starts_with($path, 'http')) {
+            return $path;
+        }
+        $normalized = ltrim($path, '/');
+        if (str_starts_with($normalized, 'storage/')) {
+            return asset($normalized);
+        }
+        return asset('storage/' . $normalized);
     }
 
     private function formatLocation(Location $loc, string $lang, bool $includeExperiences = false): array
