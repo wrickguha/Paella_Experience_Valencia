@@ -94,7 +94,7 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
   const locationSlug = slugFromName(location.name);
   const availability = formatAvailability(location.schedules, location.availability_type);
   const time = formatTime(location.schedules);
-  const fallbackImage = cleanImageUrl(location.hero_image || location.image || '');
+  const fallbackImage = cleanImageUrl(location.hero_image || location.image || location.gallery?.[0] || '');
   const images = location.gallery && location.gallery.length > 0
     ? location.gallery.map(cleanImageUrl)
     : fallbackImage ? [fallbackImage] : [];
@@ -537,7 +537,7 @@ export default function ExperiencePage() {
                         ) : (
                           <div className="flex flex-col items-center justify-center gap-6 py-4">
                             {filteredLocations.map((loc) => {
-                              const fallbackImage = cleanImageUrl(loc.hero_image || loc.image || '');
+                              const fallbackImage = cleanImageUrl(loc.hero_image || loc.image || loc.gallery?.[0] || '');
                               return (
                                 <motion.div
                                   key={loc.id}
