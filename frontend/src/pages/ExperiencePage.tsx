@@ -114,73 +114,102 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
   }, [images.length, nextSlide]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-      {/* Image Slideshow */}
-      <div className="relative rounded-2xl overflow-hidden shadow-md">
-        <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] lg:h-[400px]">
-          <AnimatePresence initial={false} custom={slideDir}>
-            {images.length > 0 && (
-              slideErrors[currentSlide] ? (
-                <div key={`err-${currentSlide}`} className="absolute inset-0 bg-neutral-sand/10 flex flex-col items-center justify-center text-neutral-dark p-4 gap-2 text-center">
-                  <span className="text-4xl">📍</span>
-                  <span className="text-xs font-semibold text-neutral-gray uppercase tracking-wider">Image unavailable</span>
-                </div>
-              ) : (
-                <motion.img
-                  key={currentSlide}
-                  custom={slideDir}
-                  src={images[currentSlide]}
-                  onError={() => setSlideErrors(prev => ({ ...prev, [currentSlide]: true }))}
-                  alt={`${location.name} ${currentSlide + 1}`}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  variants={{
-                    enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
-                    center: { opacity: 1, x: 0 },
-                    exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
-                  }}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  loading="lazy"
-                />
-              )
-            )}
-          </AnimatePresence>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-        {availability && (
-          <span className="absolute top-4 left-4 bg-primary text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full">
-            {availability}
-          </span>
-        )}
-        {location.category && (
-          <span className={`absolute top-4 right-4 text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full ${
-            location.category === 'countryside'
-              ? 'bg-emerald-600'
-              : 'bg-slate-700'
-          }`}>
-            {location.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
-          </span>
-        )}
-        {/* Dots indicator */}
-        {images.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => { setSlideDir(idx > currentSlide ? 1 : -1); setCurrentSlide(idx); }}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  idx === currentSlide ? 'bg-white w-5' : 'bg-white/50'
-                }`}
-              />
-            ))}
+    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 h-full items-stretch">
+      {/* Left Column: Image Slideshow & Quick Info */}
+      <div className="md:col-span-6 flex flex-col justify-between gap-4">
+        {/* Image Slideshow */}
+        <div className="relative rounded-2xl overflow-hidden shadow-sm flex-1 min-h-[220px] md:min-h-[280px] max-h-[340px]">
+          <div className="absolute inset-0">
+            <AnimatePresence initial={false} custom={slideDir}>
+              {images.length > 0 && (
+                slideErrors[currentSlide] ? (
+                  <div key={`err-${currentSlide}`} className="w-full h-full bg-neutral-sand/10 flex flex-col items-center justify-center text-neutral-dark p-4 gap-2 text-center">
+                    <span className="text-4xl">📍</span>
+                    <span className="text-xs font-semibold text-neutral-gray uppercase tracking-wider">Image unavailable</span>
+                  </div>
+                ) : (
+                  <motion.img
+                    key={currentSlide}
+                    custom={slideDir}
+                    src={images[currentSlide]}
+                    onError={() => setSlideErrors(prev => ({ ...prev, [currentSlide]: true }))}
+                    alt={`${location.name} ${currentSlide + 1}`}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    variants={{
+                      enter: (dir: number) => ({ opacity: 0, x: dir * 60 }),
+                      center: { opacity: 1, x: 0 },
+                      exit: (dir: number) => ({ opacity: 0, x: dir * -60 }),
+                    }}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    loading="lazy"
+                  />
+                )
+              )}
+            </AnimatePresence>
           </div>
-        )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+          {availability && (
+            <span className="absolute top-3 left-3 bg-primary text-white text-[10px] font-semibold px-2 py-0.5 rounded-full z-10">
+              {availability}
+            </span>
+          )}
+          {location.category && (
+            <span className={`absolute top-3 right-3 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full z-10 ${
+              location.category === 'countryside' ? 'bg-emerald-600' : 'bg-slate-700'
+            }`}>
+              {location.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+            </span>
+          )}
+          {/* Dots indicator */}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+              {images.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => { setSlideDir(idx > currentSlide ? 1 : -1); setCurrentSlide(idx); }}
+                  className={`w-1.5 h-1.5 rounded-full transition-all ${
+                    idx === currentSlide ? 'bg-white w-4' : 'bg-white/50'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-2 gap-3 flex-shrink-0">
+          <div className="bg-neutral-cream rounded-xl p-3 border border-neutral-sand/10">
+            <p className="text-[9px] uppercase tracking-wider text-neutral-gray mb-0.5">📍 {t('booking.eventCard.location')}</p>
+            {location.maps_link ? (
+              <a
+                href={location.maps_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-0.5 font-heading font-semibold text-xs text-primary hover:underline"
+              >
+                View on Maps
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+            ) : (
+              <p className="font-heading font-semibold text-xs text-neutral-dark truncate">{location.address}</p>
+            )}
+          </div>
+          {time && (
+            <div className="bg-neutral-cream rounded-xl p-3 border border-neutral-sand/10">
+              <p className="text-[9px] uppercase tracking-wider text-neutral-gray mb-0.5">⏱ {t('booking.eventCard.time')}</p>
+              <p className="font-heading font-semibold text-xs text-neutral-dark">{time}</p>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col h-full justify-between">
+      {/* Right Column: Title, Description, Features & Booking CTA */}
+      <div className="md:col-span-6 flex flex-col justify-between h-full gap-4">
         <div>
           <h3 className="font-display text-2xl sm:text-3xl font-bold text-neutral-dark mb-1">
             {location.name}
@@ -188,49 +217,21 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
           {location.subtitle && (
             <p className="text-primary font-heading font-semibold text-xs sm:text-sm mb-3">{location.subtitle}</p>
           )}
-          <p className="text-neutral-gray font-body leading-relaxed text-sm sm:text-base mb-6 whitespace-pre-line">
+          <p className="text-neutral-gray font-body leading-relaxed text-xs sm:text-sm mb-4 overflow-y-auto max-h-[160px] md:max-h-[220px] pr-2">
             {location.description}
           </p>
 
-          {/* Details */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-neutral-cream rounded-xl p-3">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-1">📍 {t('booking.eventCard.location')}</p>
-              {location.maps_link ? (
-                <a
-                  href={location.maps_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-heading font-semibold text-xs sm:text-sm text-primary hover:underline"
-                >
-                  View on Maps
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
-              ) : (
-                <p className="font-heading font-semibold text-xs sm:text-sm text-neutral-dark">{location.address}</p>
-              )}
-            </div>
-            {time && (
-              <div className="bg-neutral-cream rounded-xl p-3">
-                <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-1">⏱ {t('booking.eventCard.time')}</p>
-                <p className="font-heading font-semibold text-xs sm:text-sm text-neutral-dark">{time}</p>
-              </div>
-            )}
-          </div>
-
           {/* Features */}
           {location.features && location.features.length > 0 && (
-            <div className="mb-6">
-              <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-2">✨ Highlights</p>
+            <div className="bg-neutral-cream/20 rounded-xl p-4 border border-neutral-sand/10">
+              <p className="text-[9px] uppercase tracking-wider text-neutral-gray mb-2 font-semibold">✨ Highlights</p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {location.features.map((feat, i) => (
-                  <li key={i} className="flex items-start gap-1.5 text-xs sm:text-sm text-neutral-dark font-body">
-                    <svg className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                {location.features.slice(0, 4).map((feat, i) => (
+                  <li key={i} className="flex items-start gap-1.5 text-xs text-neutral-dark font-body">
+                    <svg className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
-                    {feat}
+                    <span className="truncate">{feat}</span>
                   </li>
                 ))}
               </ul>
@@ -239,18 +240,18 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
         </div>
 
         {/* Price + CTA */}
-        <div className="flex items-center justify-between gap-4 flex-wrap pt-6 border-t border-neutral-sand/20 mt-auto">
+        <div className="flex items-center justify-between gap-4 pt-4 border-t border-neutral-sand/20 flex-shrink-0">
           {location.price != null && (
             <div>
-              <p className="text-[10px] uppercase tracking-wider text-neutral-gray mb-0.5">Price per person</p>
-              <p className="font-display text-2xl font-bold text-neutral-dark">
+              <p className="text-[9px] uppercase tracking-wider text-neutral-gray mb-0.5">Price per person</p>
+              <p className="font-display text-xl sm:text-2xl font-bold text-neutral-dark">
                 €{location.price}
               </p>
             </div>
           )}
           <Link
             to={`/booking?location=${locationSlug}`}
-            className="btn-primary !px-6 sm:!px-8 !py-3.5 text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg flex-1 sm:flex-initial text-center"
+            className="btn-primary !px-6 !py-3 text-xs sm:text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg text-center"
           >
             Save your seat at the table
           </Link>
@@ -495,7 +496,7 @@ export default function ExperiencePage() {
               </div>
 
               {/* Modal Content */}
-              <div className="flex-1 overflow-y-auto p-6 md:p-8">
+              <div className="flex-1 overflow-y-auto md:overflow-hidden p-6 md:p-8">
                 {locLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -503,14 +504,14 @@ export default function ExperiencePage() {
                 ) : (
                   <AnimatePresence mode="wait">
                     {!selectedLocation ? (
-                      /* Stage 1: Location Selection Grid */
+                      /* Stage 1: Location Selection List */
                       <motion.div
                         key="stage-1"
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
                         transition={{ duration: 0.3 }}
-                        className="h-full"
+                        className="h-full flex flex-col justify-center"
                       >
                         {filteredLocations.length === 0 ? (
                           <div className="flex flex-col items-center justify-center h-full py-12 text-center">
@@ -522,45 +523,57 @@ export default function ExperiencePage() {
                             </p>
                           </div>
                         ) : (
-                          <div className="flex flex-wrap justify-center gap-6 items-stretch">
+                          <div className="flex flex-col items-center justify-center gap-6 py-4">
                             {filteredLocations.map((loc) => {
                               const fallbackImage = cleanImageUrl(loc.hero_image || loc.image || '');
                               return (
                                 <motion.div
                                   key={loc.id}
-                                  whileHover={{ y: -6, scale: 1.02 }}
-                                  className="w-full max-w-[320px] bg-neutral-cream/40 border border-neutral-sand/20 rounded-2xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col h-auto transition-all duration-300 group"
+                                  whileHover={{ y: -4, scale: 1.01 }}
+                                  className="w-full max-w-2xl bg-neutral-cream/30 border border-neutral-sand/20 rounded-3xl overflow-hidden shadow-sm hover:shadow-md cursor-pointer flex flex-col sm:flex-row h-auto transition-all duration-300 group"
                                   onClick={() => setSelectedLocation(loc)}
                                 >
-                                  <div className="relative aspect-[4/3] overflow-hidden">
+                                  {/* Card Image */}
+                                  <div className="relative w-full sm:w-56 aspect-[4/3] sm:aspect-auto sm:h-auto overflow-hidden flex-shrink-0">
                                     <SafeImage
                                       src={fallbackImage}
                                       alt={loc.name}
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                     {loc.category && (
-                                      <span className="absolute top-3 right-3 text-white text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded-md bg-black/50 backdrop-blur-sm">
+                                      <span className="absolute top-3 left-3 text-white text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-md bg-black/50 backdrop-blur-sm">
                                         {loc.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
                                       </span>
                                     )}
                                   </div>
-                                  <div className="p-5 flex-1 flex flex-col">
-                                    <h4 className="font-display font-bold text-neutral-dark text-lg mb-1 group-hover:text-primary transition-colors">
-                                      {loc.name}
-                                    </h4>
-                                    {loc.subtitle && (
-                                      <p className="text-primary font-heading font-semibold text-xs mb-3">
-                                        {loc.subtitle}
-                                      </p>
-                                    )}
-                                    <p className="text-neutral-gray font-body text-sm line-clamp-3 mb-4 flex-1">
-                                      {loc.description}
-                                    </p>
-                                    <div className="flex items-center justify-between pt-3 border-t border-neutral-sand/20 text-xs font-semibold text-neutral-dark">
-                                      <span>{formatAvailability(loc.schedules, loc.availability_type)}</span>
-                                      {loc.price != null && (
-                                        <span className="text-primary">€{loc.price}</span>
+                                  {/* Card Content */}
+                                  <div className="p-6 flex-1 flex flex-col justify-between">
+                                    <div>
+                                      <div className="flex justify-between items-start gap-2 mb-1">
+                                        <h4 className="font-display font-bold text-neutral-dark text-lg group-hover:text-primary transition-colors">
+                                          {loc.name}
+                                        </h4>
+                                        {loc.price != null && (
+                                          <span className="text-primary font-display font-bold text-sm">€{loc.price}</span>
+                                        )}
+                                      </div>
+                                      {loc.subtitle && (
+                                        <p className="text-primary font-heading font-semibold text-xs mb-2">
+                                          {loc.subtitle}
+                                        </p>
                                       )}
+                                      <p className="text-neutral-gray font-body text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 mb-4">
+                                        {loc.description}
+                                      </p>
+                                    </div>
+                                    <div className="flex items-center justify-between pt-3 border-t border-neutral-sand/20 text-[11px] font-semibold text-neutral-dark">
+                                      <span className="flex items-center gap-1">📅 {formatAvailability(loc.schedules, loc.availability_type)}</span>
+                                      <span className="text-primary hover:underline flex items-center gap-0.5">
+                                        Explore
+                                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                      </span>
                                     </div>
                                   </div>
                                 </motion.div>
@@ -577,6 +590,7 @@ export default function ExperiencePage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.3 }}
+                        className="h-full"
                       >
                         <ModalLocationDetails location={selectedLocation} />
                       </motion.div>
