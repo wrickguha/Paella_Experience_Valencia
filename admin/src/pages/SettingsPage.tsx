@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Save } from 'lucide-react';
-import { settingsApi } from '@/services/api';
+import { Save, FileText } from 'lucide-react';
+import { settingsApi, aboutApi } from '@/services/api';
 import PageHeader, { Card, Button, Spinner } from '@/components/ui';
 import { FormInput, FormTextarea, FormToggle, ImageUpload } from '@/components/FormFields';
 import { cn } from '@/lib/utils';
@@ -12,16 +12,33 @@ interface Setting {
   group: string;
 }
 
+interface AboutSection {
+  id: number;
+  section_key: string;
+  title_en: string;
+  title_es: string;
+  content_en: string;
+  content_es: string;
+  subtitle_en: string;
+  subtitle_es: string;
+  image: string | null;
+  image_url?: string | null;
+  sort_order: number;
+  is_active: boolean;
+}
+
 interface GroupConfig {
   label: string;
   icon: string;
-  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'file' | 'image' }[];
+  type?: 'settings' | 'about';
+  fields?: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'file' | 'image' }[];
 }
 
 const GROUPS: GroupConfig[] = [
   {
     label: 'General',
     icon: '⚙️',
+    type: 'settings',
     fields: [
       { key: 'hero_video', label: 'Hero Background Video', type: 'file' },
     ],
@@ -29,6 +46,7 @@ const GROUPS: GroupConfig[] = [
   {
     label: 'Community Section',
     icon: '👥',
+    type: 'settings',
     fields: [
       { key: 'community_image_1', label: 'Card 1 Image (Travelers & Locals)', type: 'image' },
       { key: 'community_image_2', label: 'Card 2 Image (Make New Friends)', type: 'image' },
@@ -38,6 +56,7 @@ const GROUPS: GroupConfig[] = [
   {
     label: 'Contact',
     icon: '📞',
+    type: 'settings',
     fields: [
       { key: 'contact_email', label: 'Email Address', type: 'email' },
       { key: 'contact_phone', label: 'Phone Number', type: 'text' },
@@ -50,6 +69,7 @@ const GROUPS: GroupConfig[] = [
   {
     label: 'Social Media',
     icon: '🔗',
+    type: 'settings',
     fields: [
       { key: 'social_instagram', label: 'Instagram URL', type: 'url' },
       { key: 'social_facebook', label: 'Facebook URL', type: 'url' },
@@ -57,8 +77,217 @@ const GROUPS: GroupConfig[] = [
       { key: 'social_google', label: 'Google Maps URL', type: 'url' },
     ],
   },
+  {
+    label: 'About Page',
+    icon: '📖',
+    type: 'about',
+  },
 ];
 
+// ── About Page Sub-Panel ──────────────────────────────────────────────────────
+function AboutPanel() {
+  const [story, setStory] = useState<Partial<AboutSection> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await aboutApi.list(1);
+      const allData = res.data.data || res.data;
+      const found = (Array.isArray(allData) ? allData : []).find(
+        (s: AboutSection) => s.section_key === 'story'
+      );
+      if (found) {
+        setStory(found);
+        const imgUrl = (found as AboutSection & { image_url?: string }).image_url || found.image || null;
+        setImagePreview(imgUrl);
+      }
+    } catch { /* empty */ }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const handleImageChange = (file: File | null) => {
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!story) return;
+    setSaving(true);
+    try {
+      const fd = new FormData();
+      fd.append('section_key', 'story');
+      fd.append('title_en', story.title_en || '');
+      fd.append('title_es', story.title_es || '');
+      fd.append('content_en', story.content_en || '');
+      fd.append('content_es', story.content_es || '');
+      fd.append('subtitle_en', story.subtitle_en || '');
+      fd.append('subtitle_es', story.subtitle_es || '');
+      fd.append('cta_text_en', '');
+      fd.append('cta_text_es', '');
+      fd.append('cta_link', '');
+      fd.append('sort_order', String(story.sort_order ?? 1));
+      fd.append('is_active', story.is_active ? '1' : '0');
+      fd.append('_method', 'POST');
+      if (imageFile) fd.append('image', imageFile);
+
+      if (story.id) {
+        await aboutApi.update(story.id, fd);
+      } else {
+        await aboutApi.create(fd);
+      }
+
+      setImageFile(null);
+      setSuccessMsg('About Page saved successfully!');
+      setTimeout(() => setSuccessMsg(''), 3000);
+      load();
+    } catch { /* empty */ }
+    setSaving(false);
+  };
+
+  if (loading) return <Spinner />;
+
+  if (!story) {
+    return (
+      <div className="text-center py-12 text-neutral-gray">
+        <FileText className="w-12 h-12 mx-auto mb-3 opacity-30" />
+        <p>No story section found in the database.</p>
+        <p className="text-sm mt-1">Run the database seeder on your server to create the initial data.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {successMsg && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-3 rounded-lg bg-success/10 text-success text-sm font-medium border border-success/20"
+        >
+          {successMsg}
+        </motion.div>
+      )}
+
+      {/* Status toggle */}
+      <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50 border border-gray-100">
+        <div>
+          <p className="text-sm font-medium text-neutral-dark">Section Visibility</p>
+          <p className="text-xs text-neutral-gray mt-0.5">Toggle whether the Our Story section appears on the About page</p>
+        </div>
+        <FormToggle
+          label=""
+          checked={story.is_active ?? true}
+          onChange={(v) => setStory({ ...story, is_active: v })}
+        />
+      </div>
+
+      {/* Titles */}
+      <div>
+        <h4 className="text-sm font-semibold text-neutral-dark mb-3 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+          Section Title
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label="Title (English)"
+            value={story.title_en || ''}
+            onChange={(e) => setStory({ ...story, title_en: e.target.value })}
+            placeholder="The Story Behind SpeakEasy Valencia"
+          />
+          <FormInput
+            label="Title (Spanish)"
+            value={story.title_es || ''}
+            onChange={(e) => setStory({ ...story, title_es: e.target.value })}
+            placeholder="Nuestra Historia"
+          />
+        </div>
+      </div>
+
+      {/* Subtitles */}
+      <div>
+        <h4 className="text-sm font-semibold text-neutral-dark mb-3 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+          Subtitle
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label="Subtitle (English)"
+            value={story.subtitle_en || ''}
+            onChange={(e) => setStory({ ...story, subtitle_en: e.target.value })}
+            placeholder="Born from Passion"
+          />
+          <FormInput
+            label="Subtitle (Spanish)"
+            value={story.subtitle_es || ''}
+            onChange={(e) => setStory({ ...story, subtitle_es: e.target.value })}
+            placeholder="Nacida de la Pasión"
+          />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div>
+        <h4 className="text-sm font-semibold text-neutral-dark mb-3 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+          Story Content
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormTextarea
+            label="Content (English)"
+            value={story.content_en || ''}
+            onChange={(e) => setStory({ ...story, content_en: e.target.value })}
+            rows={8}
+            placeholder="Write the story in English..."
+          />
+          <FormTextarea
+            label="Content (Spanish)"
+            value={story.content_es || ''}
+            onChange={(e) => setStory({ ...story, content_es: e.target.value })}
+            rows={8}
+            placeholder="Escribe la historia en español..."
+          />
+        </div>
+      </div>
+
+      {/* Image */}
+      <div>
+        <h4 className="text-sm font-semibold text-neutral-dark mb-3 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+          Section Image
+        </h4>
+        <div className="max-w-sm">
+          <ImageUpload
+            label="Story Image (e.g. Chef Gene photo)"
+            preview={imagePreview}
+            onChange={handleImageChange}
+          />
+        </div>
+      </div>
+
+      {/* Save button */}
+      <div className="flex justify-end pt-4 border-t border-gray-100">
+        <Button onClick={handleSave} loading={saving}>
+          <Save className="w-4 h-4" /> Save About Page
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Settings Page ────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -119,7 +348,7 @@ export default function SettingsPage() {
         fd.append(k, file);
       });
       await settingsApi.update(fd);
-      
+
       const res = await settingsApi.list();
       const map: Record<string, string> = {};
       const settings = res.data.data || res.data;
@@ -137,16 +366,19 @@ export default function SettingsPage() {
   };
 
   const currentGroup = GROUPS.find(g => g.label === activeGroup)!;
+  const isAboutTab = currentGroup?.type === 'about';
 
   return (
     <div>
       <PageHeader title="Settings" description="Manage site content, contact info, and configuration">
-        <Button onClick={handleSave} loading={saving} disabled={!hasChanges}>
-          <Save className="w-4 h-4" /> Save Changes
-        </Button>
+        {!isAboutTab && (
+          <Button onClick={handleSave} loading={saving} disabled={!hasChanges}>
+            <Save className="w-4 h-4" /> Save Changes
+          </Button>
+        )}
       </PageHeader>
 
-      {successMsg && (
+      {successMsg && !isAboutTab && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-4 p-3 rounded-lg bg-success/10 text-success text-sm font-medium border border-success/20">
           {successMsg}
         </motion.div>
@@ -177,7 +409,7 @@ export default function SettingsPage() {
             </Card>
           </div>
 
-          {/* Fields */}
+          {/* Content panel */}
           <motion.div
             key={activeGroup}
             initial={{ opacity: 0, x: 10 }}
@@ -185,103 +417,106 @@ export default function SettingsPage() {
             className="flex-1"
           >
             <Card className="p-6">
-              <h3 className="text-lg font-semibold text-neutral-dark mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-neutral-dark mb-6 flex items-center gap-2">
                 <span>{currentGroup.icon}</span> {currentGroup.label}
               </h3>
-              <div className="space-y-4">
-                {currentGroup.fields.map(field => {
-                  if (field.type === 'toggle') {
+
+              {isAboutTab ? (
+                <AboutPanel />
+              ) : (
+                <div className="space-y-4">
+                  {currentGroup.fields?.map(field => {
+                    if (field.type === 'toggle') {
+                      return (
+                        <FormToggle
+                          key={field.key}
+                          label={field.label}
+                          checked={values[field.key] === '1' || values[field.key] === 'true'}
+                          onChange={(v) => updateValue(field.key, v ? '1' : '0')}
+                        />
+                      );
+                    }
+                    if (field.type === 'textarea') {
+                      return (
+                        <FormTextarea
+                          key={field.key}
+                          label={field.label}
+                          value={values[field.key] || ''}
+                          onChange={(e) => updateValue(field.key, e.target.value)}
+                          rows={3}
+                        />
+                      );
+                    }
+                    if (field.type === 'file') {
+                      const videoPreviewUrl = values[field.key]
+                        ? (values[field.key].startsWith('blob:') || values[field.key].startsWith('http') || values[field.key].startsWith('/')
+                          ? values[field.key]
+                          : `/storage/${values[field.key]}`)
+                        : '';
+                      return (
+                        <div key={field.key}>
+                          <label className="block text-sm font-medium text-neutral-dark mb-1.5">{field.label}</label>
+                          <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-primary/40 transition-colors">
+                            {videoPreviewUrl ? (
+                              <div className="relative max-w-md mx-auto">
+                                <video src={videoPreviewUrl} controls className="max-h-40 mx-auto rounded-lg object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => { updateFile(field.key, null); }}
+                                  className="absolute -top-2 -right-2 w-6 h-6 bg-danger text-white rounded-full text-xs flex items-center justify-center shadow"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ) : (
+                              <label className="cursor-pointer block py-4">
+                                <div className="text-neutral-gray text-sm">
+                                  <span className="text-primary font-medium">Click to upload video</span> or drag and drop
+                                </div>
+                                <p className="text-xs text-neutral-gray mt-1">MP4 up to 20MB</p>
+                                <input
+                                  type="file"
+                                  accept="video/*"
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0] || null;
+                                    updateFile(field.key, file);
+                                  }}
+                                />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (field.type === 'image') {
+                      const previewUrl = values[field.key]
+                        ? (values[field.key].startsWith('blob:') || values[field.key].startsWith('http') || values[field.key].startsWith('/')
+                          ? values[field.key]
+                          : `/storage/${values[field.key]}`)
+                        : '';
+                      return (
+                        <div key={field.key} className="max-w-md">
+                          <ImageUpload
+                            label={field.label}
+                            preview={previewUrl}
+                            onChange={(file) => updateFile(field.key, file)}
+                          />
+                        </div>
+                      );
+                    }
                     return (
-                      <FormToggle
+                      <FormInput
                         key={field.key}
                         label={field.label}
-                        checked={values[field.key] === '1' || values[field.key] === 'true'}
-                        onChange={(v) => updateValue(field.key, v ? '1' : '0')}
-                      />
-                    );
-                  }
-                  if (field.type === 'textarea') {
-                    return (
-                      <FormTextarea
-                        key={field.key}
-                        label={field.label}
+                        type={field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : field.type === 'url' ? 'url' : 'text'}
                         value={values[field.key] || ''}
                         onChange={(e) => updateValue(field.key, e.target.value)}
-                        rows={3}
                       />
                     );
-                  }
-                  if (field.type === 'file') {
-                    const videoPreviewUrl = values[field.key]
-                      ? (values[field.key].startsWith('blob:') || values[field.key].startsWith('http') || values[field.key].startsWith('/')
-                        ? values[field.key]
-                        : `/storage/${values[field.key]}`)
-                      : '';
-                    return (
-                      <div key={field.key}>
-                        <label className="block text-sm font-medium text-neutral-dark mb-1.5">{field.label}</label>
-                        <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-primary/40 transition-colors">
-                          {videoPreviewUrl ? (
-                            <div className="relative max-w-md mx-auto">
-                              <video src={videoPreviewUrl} controls className="max-h-40 mx-auto rounded-lg object-cover" />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  updateFile(field.key, null);
-                                }}
-                                className="absolute -top-2 -right-2 w-6 h-6 bg-danger text-white rounded-full text-xs flex items-center justify-center shadow"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          ) : (
-                            <label className="cursor-pointer block py-4">
-                              <div className="text-neutral-gray text-sm">
-                                <span className="text-primary font-medium">Click to upload video</span> or drag and drop
-                              </div>
-                              <p className="text-xs text-neutral-gray mt-1">MP4 up to 20MB</p>
-                              <input
-                                type="file"
-                                accept="video/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0] || null;
-                                  updateFile(field.key, file);
-                                }}
-                              />
-                            </label>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  }
-                  if (field.type === 'image') {
-                    const previewUrl = values[field.key]
-                      ? (values[field.key].startsWith('blob:') || values[field.key].startsWith('http') || values[field.key].startsWith('/')
-                        ? values[field.key]
-                        : `/storage/${values[field.key]}`)
-                      : '';
-                    return (
-                      <div key={field.key} className="max-w-md">
-                        <ImageUpload
-                          label={field.label}
-                          preview={previewUrl}
-                          onChange={(file) => updateFile(field.key, file)}
-                        />
-                      </div>
-                    );
-                  }
-                  return (
-                    <FormInput
-                      key={field.key}
-                      label={field.label}
-                      type={field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : field.type === 'url' ? 'url' : 'text'}
-                      value={values[field.key] || ''}
-                      onChange={(e) => updateValue(field.key, e.target.value)}
-                    />
-                  );
-                })}
-              </div>
+                  })}
+                </div>
+              )}
             </Card>
           </motion.div>
         </div>

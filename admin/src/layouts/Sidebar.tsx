@@ -12,7 +12,6 @@ import {
   Settings,
   X,
   Percent,
-  Info,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,7 +23,6 @@ const NAV_ITEMS = [
   { to: '/admin/bookings', icon: BookOpen, label: 'Bookings' },
   { to: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { to: '/admin/gallery', icon: Image, label: 'Gallery' },
-  { to: '/admin/about', icon: Info, label: 'About Page' },
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/admin/coupons', icon: Percent, label: 'Coupons' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
