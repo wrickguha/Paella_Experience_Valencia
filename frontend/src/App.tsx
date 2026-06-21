@@ -136,7 +136,7 @@ function LoadingFallback() {
           marginBottom: 44,
           animation: 'fade-up 0.8s 0.2s ease-out both',
         }}>
-          Cook · Connect · Celebrate
+          Speak. Wander. Connect
         </p>
 
         {/* Progress bar */}
