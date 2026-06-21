@@ -56,9 +56,9 @@ const GROUPS: GroupConfig[] = [
       { key: 'community_card2_desc', label: 'Card 2 — Description', type: 'textarea' },
       { key: 'community_card3_title', label: 'Card 3 — Title', type: 'text' },
       { key: 'community_card3_desc', label: 'Card 3 — Description', type: 'textarea' },
-      { key: 'community_image_1', label: 'Card 1 Image (Travelers & Locals)', type: 'image' },
-      { key: 'community_image_2', label: 'Card 2 Image (Make New Friends)', type: 'image' },
-      { key: 'community_image_3', label: 'Card 3 Image (Shared Experiences)', type: 'image' },
+      { key: 'community_image_1', label: 'Card 1 Image ', type: 'image' },
+      { key: 'community_image_2', label: 'Card 2 Image ', type: 'image' },
+      { key: 'community_image_3', label: 'Card 3 Image ', type: 'image' },
     ],
   },
   {
