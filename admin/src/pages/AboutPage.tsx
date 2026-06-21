@@ -57,27 +57,24 @@ export default function AboutPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<AboutSection | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   const fetch = useCallback(async () => {
     setLoading(true);
     try {
       const res = await aboutApi.list(page);
-      setData(res.data.data || res.data);
-      setLastPage(res.data.last_page || 1);
+      const allData = res.data.data || res.data;
+      const filtered = Array.isArray(allData)
+        ? allData.filter((item: AboutSection) => item.section_key === 'story')
+        : [];
+      setData(filtered);
+      setLastPage(1);
     } catch { /* empty */ }
     setLoading(false);
   }, [page]);
 
-  useEffect(() => { fetch(); }, [fetch]);
-
-  const openCreate = () => {
-    setEditing({ ...EMPTY });
-    setImageFile(null);
-    setImagePreview(null);
-    setModalOpen(true);
-  };
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
 
   const openEdit = (s: AboutSection) => {
     setEditing(s);
@@ -101,17 +98,17 @@ export default function AboutPage() {
     setSaving(true);
     try {
       const fd = new FormData();
-      fd.append('section_key', editing.section_key || 'hero');
+      fd.append('section_key', 'story');
       fd.append('title_en', editing.title_en || '');
       fd.append('title_es', editing.title_es || '');
       fd.append('content_en', editing.content_en || '');
       fd.append('content_es', editing.content_es || '');
       fd.append('subtitle_en', editing.subtitle_en || '');
       fd.append('subtitle_es', editing.subtitle_es || '');
-      fd.append('cta_text_en', editing.cta_text_en || '');
-      fd.append('cta_text_es', editing.cta_text_es || '');
-      fd.append('cta_link', editing.cta_link || '');
-      fd.append('sort_order', String(editing.sort_order || 0));
+      fd.append('cta_text_en', '');
+      fd.append('cta_text_es', '');
+      fd.append('cta_link', '');
+      fd.append('sort_order', String(editing.sort_order || 1));
       fd.append('is_active', editing.is_active ? '1' : '0');
       if (imageFile) fd.append('image', imageFile);
 
@@ -129,17 +126,6 @@ export default function AboutPage() {
     setSaving(false);
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
-    setDeleting(true);
-    try {
-      await aboutApi.delete(deleteTarget.id);
-      setDeleteTarget(null);
-      fetch();
-    } catch { /* empty */ }
-    setDeleting(false);
-  };
-
   const columns = [
     { key: 'sort_order', header: '#', className: 'w-12 text-center' },
     {
@@ -149,13 +135,6 @@ export default function AboutPage() {
       render: (r: AboutSection) => r.image_url ? (
         <img src={r.image_url} alt="" className="w-14 h-10 object-cover rounded" />
       ) : <div className="w-14 h-10 bg-gray-100 rounded flex items-center justify-center text-gray-400"><FileText className="w-4 h-4" /></div>,
-    },
-    {
-      key: 'section_key',
-      header: 'Section',
-      render: (r: AboutSection) => (
-        <Badge variant="default">{r.section_key}</Badge>
-      ),
     },
     {
       key: 'title_en',
@@ -175,11 +154,10 @@ export default function AboutPage() {
     {
       key: 'actions',
       header: '',
-      className: 'w-24',
+      className: 'w-16 text-center',
       render: (r: AboutSection) => (
-        <div className="flex gap-1">
+        <div className="flex justify-center">
           <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 text-neutral-gray hover:text-primary"><Pencil className="w-4 h-4" /></button>
-          <button onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-gray hover:text-danger"><Trash2 className="w-4 h-4" /></button>
         </div>
       ),
     },
@@ -187,31 +165,23 @@ export default function AboutPage() {
 
   return (
     <div>
-      <PageHeader title="About Page" description="Manage the About page sections">
-        <Button onClick={openCreate}><Plus className="w-4 h-4" /> Add Section</Button>
-      </PageHeader>
+      <PageHeader title="About Page" description="Manage the 'Our Story' section on the About page" />
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <Card>
           {loading ? <Spinner /> : data.length === 0 ? (
-            <EmptyState icon={<FileText className="w-10 h-10" />} title="No about sections yet" action={<Button onClick={openCreate}><Plus className="w-4 h-4" /> Add Section</Button>} />
+            <EmptyState icon={<FileText className="w-10 h-10" />} title="No story section found" />
           ) : (
             <>
               <DataTable columns={columns} data={data} />
-              <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
+              {lastPage > 1 && <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />}
             </>
           )}
         </Card>
       </motion.div>
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing.id ? 'Edit Section' : 'New Section'} size="lg">
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Edit Our Story Section" size="lg">
         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
-          <FormSelect
-            label="Section Type"
-            options={SECTION_KEYS}
-            value={editing.section_key || 'hero'}
-            onChange={(e) => setEditing({ ...editing, section_key: e.target.value })}
-          />
           <div className="grid grid-cols-2 gap-4">
             <FormInput label="Title (EN)" value={editing.title_en || ''} onChange={(e) => setEditing({ ...editing, title_en: e.target.value })} />
             <FormInput label="Title (ES)" value={editing.title_es || ''} onChange={(e) => setEditing({ ...editing, title_es: e.target.value })} />
@@ -225,25 +195,15 @@ export default function AboutPage() {
             <FormTextarea label="Content (ES)" value={editing.content_es || ''} onChange={(e) => setEditing({ ...editing, content_es: e.target.value })} />
           </div>
           <ImageUpload label="Image" preview={imagePreview} onChange={handleImageChange} />
-          <div className="grid grid-cols-2 gap-4">
-            <FormInput label="CTA Text (EN)" value={editing.cta_text_en || ''} onChange={(e) => setEditing({ ...editing, cta_text_en: e.target.value })} />
-            <FormInput label="CTA Text (ES)" value={editing.cta_text_es || ''} onChange={(e) => setEditing({ ...editing, cta_text_es: e.target.value })} />
-          </div>
-          <FormInput label="CTA Link" value={editing.cta_link || ''} onChange={(e) => setEditing({ ...editing, cta_link: e.target.value })} placeholder="/booking" />
-          <div className="grid grid-cols-2 gap-4">
-            <FormInput label="Sort Order" type="number" value={editing.sort_order || 0} onChange={(e) => setEditing({ ...editing, sort_order: parseInt(e.target.value) || 0 })} />
-            <div className="flex items-end">
-              <FormToggle label="Active" checked={editing.is_active ?? true} onChange={(v) => setEditing({ ...editing, is_active: v })} />
-            </div>
+          <div className="flex items-end">
+            <FormToggle label="Active" checked={editing.is_active ?? true} onChange={(v) => setEditing({ ...editing, is_active: v })} />
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
           <Button variant="secondary" onClick={() => setModalOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} loading={saving}>{editing.id ? 'Update' : 'Create'}</Button>
+          <Button onClick={handleSave} loading={saving}>Update</Button>
         </div>
       </Modal>
-
-      <ConfirmDialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)} onConfirm={handleDelete} title="Delete Section" message="Delete this about section? This cannot be undone." loading={deleting} />
     </div>
   );
 }

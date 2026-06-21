@@ -321,7 +321,26 @@ export interface AboutData {
 
 export async function fetchAbout(lang = 'en'): Promise<AboutData> {
   const res = await apiClient.get('/about', { params: { lang } });
-  return res.data.data as AboutData;
+  const data = res.data.data as AboutData;
+
+  if (data.hero && data.hero.image) data.hero.image = getFullImageUrl(data.hero.image);
+  if (data.story && data.story.image) data.story.image = getFullImageUrl(data.story.image);
+  if (data.philosophy && data.philosophy.image) data.philosophy.image = getFullImageUrl(data.philosophy.image);
+  if (data.team && data.team.image) data.team.image = getFullImageUrl(data.team.image);
+  if (data.cta && data.cta.image) data.cta.image = getFullImageUrl(data.cta.image);
+
+  if (Array.isArray(data.differentiators)) {
+    data.differentiators.forEach((d) => {
+      if (d.image) d.image = getFullImageUrl(d.image);
+    });
+  }
+  if (Array.isArray(data.whylove)) {
+    data.whylove.forEach((w) => {
+      if (w.image) w.image = getFullImageUrl(w.image);
+    });
+  }
+
+  return data;
 }
 
 // ── Contact ────────────────────────────────────────────────────────

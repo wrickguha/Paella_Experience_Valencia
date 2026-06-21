@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,6 +7,7 @@ import SectionWrapper from '@/components/SectionWrapper';
 import Testimonials from '@/components/Testimonials';
 import GalleryGrid from '@/components/GalleryGrid';
 import { FiUsers, FiGlobe, FiMessageCircle, FiHeart, FiStar, FiZap } from 'react-icons/fi';
+import { fetchAbout, type AboutSection, type AboutData } from '@/services/api';
 
 /* ── Hero Section ────────────────────────────────────────────────── */
 function AboutHero() {
@@ -48,8 +50,12 @@ function AboutHero() {
 }
 
 /* ── Our Story Section ───────────────────────────────────────────── */
-function OurStory() {
+function OurStory({ data }: { data?: AboutSection }) {
   const { t } = useTranslation();
+  const title = data?.title || t('about.story.title');
+  const subtitle = data?.subtitle || t('about.story.subtitle');
+  const content = data?.content || t('about.story.content');
+  const image = data?.image || "/storage/assets/images/casa-magnolia/Chef Gene.jpg";
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -77,19 +83,19 @@ function OurStory() {
             variants={itemVariants}
             className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block"
           >
-            {t('about.story.subtitle')}
+            {subtitle}
           </motion.span>
           <motion.h2 
             variants={itemVariants}
             className="font-display text-4xl sm:text-5xl font-bold text-neutral-dark mb-6 leading-tight"
           >
-            {t('about.story.title')}
+            {title}
           </motion.h2>
           <motion.div 
             variants={itemVariants}
             className="text-neutral-gray font-body text-lg leading-relaxed whitespace-pre-line space-y-4"
           >
-            {t('about.story.content')}
+            {content}
           </motion.div>
         </motion.div>
         
@@ -106,8 +112,8 @@ function OurStory() {
               initial={{ scale: 1.1 }}
               whileInView={{ scale: 1 }}
               transition={{ duration: 1.5 }}
-              src="/storage/assets/images/casa-magnolia/Chef Gene.jpg"
-              alt="Gene — Our Story"
+              src={image}
+              alt={title}
               className="w-full aspect-[4/3] object-cover object-top"
             />
           </div>
@@ -201,7 +207,7 @@ function LanguageAndCulture() {
         >
           <img
             src="/storage/assets/images/speakeasy/GPTempDownload(2).jpg"
-            alt="Language & Culture — SpeakEasy Valencia"
+            alt={t('about.language.title')}
             className="w-full aspect-[4/3] object-cover object-center"
           />
         </motion.div>
@@ -302,6 +308,7 @@ function Differentiators() {
 /* ── Final CTA Section ───────────────────────────────────────────── */
 function FinalAboutCTA() {
   const { t } = useTranslation();
+
   return (
     <section className="py-24 bg-neutral-cream">
       <div className="container-max px-4">
@@ -319,10 +326,10 @@ function FinalAboutCTA() {
 
           <div className="relative z-10 max-w-4xl mx-auto">
             <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              Come Join the Table
+              {t('about.cta.title')}
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-body mb-12 leading-relaxed max-w-3xl mx-auto font-medium">
-              Whether you’re learning Spanish/English, looking for connection, or simply wanting to experience Valencia differently, Speak Easy Valencia invites you to slow down, share a meal, and be part of the experience.
+              {t('about.cta.description')}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link to="/booking" className="btn-secondary !bg-white !text-primary !border-white !px-10 !py-5 !text-lg shadow-xl hover:scale-105 transition-transform">
@@ -342,10 +349,18 @@ function FinalAboutCTA() {
 /* ── Main About Page ─────────────────────────────────────────────── */
 export default function AboutPage() {
   useScrollToTop();
+  const { i18n } = useTranslation();
+  const [aboutData, setAboutData] = useState<AboutData>({});
+
+  useEffect(() => {
+    fetchAbout(i18n.language)
+      .then(setAboutData)
+      .catch(() => {});
+  }, [i18n.language]);
 
   return (
     <div className="bg-white">
-      <OurStory />
+      <OurStory data={aboutData.story} />
       <CommunityVision />
       <LanguageAndCulture />
       <Differentiators />
