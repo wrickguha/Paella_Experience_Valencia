@@ -7,17 +7,31 @@ import { fetchSettings } from "@/services/api";
 
 export default function HeroSection() {
   const { t } = useTranslation();
-  const [videoUrl, setVideoUrl] = useState("/video/hero-video.mp4");
+  const [videoUrl, setVideoUrl] = useState(() => {
+    return localStorage.getItem("hero_video") || "/video/hero-video.mp4";
+  });
 
   useEffect(() => {
     fetchSettings("general")
       .then((settings) => {
-        if (settings.hero_video) {
-          const path = settings.hero_video;
-          const fullUrl = path.startsWith("http") || path.startsWith("/") || path.startsWith("video/")
-            ? path
-            : `/storage/${path}`;
-          setVideoUrl(fullUrl);
+        const path = settings.hero_video;
+        const fullUrl = path
+          ? (path.startsWith("http") || path.startsWith("/") || path.startsWith("video/")
+              ? path
+              : `/storage/${path}`)
+          : "/video/hero-video.mp4";
+
+        setVideoUrl((prevUrl) => {
+          if (fullUrl !== prevUrl) {
+            return fullUrl;
+          }
+          return prevUrl;
+        });
+
+        if (path) {
+          localStorage.setItem("hero_video", fullUrl);
+        } else {
+          localStorage.removeItem("hero_video");
         }
       })
       .catch(() => {});
