@@ -38,7 +38,7 @@ export default function MeetupWidget() {
         href={MEETUP_URL}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Find us on Meetup"
+        aria-label="Join Our Meetup Group"
         style={{
           position: 'fixed',
           zIndex: 9000,
@@ -67,7 +67,7 @@ export default function MeetupWidget() {
         className="meetup-widget"
       >
         <MeetupIcon size={24} />
-        <span className="meetup-widget-label">Find us on Meetup</span>
+        <span className="meetup-widget-label">Join Our Meetup Group</span>
       </a>
 
       <style>{`
