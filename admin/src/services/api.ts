@@ -124,7 +124,12 @@ export const faqsApi = {
 // ── Settings ──
 export const settingsApi = {
   list: (group?: string) => api.get('/admin/settings', { params: { group } }),
-  update: (settings: Record<string, string>) => api.put('/admin/settings', { settings }),
+  update: (data: FormData | Record<string, string>) => {
+    if (data instanceof FormData) {
+      return api.post('/admin/settings', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+    }
+    return api.post('/admin/settings', { settings: data });
+  },
 };
 
 // ── About Sections ──

@@ -21,21 +21,48 @@ class SettingController extends Controller
 
     public function update(Request $request)
     {
-        // Accept either { settings: {k:v} } (from frontend) or flat k/v
-        $settings = $request->has('settings')
-            ? $request->input('settings')
-            : $request->except(['_token', '_method']);
-
-        if (!is_array($settings)) {
-            return response()->json(['message' => 'Invalid settings format'], 422);
-        }
-
-        foreach ($settings as $key => $value) {
-            if (is_string($key)) {
+        // Handle file uploads in settings
+        foreach ($request->files->all() as $key => $file) {
+            if ($request->hasFile($key) && $request->file($key)->isValid()) {
+                $oldSetting = Setting::where('key', $key)->first();
+                if ($oldSetting && $oldSetting->value && !str_starts_with($oldSetting->value, 'http') && !str_starts_with($oldSetting->value, 'video/')) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldSetting->value);
+                }
+                $path = $request->file($key)->store('settings', 'public');
                 Setting::updateOrCreate(
                     ['key' => $key],
-                    ['value' => $value ?? '']
+                    ['value' => $path]
                 );
+            }
+        }
+
+        // Handle string settings
+        $settings = $request->input('settings');
+        if ($settings) {
+            if (is_string($settings)) {
+                $settings = json_decode($settings, true);
+            }
+            if (is_array($settings)) {
+                foreach ($settings as $key => $value) {
+                    if ($request->hasFile($key)) {
+                        continue;
+                    }
+                    Setting::updateOrCreate(
+                        ['key' => $key],
+                        ['value' => $value ?? '']
+                    );
+                }
+            }
+        } else {
+            // Support flat key/value pairs
+            $settings = $request->except(['_token', '_method']);
+            foreach ($settings as $key => $value) {
+                if (is_string($key) && !$request->hasFile($key)) {
+                    Setting::updateOrCreate(
+                        ['key' => $key],
+                        ['value' => $value ?? '']
+                    );
+                }
             }
         }
 

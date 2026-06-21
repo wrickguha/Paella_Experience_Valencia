@@ -7,16 +7,33 @@ import SectionWrapper from '@/components/SectionWrapper';
 import Testimonials from '@/components/Testimonials';
 import GalleryGrid from '@/components/GalleryGrid';
 import { FiUsers, FiGlobe, FiMessageCircle, FiHeart, FiStar, FiZap } from 'react-icons/fi';
-import { fetchAbout, type AboutSection, type AboutData } from '@/services/api';
+import { fetchAbout, fetchSettings, type AboutSection, type AboutData } from '@/services/api';
 
 /* ── Hero Section ────────────────────────────────────────────────── */
 function AboutHero() {
   const { t } = useTranslation();
+  const [videoUrl, setVideoUrl] = useState('/video/hero-video.mp4');
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then((settings) => {
+        if (settings.hero_video) {
+          const path = settings.hero_video;
+          const fullUrl = path.startsWith('http') || path.startsWith('/') || path.startsWith('video/')
+            ? path
+            : `/storage/${path}`;
+          setVideoUrl(fullUrl);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   return (
     <section className="relative min-h-[70vh] flex items-center">
       <div className="absolute inset-0 overflow-hidden">
         <video
-          src="/video/hero-video.mp4"
+          key={videoUrl}
+          src={videoUrl}
           autoPlay
           loop
           muted

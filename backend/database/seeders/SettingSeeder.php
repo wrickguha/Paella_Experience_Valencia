@@ -9,9 +9,12 @@ class SettingSeeder extends Seeder
 {
     public function run(): void
     {
+        Setting::truncate();
+
         $settings = [
             // General
             ['key' => 'site_name', 'value' => 'Paella Experience Valencia', 'group' => 'general'],
+            ['key' => 'hero_video', 'value' => 'video/hero-video.mp4', 'group' => 'general'],
             ['key' => 'site_tagline_en', 'value' => 'Authentic Valencian Paella Cooking Experiences', 'group' => 'general'],
             ['key' => 'site_tagline_es', 'value' => 'Experiencias Auténticas de Cocina de Paella Valenciana', 'group' => 'general'],
             ['key' => 'currency', 'value' => 'EUR', 'group' => 'general'],

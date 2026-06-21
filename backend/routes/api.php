@@ -195,6 +195,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Settings
     Route::get('/settings', [AdminSettingController::class, 'index']);
     Route::put('/settings', [AdminSettingController::class, 'update']);
+    Route::post('/settings', [AdminSettingController::class, 'update']);
 
     // Coupons
     Route::get('/coupons', [AdminCouponController::class, 'index']);

@@ -350,6 +350,11 @@ export async function fetchContactSettings(): Promise<Record<string, string>> {
   return res.data.data as Record<string, string>;
 }
 
+export async function fetchSettings(group?: string): Promise<Record<string, string>> {
+  const res = await apiClient.get('/settings', { params: { group } });
+  return res.data.data as Record<string, string>;
+}
+
 export async function sendContactMessage(data: {
   name: string;
   email: string;

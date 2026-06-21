@@ -1,10 +1,27 @@
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Button from "./ui/Button";
+import { fetchSettings } from "@/services/api";
 
 export default function HeroSection() {
   const { t } = useTranslation();
+  const [videoUrl, setVideoUrl] = useState("/video/hero-video.mp4");
+
+  useEffect(() => {
+    fetchSettings("general")
+      .then((settings) => {
+        if (settings.hero_video) {
+          const path = settings.hero_video;
+          const fullUrl = path.startsWith("http") || path.startsWith("/") || path.startsWith("video/")
+            ? path
+            : `/storage/${path}`;
+          setVideoUrl(fullUrl);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -24,7 +41,8 @@ export default function HeroSection() {
       {/* Video background */}
       <div className="absolute inset-0 overflow-hidden">
         <video
-          src="/video/hero-video.mp4"
+          key={videoUrl}
+          src={videoUrl}
           autoPlay
           loop
           muted

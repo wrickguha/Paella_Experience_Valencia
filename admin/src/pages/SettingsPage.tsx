@@ -15,10 +15,17 @@ interface Setting {
 interface GroupConfig {
   label: string;
   icon: string;
-  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' }[];
+  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'file' }[];
 }
 
 const GROUPS: GroupConfig[] = [
+  {
+    label: 'General',
+    icon: '⚙️',
+    fields: [
+      { key: 'hero_video', label: 'Hero Background Video', type: 'file' },
+    ],
+  },
   {
     label: 'Contact',
     icon: '📞',
@@ -51,6 +58,7 @@ export default function SettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [originalValues, setOriginalValues] = useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = useState('');
+  const [videoFile, setVideoFile] = useState<File | null>(null);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -78,8 +86,26 @@ export default function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await settingsApi.update(values);
-      setOriginalValues(values);
+      const fd = new FormData();
+      const cleanValues = { ...values };
+      if (cleanValues.hero_video && cleanValues.hero_video.startsWith('blob:')) {
+        delete cleanValues.hero_video;
+      }
+      fd.append('settings', JSON.stringify(cleanValues));
+      if (videoFile) {
+        fd.append('hero_video', videoFile);
+      }
+      await settingsApi.update(fd);
+      
+      const res = await settingsApi.list();
+      const map: Record<string, string> = {};
+      const settings = res.data.data || res.data;
+      (Array.isArray(settings) ? settings : Object.entries(settings).map(([key, value]) => ({ key, value }))).forEach((s: Setting) => {
+        map[s.key] = s.value || '';
+      });
+      setValues(map);
+      setOriginalValues(map);
+      setVideoFile(null);
       setHasChanges(false);
       setSuccessMsg('Settings saved successfully!');
       setTimeout(() => setSuccessMsg(''), 3000);
@@ -160,6 +186,54 @@ export default function SettingsPage() {
                         onChange={(e) => updateValue(field.key, e.target.value)}
                         rows={3}
                       />
+                    );
+                  }
+                  if (field.type === 'file') {
+                    const videoPreviewUrl = values[field.key]
+                      ? (values[field.key].startsWith('blob:') || values[field.key].startsWith('http') || values[field.key].startsWith('/')
+                        ? values[field.key]
+                        : `/storage/${values[field.key]}`)
+                      : '';
+                    return (
+                      <div key={field.key}>
+                        <label className="block text-sm font-medium text-neutral-dark mb-1.5">{field.label}</label>
+                        <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 text-center hover:border-primary/40 transition-colors">
+                          {videoPreviewUrl ? (
+                            <div className="relative max-w-md mx-auto">
+                              <video src={videoPreviewUrl} controls className="max-h-40 mx-auto rounded-lg object-cover" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  updateValue(field.key, '');
+                                  setVideoFile(null);
+                                }}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-danger text-white rounded-full text-xs flex items-center justify-center shadow"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="cursor-pointer block py-4">
+                              <div className="text-neutral-gray text-sm">
+                                <span className="text-primary font-medium">Click to upload video</span> or drag and drop
+                              </div>
+                              <p className="text-xs text-neutral-gray mt-1">MP4 up to 20MB</p>
+                              <input
+                                type="file"
+                                accept="video/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0] || null;
+                                  if (file) {
+                                    setVideoFile(file);
+                                    updateValue(field.key, URL.createObjectURL(file));
+                                  }
+                                }}
+                              />
+                            </label>
+                          )}
+                        </div>
+                      </div>
                     );
                   }
                   return (
