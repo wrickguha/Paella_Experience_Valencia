@@ -15,6 +15,9 @@ class SettingSeeder extends Seeder
             // General
             ['key' => 'site_name', 'value' => 'Paella Experience Valencia', 'group' => 'general'],
             ['key' => 'hero_video', 'value' => 'video/hero-video.mp4', 'group' => 'general'],
+            ['key' => 'community_image_1', 'value' => 'assets/images/speakeasy/GPTempDownload(1).jpg', 'group' => 'general'],
+            ['key' => 'community_image_2', 'value' => 'assets/images/casa-magnolia/Sobremesa.jpg', 'group' => 'general'],
+            ['key' => 'community_image_3', 'value' => 'assets/images/speakeasy/GPTempDownload(3).jpg', 'group' => 'general'],
             ['key' => 'site_tagline_en', 'value' => 'Authentic Valencian Paella Cooking Experiences', 'group' => 'general'],
             ['key' => 'site_tagline_es', 'value' => 'Experiencias Auténticas de Cocina de Paella Valenciana', 'group' => 'general'],
             ['key' => 'currency', 'value' => 'EUR', 'group' => 'general'],

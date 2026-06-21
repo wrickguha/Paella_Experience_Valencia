@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Save } from 'lucide-react';
 import { settingsApi } from '@/services/api';
 import PageHeader, { Card, Button, Spinner } from '@/components/ui';
-import { FormInput, FormTextarea, FormToggle } from '@/components/FormFields';
+import { FormInput, FormTextarea, FormToggle, ImageUpload } from '@/components/FormFields';
 import { cn } from '@/lib/utils';
 
 interface Setting {
@@ -15,7 +15,7 @@ interface Setting {
 interface GroupConfig {
   label: string;
   icon: string;
-  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'file' }[];
+  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'file' | 'image' }[];
 }
 
 const GROUPS: GroupConfig[] = [
@@ -24,6 +24,15 @@ const GROUPS: GroupConfig[] = [
     icon: '⚙️',
     fields: [
       { key: 'hero_video', label: 'Hero Background Video', type: 'file' },
+    ],
+  },
+  {
+    label: 'Community Section',
+    icon: '👥',
+    fields: [
+      { key: 'community_image_1', label: 'Card 1 Image (Travelers & Locals)', type: 'image' },
+      { key: 'community_image_2', label: 'Card 2 Image (Make New Friends)', type: 'image' },
+      { key: 'community_image_3', label: 'Card 3 Image (Shared Experiences)', type: 'image' },
     ],
   },
   {
@@ -58,7 +67,7 @@ export default function SettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [originalValues, setOriginalValues] = useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = useState('');
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<Record<string, File>>({});
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -83,18 +92,32 @@ export default function SettingsPage() {
     setHasChanges(JSON.stringify(next) !== JSON.stringify(originalValues));
   };
 
+  const updateFile = (key: string, file: File | null) => {
+    const nextFiles = { ...files };
+    if (file) {
+      nextFiles[key] = file;
+      updateValue(key, URL.createObjectURL(file));
+    } else {
+      delete nextFiles[key];
+      updateValue(key, '');
+    }
+    setFiles(nextFiles);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const fd = new FormData();
       const cleanValues = { ...values };
-      if (cleanValues.hero_video && cleanValues.hero_video.startsWith('blob:')) {
-        delete cleanValues.hero_video;
-      }
+      ['hero_video', 'community_image_1', 'community_image_2', 'community_image_3'].forEach(k => {
+        if (cleanValues[k] && cleanValues[k].startsWith('blob:')) {
+          delete cleanValues[k];
+        }
+      });
       fd.append('settings', JSON.stringify(cleanValues));
-      if (videoFile) {
-        fd.append('hero_video', videoFile);
-      }
+      Object.entries(files).forEach(([k, file]) => {
+        fd.append(k, file);
+      });
       await settingsApi.update(fd);
       
       const res = await settingsApi.list();
@@ -105,7 +128,7 @@ export default function SettingsPage() {
       });
       setValues(map);
       setOriginalValues(map);
-      setVideoFile(null);
+      setFiles({});
       setHasChanges(false);
       setSuccessMsg('Settings saved successfully!');
       setTimeout(() => setSuccessMsg(''), 3000);
@@ -204,8 +227,7 @@ export default function SettingsPage() {
                               <button
                                 type="button"
                                 onClick={() => {
-                                  updateValue(field.key, '');
-                                  setVideoFile(null);
+                                  updateFile(field.key, null);
                                 }}
                                 className="absolute -top-2 -right-2 w-6 h-6 bg-danger text-white rounded-full text-xs flex items-center justify-center shadow"
                               >
@@ -224,15 +246,28 @@ export default function SettingsPage() {
                                 className="hidden"
                                 onChange={(e) => {
                                   const file = e.target.files?.[0] || null;
-                                  if (file) {
-                                    setVideoFile(file);
-                                    updateValue(field.key, URL.createObjectURL(file));
-                                  }
+                                  updateFile(field.key, file);
                                 }}
                               />
                             </label>
                           )}
                         </div>
+                      </div>
+                    );
+                  }
+                  if (field.type === 'image') {
+                    const previewUrl = values[field.key]
+                      ? (values[field.key].startsWith('blob:') || values[field.key].startsWith('http') || values[field.key].startsWith('/')
+                        ? values[field.key]
+                        : `/storage/${values[field.key]}`)
+                      : '';
+                    return (
+                      <div key={field.key} className="max-w-md">
+                        <ImageUpload
+                          label={field.label}
+                          preview={previewUrl}
+                          onChange={(file) => updateFile(field.key, file)}
+                        />
                       </div>
                     );
                   }
