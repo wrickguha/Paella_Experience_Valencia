@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
@@ -65,6 +67,14 @@ class SettingController extends Controller
                 }
             }
         }
+
+        // Clear public settings cache so frontend sees changes immediately
+        Cache::forget('settings_public_all');
+        Cache::forget('settings_public_general');
+        Cache::forget('settings_public_contact');
+        Cache::forget('settings_public_social');
+        Cache::forget('settings_public_footer');
+        Cache::forget('settings_public_stats');
 
         return response()->json(['message' => 'Settings updated']);
     }
