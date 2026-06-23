@@ -2,12 +2,27 @@ import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
 import { motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
+import { fetchSettings } from '@/services/api';
 
-const videos = [
-  '/video/testimonials1.mp4',
-  '/video/testimonials2.mp4',
-  '/video/testimonials3.mp4',
-];
+function getYouTubeEmbedUrl(urlOrId: string) {
+  if (!urlOrId) return '';
+  if (urlOrId.includes('youtube.com/embed/')) return urlOrId;
+  let videoId = '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = urlOrId.match(regExp);
+  if (match && match[2].length === 11) {
+    videoId = match[2];
+  } else {
+    const shortsRegExp = /youtube\.com\/shorts\/([^#\&\?]*)/;
+    const shortsMatch = urlOrId.match(shortsRegExp);
+    if (shortsMatch && shortsMatch[1].length === 11) {
+      videoId = shortsMatch[1];
+    } else if (urlOrId.length === 11) {
+      videoId = urlOrId;
+    }
+  }
+  return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : urlOrId;
+}
 
 function LazyVideo({ src, index }: { src: string; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -29,6 +44,9 @@ function LazyVideo({ src, index }: { src: string; index: number }) {
     return () => observer.disconnect();
   }, []);
 
+  const isYouTube = src.includes('youtube.com') || src.includes('youtu.be') || src.length === 11;
+  const embedUrl = isYouTube ? getYouTubeEmbedUrl(src) : src;
+
   return (
     <motion.div
       ref={ref}
@@ -39,13 +57,24 @@ function LazyVideo({ src, index }: { src: string; index: number }) {
       className="rounded-[2rem] overflow-hidden shadow-elevated bg-neutral-cream aspect-[9/16] relative group"
     >
       {inView ? (
-        <video
-          src={src}
-          controls
-          playsInline
-          preload="metadata"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        isYouTube ? (
+          <iframe
+            src={embedUrl}
+            title={`Video testimonial ${index + 1}`}
+            className="absolute inset-0 w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            style={{ border: 0 }}
+          />
+        ) : (
+          <video
+            src={src}
+            controls
+            playsInline
+            preload="metadata"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        )
       ) : (
         /* Placeholder shown until video is near viewport */
         <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-neutral-200">
@@ -64,6 +93,36 @@ function LazyVideo({ src, index }: { src: string; index: number }) {
 
 export default function VideoTestimonialsSection() {
   const { t } = useTranslation();
+  const [videoList, setVideoList] = useState<string[]>(() => {
+    try {
+      const cached = localStorage.getItem('testimonial_videos');
+      return cached ? JSON.parse(cached) : [
+        '/video/testimonials1.mp4',
+        '/video/testimonials2.mp4',
+        '/video/testimonials3.mp4',
+      ];
+    } catch {
+      return [
+        '/video/testimonials1.mp4',
+        '/video/testimonials2.mp4',
+        '/video/testimonials3.mp4',
+      ];
+    }
+  });
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then((s) => {
+        const fetchedVideos = [
+          s.testimonial_video_1 || '/video/testimonials1.mp4',
+          s.testimonial_video_2 || '/video/testimonials2.mp4',
+          s.testimonial_video_3 || '/video/testimonials3.mp4',
+        ];
+        setVideoList(fetchedVideos);
+        localStorage.setItem('testimonial_videos', JSON.stringify(fetchedVideos));
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <SectionWrapper className="bg-white">
@@ -74,7 +133,7 @@ export default function VideoTestimonialsSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-        {videos.map((src, index) => (
+        {videoList.map((src, index) => (
           <LazyVideo key={index} src={src} index={index} />
         ))}
       </div>

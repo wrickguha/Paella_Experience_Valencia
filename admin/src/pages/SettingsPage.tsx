@@ -62,6 +62,16 @@ const GROUPS: GroupConfig[] = [
     ],
   },
   {
+    label: 'Video Testimonials',
+    icon: '🎥',
+    type: 'settings',
+    fields: [
+      { key: 'testimonial_video_1', label: 'YouTube Video 1 (URL or ID)', type: 'text' },
+      { key: 'testimonial_video_2', label: 'YouTube Video 2 (URL or ID)', type: 'text' },
+      { key: 'testimonial_video_3', label: 'YouTube Video 3 (URL or ID)', type: 'text' },
+    ],
+  },
+  {
     label: 'Contact',
     icon: '📞',
     type: 'settings',
@@ -295,6 +305,25 @@ function AboutPanel() {
   );
 }
 
+function getYouTubeThumbnail(urlOrId: string) {
+  if (!urlOrId) return null;
+  let videoId = '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = urlOrId.match(regExp);
+  if (match && match[2].length === 11) {
+    videoId = match[2];
+  } else {
+    const shortsRegExp = /youtube\.com\/shorts\/([^#\&\?]*)/;
+    const shortsMatch = urlOrId.match(shortsRegExp);
+    if (shortsMatch && shortsMatch[1].length === 11) {
+      videoId = shortsMatch[1];
+    } else if (urlOrId.length === 11) {
+      videoId = urlOrId;
+    }
+  }
+  return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null;
+}
+
 // ── Main Settings Page ────────────────────────────────────────────────────────
 export default function SettingsPage() {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -513,14 +542,27 @@ export default function SettingsPage() {
                         </div>
                       );
                     }
+                    const isYoutubeField = field.key.startsWith('testimonial_video_');
+                    const ytThumbnail = isYoutubeField ? getYouTubeThumbnail(values[field.key]) : null;
                     return (
-                      <FormInput
-                        key={field.key}
-                        label={field.label}
-                        type={field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : field.type === 'url' ? 'url' : 'text'}
-                        value={values[field.key] || ''}
-                        onChange={(e) => updateValue(field.key, e.target.value)}
-                      />
+                      <div key={field.key} className="space-y-2">
+                        <FormInput
+                          label={field.label}
+                          type={field.type === 'number' ? 'number' : field.type === 'email' ? 'email' : field.type === 'url' ? 'url' : 'text'}
+                          value={values[field.key] || ''}
+                          onChange={(e) => updateValue(field.key, e.target.value)}
+                        />
+                        {ytThumbnail && (
+                          <div className="mt-2 relative w-full max-w-[240px] aspect-video rounded-xl overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
+                            <img src={ytThumbnail} alt="YouTube Preview" className="w-full h-full object-cover animate-fade-in" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                              <svg className="w-10 h-10 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>

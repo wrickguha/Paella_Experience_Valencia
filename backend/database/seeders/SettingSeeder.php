@@ -30,6 +30,9 @@ class SettingSeeder extends Seeder
             ['key' => 'site_tagline_es', 'value' => 'Experiencias Auténticas de Cocina de Paella Valenciana', 'group' => 'general'],
             ['key' => 'currency', 'value' => 'EUR', 'group' => 'general'],
             ['key' => 'currency_symbol', 'value' => '€', 'group' => 'general'],
+            ['key' => 'testimonial_video_1', 'value' => 'https://www.youtube.com/watch?v=6k8p5_h8WbY', 'group' => 'general'],
+            ['key' => 'testimonial_video_2', 'value' => 'https://www.youtube.com/watch?v=Z7n4w0yv5zM', 'group' => 'general'],
+            ['key' => 'testimonial_video_3', 'value' => 'https://www.youtube.com/watch?v=Kzszc67N4zY', 'group' => 'general'],
 
             // Contact
             ['key' => 'contact_email', 'value' => 'hello@paellaexperiencevalencia.com', 'group' => 'contact'],
