@@ -508,7 +508,7 @@ export default function ExperiencePage() {
               </div>
 
               {/* Modal Content */}
-              <div className="flex-1 overflow-y-auto md:overflow-hidden p-6 md:p-8">
+              <div className={`flex-1 overflow-y-auto p-6 md:p-8 ${selectedLocation ? 'md:overflow-hidden' : ''}`}>
                 {locLoading ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
@@ -523,7 +523,7 @@ export default function ExperiencePage() {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
                         transition={{ duration: 0.3 }}
-                        className="h-full flex flex-col justify-center"
+                        className="min-h-full flex flex-col justify-center"
                       >
                         {filteredLocations.length === 0 ? (
                           <div className="flex flex-col items-center justify-center h-full py-12 text-center">
