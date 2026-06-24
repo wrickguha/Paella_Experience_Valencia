@@ -575,7 +575,7 @@ export default function ExperiencePage() {
                                           {loc.name}
                                           {(loc.is_active === false || loc.experience_is_active === false) && (
                                             <span className="text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 uppercase tracking-widest px-2 py-0.5 rounded-md">
-                                              Inactive
+                                              No active events
                                             </span>
                                           )}
                                         </h4>
