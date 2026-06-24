@@ -6,15 +6,17 @@ import Button from "./ui/Button";
 import { fetchSettings } from "@/services/api";
 
 export default function HeroSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
   const [videoUrl, setVideoUrl] = useState(() => {
     return localStorage.getItem("hero_video") || "/video/hero-video.mp4";
   });
 
   useEffect(() => {
     fetchSettings("general")
-      .then((settings) => {
-        const path = settings.hero_video;
+      .then((data) => {
+        setSettings(data);
+        const path = data.hero_video;
         const fullUrl = path
           ? (path.startsWith("http") || path.startsWith("/") || path.startsWith("video/")
               ? path
@@ -79,14 +81,14 @@ export default function HeroSection() {
             variants={itemVariants}
             className="font-modern text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6 drop-shadow-lg"
           >
-            {t("hero.title")}
+            {settings[`hero_title_${i18n.language.startsWith("es") ? "es" : "en"}`] || t("hero.title")}
           </motion.h1>
 
           <motion.p
             variants={itemVariants}
             className="text-xl sm:text-2xl text-white/95 font-body font-medium mb-10 max-w-3xl leading-relaxed drop-shadow-md"
           >
-            {t("hero.subtitle")}
+            {settings[`hero_subtitle_${i18n.language.startsWith("es") ? "es" : "en"}`] || t("hero.subtitle")}
           </motion.p>
 
           <motion.div

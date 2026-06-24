@@ -41,6 +41,10 @@ const GROUPS: GroupConfig[] = [
     type: 'settings',
     fields: [
       { key: 'hero_video', label: 'Hero Background Video', type: 'file' },
+      { key: 'hero_title_en', label: 'Hero Title (English)', type: 'text' },
+      { key: 'hero_title_es', label: 'Hero Title (Spanish)', type: 'text' },
+      { key: 'hero_subtitle_en', label: 'Hero Subtitle / Description (English)', type: 'textarea' },
+      { key: 'hero_subtitle_es', label: 'Hero Subtitle / Description (Spanish)', type: 'textarea' },
     ],
   },
   {
