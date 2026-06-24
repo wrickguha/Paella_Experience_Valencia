@@ -13,7 +13,7 @@ class ExperienceController extends Controller
     {
         $lang = $request->query('lang', 'en');
 
-        $experiences = Experience::active()
+        $experiences = Experience::query()
             ->with(['location', 'features'])
             ->orderBy('sort_order')
             ->get()

@@ -169,6 +169,8 @@ export interface FrontendLocation {
   price: number | null;
   features: string[];
   schedules: LocationSchedule[];
+  is_active?: boolean;
+  experience_is_active?: boolean;
 }
 
 export async function fetchLocations(lang = 'en'): Promise<FrontendLocation[]> {

@@ -251,12 +251,21 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
               </p>
             </div>
           )}
-          <Link
-            to={`/booking?location=${locationSlug}`}
-            className="btn-primary !px-6 !py-3 text-xs sm:text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg text-center"
-          >
-            Save your seat at the table
-          </Link>
+          {location.is_active !== false && location.experience_is_active !== false ? (
+            <Link
+              to={`/booking?location=${locationSlug}`}
+              className="btn-primary !px-6 !py-3 text-xs sm:text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg text-center"
+            >
+              Save your seat at the table
+            </Link>
+          ) : (
+            <button
+              disabled
+              className="px-6 py-3 text-xs sm:text-sm font-semibold whitespace-nowrap bg-neutral-sand/20 text-neutral-gray rounded-xl cursor-not-allowed text-center"
+            >
+              Booking Unavailable
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -562,8 +571,13 @@ export default function ExperiencePage() {
                                   <div className="p-6 flex-1 flex flex-col justify-between">
                                     <div>
                                       <div className="flex justify-between items-start gap-2 mb-1">
-                                        <h4 className="font-display font-bold text-neutral-dark text-lg group-hover:text-primary transition-colors">
+                                        <h4 className="font-display font-bold text-neutral-dark text-lg group-hover:text-primary transition-colors flex items-center gap-2">
                                           {loc.name}
+                                          {(loc.is_active === false || loc.experience_is_active === false) && (
+                                            <span className="text-[9px] font-bold text-red-600 bg-red-50 border border-red-100 uppercase tracking-widest px-2 py-0.5 rounded-md">
+                                              Inactive
+                                            </span>
+                                          )}
                                         </h4>
                                         {loc.price != null && (
                                           <span className="text-primary font-display font-bold text-sm">€{loc.price}</span>

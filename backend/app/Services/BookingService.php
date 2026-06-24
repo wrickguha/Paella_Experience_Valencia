@@ -6,6 +6,7 @@ use App\Models\AvailabilitySlot;
 use App\Models\Booking;
 use App\Models\Coupon;
 use App\Models\Experience;
+use App\Models\Location;
 use App\Models\Schedule;
 use Illuminate\Support\Facades\DB;
 
@@ -20,6 +21,14 @@ class BookingService
     {
         return DB::transaction(function () use ($data) {
             $experience = Experience::findOrFail($data['experience_id']);
+            if (!$experience->is_active) {
+                throw new \Exception("This experience is currently not available for booking.");
+            }
+
+            $location = Location::findOrFail($data['location_id']);
+            if (!$location->is_active) {
+                throw new \Exception("This location is currently not available for booking.");
+            }
 
             // Materialise or lock the availability slot
             $slot = $this->resolveAndLockSlot(

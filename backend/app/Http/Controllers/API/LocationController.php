@@ -15,7 +15,7 @@ class LocationController extends Controller
         $lang = $request->query('lang', 'en');
 
         $locations = Cache::remember("locations_{$lang}", 3600, function () use ($lang) {
-            return Location::active()
+            return Location::query()
                 ->with(['schedules', 'experiences.features', 'images'])
                 ->get()
                 ->map(fn (Location $loc): array => $this->formatLocation($loc, $lang));
@@ -54,7 +54,7 @@ class LocationController extends Controller
 
     private function formatLocation(Location $loc, string $lang, bool $includeExperiences = false): array
     {
-        $firstExp = $loc->experiences->where('is_active', true)->sortBy('sort_order')->first();
+        $firstExp = $loc->experiences->sortBy('sort_order')->first();
 
         $expDesc = $firstExp ? ($lang === 'es' ? $firstExp->description_es : $firstExp->description_en) : null;
 
@@ -82,15 +82,18 @@ class LocationController extends Controller
                 'start_time'  => $s->start_time,
                 'end_time'    => $s->end_time,
             ])->values(),
+            'is_active' => (bool) $loc->is_active,
+            'experience_is_active' => $firstExp ? (bool) $firstExp->is_active : false,
         ];
 
         if ($includeExperiences && $loc->relationLoaded('experiences')) {
-            $data['experiences'] = $loc->experiences->where('is_active', true)->map(fn ($exp) => [
+            $data['experiences'] = $loc->experiences->map(fn ($exp) => [
                 'id' => $exp->id,
                 'title' => $lang === 'es' ? $exp->title_es : $exp->title_en,
                 'price' => (float) $exp->price,
                 'duration' => $exp->duration,
                 'hero_image' => $this->imageUrl($exp->hero_image),
+                'is_active' => (bool) $exp->is_active,
             ])->values();
         }
 

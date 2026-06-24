@@ -20,14 +20,21 @@ class CalendarService
     public function getMonthCalendar(int $locationId, int $year, int $month): Collection
     {
         $location = Location::with('schedules')->findOrFail($locationId);
+        if (!$location->is_active) {
+            return collect();
+        }
+
         $start = Carbon::create($year, $month, 1)->startOfMonth();
         $end = $start->copy()->endOfMonth();
         $today = Carbon::today();
 
         // Get the primary experience for this location
         $experience = $location->experiences()->where('is_active', true)->orderBy('sort_order')->first();
-        $experienceId = $experience?->id;
-        $experiencePrice = $experience ? (float) $experience->price : 0;
+        if (!$experience) {
+            return collect();
+        }
+        $experienceId = $experience->id;
+        $experiencePrice = (float) $experience->price;
 
         // Fetch existing availability_slots for this range, grouped by date
         $existingSlots = AvailabilitySlot::forLocation($locationId)
@@ -180,6 +187,16 @@ class CalendarService
      */
     public function getAvailability(int $locationId, string $date): Collection
     {
+        $location = Location::find($locationId);
+        if (!$location || !$location->is_active) {
+            return collect();
+        }
+
+        $hasActiveExperience = $location->experiences()->where('is_active', true)->exists();
+        if (!$hasActiveExperience) {
+            return collect();
+        }
+
         $carbonDate = Carbon::parse($date);
         $dayOfWeek  = $carbonDate->dayOfWeek;
 
