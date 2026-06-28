@@ -20,7 +20,7 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
   const { t } = useTranslation();
   const isSpanish = lang === 'es';
   const i18nKeyPrefix = isSpanish ? 'spanishTest' : 'englishTest';
-  
+
   const [quizState, setQuizState] = useState<QuizState>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
@@ -87,7 +87,7 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
           >
             <div>
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">{isSpanish ? '🇪🇸' : '🇬🇧'}</span>
+                <span className="text-3xl">{isSpanish ? '🇪🇸' : 'EN'}</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-4">
                 {t(`${i18nKeyPrefix}.title`)}
@@ -120,7 +120,7 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
               <div className="flex justify-between items-center mb-8 text-sm font-heading font-semibold text-neutral-gray gap-4">
                 <span className="whitespace-nowrap">Question {currentQuestionIndex + 1} of {totalQuestions}</span>
                 <div className="w-1/2 bg-neutral-cream rounded-full h-2 overflow-hidden">
-                  <div 
+                  <div
                     className="bg-primary h-full transition-all duration-300"
                     style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
                   />
@@ -136,11 +136,10 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
                   <button
                     key={idx}
                     onClick={() => handleAnswerSelect(idx)}
-                    className={`w-full text-left p-4 rounded-xl border-2 transition-all font-body text-lg ${
-                      selectedAnswer === idx
+                    className={`w-full text-left p-4 rounded-xl border-2 transition-all font-body text-lg ${selectedAnswer === idx
                         ? 'border-primary bg-primary/5 text-primary font-semibold'
                         : 'border-neutral-cream hover:border-primary/30 hover:bg-neutral-cream/50 text-neutral-dark'
-                    }`}
+                      }`}
                   >
                     {option}
                   </button>
@@ -152,14 +151,13 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
               <button
                 onClick={handleNext}
                 disabled={selectedAnswer === null}
-                className={`font-heading font-semibold text-lg px-8 py-3 rounded-xl transition-all ${
-                  selectedAnswer !== null
+                className={`font-heading font-semibold text-lg px-8 py-3 rounded-xl transition-all ${selectedAnswer !== null
                     ? 'bg-primary hover:bg-primary-hover text-white shadow-md hover:scale-105 active:scale-95'
                     : 'bg-neutral-cream text-neutral-gray cursor-not-allowed'
-                }`}
+                  }`}
               >
-                {currentQuestionIndex === totalQuestions - 1 
-                  ? t(`${i18nKeyPrefix}.resultsBtn`) 
+                {currentQuestionIndex === totalQuestions - 1
+                  ? t(`${i18nKeyPrefix}.resultsBtn`)
                   : t(`${i18nKeyPrefix}.nextBtn`)}
               </button>
             </div>
@@ -189,7 +187,7 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
                   {t(`${i18nKeyPrefix}.recommendationTitle`)}
                 </p>
                 <h4 className="text-2xl font-display font-bold text-primary mb-3">
-                  {isSpanish 
+                  {isSpanish
                     ? t(`spanishTest.levels.${getRecommendation()}.title`)
                     : `Your estimated level is ${t(`englishTest.levels.${getRecommendation()}.title`)}.`}
                 </h4>
