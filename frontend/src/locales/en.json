@@ -1026,6 +1026,216 @@
       }
     ]
   },
+  "englishTest": {
+    "title": "Discover Your English Level",
+    "subtitle": "Choose the best answer. Don't guess too much—answer honestly. The test takes about 10 minutes.",
+    "startBtn": "Start Test",
+    "nextBtn": "Next",
+    "resultsBtn": "See Results",
+    "retakeBtn": "Retake Test",
+    "bookBtn": "Book a free speaking assessment",
+    "resultsTitle": "Your Results",
+    "outOf": "out of 30",
+    "recommendationTitle": "Your Estimated Level",
+    "levels": {
+      "a1": {
+        "title": "A1 (Beginner)",
+        "description": "You’re starting your English journey. Focus on everyday vocabulary and basic grammar."
+      },
+      "a2": {
+        "title": "A2 (Elementary)",
+        "description": "You can handle simple conversations and routine situations."
+      },
+      "b1": {
+        "title": "B1 (Intermediate)",
+        "description": "You communicate independently in many everyday situations."
+      },
+      "b2": {
+        "title": "B2 (Upper Intermediate)",
+        "description": "You can discuss complex topics and understand most authentic English."
+      },
+      "c1": {
+        "title": "C1 (Advanced)",
+        "description": "You communicate fluently and effectively in academic and professional contexts."
+      },
+      "c2": {
+        "title": "C2 (Proficient)",
+        "description": "Your English is close to that of a highly proficient speaker."
+      }
+    },
+    "questions": [
+      {
+        "q": "I ___ a teacher.",
+        "options": ["am", "is", "are", "be"],
+        "answer": 0
+      },
+      {
+        "q": "She ___ coffee every morning.",
+        "options": ["drink", "drinks", "drinking", "drank"],
+        "answer": 1
+      },
+      {
+        "q": "We ___ in Madrid.",
+        "options": ["lives", "living", "live", "lived"],
+        "answer": 2
+      },
+      {
+        "q": "There ___ two cats in the garden.",
+        "options": ["is", "are", "be", "was"],
+        "answer": 1
+      },
+      {
+        "q": "Which is correct?",
+        "options": [
+          "He don’t like pizza.",
+          "He doesn’t like pizza.",
+          "He not likes pizza.",
+          "He isn’t like pizza."
+        ],
+        "answer": 1
+      },
+      {
+        "q": "Yesterday I ___ my grandparents.",
+        "options": ["visit", "visited", "visiting", "visits"],
+        "answer": 1
+      },
+      {
+        "q": "I’ve lived here ___ five years.",
+        "options": ["since", "for", "during", "from"],
+        "answer": 1
+      },
+      {
+        "q": "Can you ___ me with this exercise?",
+        "options": ["help", "helping", "to helping", "helped"],
+        "answer": 0
+      },
+      {
+        "q": "I think it ___ rain later.",
+        "options": ["will", "is", "does", "has"],
+        "answer": 0
+      },
+      {
+        "q": "She is ___ than her sister.",
+        "options": ["taller", "more tall", "tallest", "most tall"],
+        "answer": 0
+      },
+      {
+        "q": "If I had more money, I ___ travel more.",
+        "options": ["will", "would", "can", "am"],
+        "answer": 1
+      },
+      {
+        "q": "I enjoy ___ books.",
+        "options": ["read", "reading", "to readed", "reads"],
+        "answer": 1
+      },
+      {
+        "q": "The film was interesting, ___ it?",
+        "options": ["wasn’t", "didn’t", "isn’t", "doesn’t"],
+        "answer": 0
+      },
+      {
+        "q": "He asked me where I ___.",
+        "options": ["live", "lived", "living", "will live"],
+        "answer": 1
+      },
+      {
+        "q": "By the time we arrived, they ___ dinner.",
+        "options": ["finished", "had finished", "finish", "have finish"],
+        "answer": 1
+      },
+      {
+        "q": "The report ___ before Friday.",
+        "options": ["must finish", "must be finished", "must finished", "must have finish"],
+        "answer": 1
+      },
+      {
+        "q": "I wish I ___ more confident.",
+        "options": ["am", "were", "was", "have been"],
+        "answer": 1
+      },
+      {
+        "q": "Scarcely ___ the meeting begun when the fire alarm sounded.",
+        "options": ["had", "had the", "had we", "we had"],
+        "answer": 2
+      },
+      {
+        "q": "Which sentence is most natural?",
+        "options": [
+          "I’m used to getting up early.",
+          "I’m used to get up early.",
+          "I use to getting up early.",
+          "I used get up early."
+        ],
+        "answer": 0
+      },
+      {
+        "q": "His explanation was perfectly ___.",
+        "options": ["coherent", "ordinary", "accidental", "doubtful"],
+        "answer": 0
+      },
+      {
+        "q": "No sooner ___ the speech than the audience applauded.",
+        "options": ["had she finished", "she had finished", "finished she", "has she finished"],
+        "answer": 0
+      },
+      {
+        "q": "The company is facing an ___ challenge.",
+        "options": ["unprecedented", "little", "usual", "weak"],
+        "answer": 0
+      },
+      {
+        "q": "Which word is closest to “scrutinize”?",
+        "options": ["Examine carefully", "Ignore", "Copy", "Destroy"],
+        "answer": 0
+      },
+      {
+        "q": "The committee proposed several ___ to the policy.",
+        "options": ["amendments", "ornaments", "belongings", "attitudes"],
+        "answer": 0
+      },
+      {
+        "q": "Had I known, I ___ differently.",
+        "options": ["would have acted", "will act", "acted", "act"],
+        "answer": 0
+      },
+      {
+        "q": "Which sentence is most idiomatic?",
+        "options": [
+          "He missed the point entirely.",
+          "He lost the point.",
+          "He escaped the point.",
+          "He forgot the point."
+        ],
+        "answer": 0
+      },
+      {
+        "q": "The author’s prose is remarkably ___.",
+        "options": ["evocative", "normal", "weak", "tiny"],
+        "answer": 0
+      },
+      {
+        "q": "Which word best completes the sentence? “The witness’s account was entirely ______ with the available evidence.”",
+        "options": ["consonant", "musical", "noisy", "colorful"],
+        "answer": 0
+      },
+      {
+        "q": "Which sentence is grammatically correct?",
+        "options": [
+          "Rarely have I encountered such dedication.",
+          "Rarely I have encountered such dedication.",
+          "Rarely encountered I such dedication.",
+          "Rarely have encountered I such dedication."
+        ],
+        "answer": 0
+      },
+      {
+        "q": "Which word best replaces “ubiquitous”?",
+        "options": ["Everywhere", "Rare", "Ancient", "Expensive"],
+        "answer": 0
+      }
+    ]
+  },
   "experience": {
     "title": "Experiences & Locations",
     "subtitle": "Discover our curated spaces where language and life meet",
