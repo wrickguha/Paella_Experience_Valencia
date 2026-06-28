@@ -87,7 +87,7 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
           >
             <div>
               <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <span className="text-3xl">{isSpanish ? '🇪🇸' : 'EN'}</span>
+                <span className="text-3xl">{isSpanish ? 'ES' : 'EN'}</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-4">
                 {t(`${i18nKeyPrefix}.title`)}
@@ -137,8 +137,8 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
                     key={idx}
                     onClick={() => handleAnswerSelect(idx)}
                     className={`w-full text-left p-4 rounded-xl border-2 transition-all font-body text-lg ${selectedAnswer === idx
-                        ? 'border-primary bg-primary/5 text-primary font-semibold'
-                        : 'border-neutral-cream hover:border-primary/30 hover:bg-neutral-cream/50 text-neutral-dark'
+                      ? 'border-primary bg-primary/5 text-primary font-semibold'
+                      : 'border-neutral-cream hover:border-primary/30 hover:bg-neutral-cream/50 text-neutral-dark'
                       }`}
                   >
                     {option}
@@ -152,8 +152,8 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
                 onClick={handleNext}
                 disabled={selectedAnswer === null}
                 className={`font-heading font-semibold text-lg px-8 py-3 rounded-xl transition-all ${selectedAnswer !== null
-                    ? 'bg-primary hover:bg-primary-hover text-white shadow-md hover:scale-105 active:scale-95'
-                    : 'bg-neutral-cream text-neutral-gray cursor-not-allowed'
+                  ? 'bg-primary hover:bg-primary-hover text-white shadow-md hover:scale-105 active:scale-95'
+                  : 'bg-neutral-cream text-neutral-gray cursor-not-allowed'
                   }`}
               >
                 {currentQuestionIndex === totalQuestions - 1
