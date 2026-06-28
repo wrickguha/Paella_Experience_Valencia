@@ -12,11 +12,11 @@ const iconMap: Record<string, string> = {
 };
 
 const flowSteps = [
-  { id: 1, emoji: '👋', title: 'Meet & Greet',    description: 'Welcome drink and introductions.' },
-  { id: 2, emoji: '🎯', title: 'Interactive Activities', description: 'Fun games to break the ice.' },
-  { id: 3, emoji: '🍳', title: 'Cook Together',   description: 'Hands-on paella preparation.' },
-  { id: 4, emoji: '🥘', title: 'Eat & Connect',   description: 'Enjoy the meal and shared stories.' },
-  { id: 5, emoji: '🍷', title: 'Sobremesa',       description: 'Linger at the table, share stories, and let conversations flow naturally.' },
+  { id: 1, emoji: '👋', title: 'Meet & Connect',          description: 'Meet people from around the world.' },
+  { id: 2, emoji: '🗣️', title: 'Language Experience',      description: 'Practice Spanish and English naturally.' },
+  { id: 3, emoji: '🥟', title: 'Food & Drinks',            description: 'Enjoy Argentine empanadas, wine, and beer.' },
+  { id: 4, emoji: '🌍', title: 'Culture & Conversation',   description: 'Share stories, experiences, and perspectives.' },
+  { id: 5, emoji: '🤝', title: 'Build New Connections',    description: 'Leave with new friends and memorable conversations.' },
 ];
 
 function SnakeFlowchart() {
@@ -50,7 +50,7 @@ function SnakeFlowchart() {
             <div className="flex-1 bg-white border border-neutral-sand/30 rounded-2xl px-5 py-4 shadow-card">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-lg">{step.emoji}</span>
-                <h4 className="font-heading font-bold text-neutral-dark text-sm">{step.id === 5 ? <em>{step.title}</em> : step.title}</h4>
+                <h4 className="font-heading font-bold text-neutral-dark text-sm">{step.title}</h4>
               </div>
               <p className="text-neutral-gray text-sm leading-relaxed">{step.description}</p>
             </div>
