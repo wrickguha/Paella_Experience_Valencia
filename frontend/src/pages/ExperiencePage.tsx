@@ -107,6 +107,11 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
     setCurrentSlide((prev) => (prev + 1) % images.length);
   }, [images.length]);
 
+  const prevSlide = useCallback(() => {
+    setSlideDir(-1);
+    setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
+
   useEffect(() => {
     if (images.length <= 1) return;
     const timer = setInterval(nextSlide, 5000);
@@ -176,6 +181,29 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
                 />
               ))}
             </div>
+          )}
+          {/* Left / Right Arrow buttons */}
+          {images.length > 1 && (
+            <>
+              <button
+                onClick={(e) => { e.stopPropagation(); prevSlide(); }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
+                aria-label="Previous image"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); nextSlide(); }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-110 active:scale-95"
+                aria-label="Next image"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
           )}
         </div>
 
