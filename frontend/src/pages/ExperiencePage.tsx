@@ -256,12 +256,12 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
             <div className="bg-neutral-cream/20 rounded-xl p-4 border border-neutral-sand/10">
               <p className="text-[9px] uppercase tracking-wider text-neutral-gray mb-2 font-semibold">✨ Highlights</p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {location.features.slice(0, 4).map((feat, i) => (
+                {location.features.map((feat, i) => (
                   <li key={i} className="flex items-start gap-1.5 text-xs text-neutral-dark font-body">
                     <svg className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span className="truncate">{feat}</span>
+                    <span>{feat}</span>
                   </li>
                 ))}
               </ul>
