@@ -40,6 +40,7 @@ const GROUPS: GroupConfig[] = [
     icon: '⚙️',
     type: 'settings',
     fields: [
+      { key: 'hero_tagline', label: 'Splash Screen Tagline', type: 'text' },
       { key: 'hero_video', label: 'Hero Background Video', type: 'file' },
       { key: 'hero_title_en', label: 'Hero Title (English)', type: 'text' },
       { key: 'hero_title_es', label: 'Hero Title (Spanish)', type: 'text' },

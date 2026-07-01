@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { fetchSettings } from '@/services/api';
 
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const ExperiencePage = lazy(() => import('@/pages/ExperiencePage'));
@@ -19,7 +20,7 @@ const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage'));
 
-function LoadingFallback() {
+function LoadingFallback({ tagline = 'Speak. Cook. Connect' }: { tagline?: string }) {
   return (
     <div
       style={{
@@ -136,7 +137,7 @@ function LoadingFallback() {
           marginBottom: 44,
           animation: 'fade-up 0.8s 0.2s ease-out both',
         }}>
-          Speak. Wander. Connect
+          {tagline}
         </p>
 
         {/* Progress bar */}
@@ -224,8 +225,17 @@ const FADE_MS   = 500;  // fade-out duration in ms
  * This eliminates layout-shift glitches from the old approach.
  */
 function SplashGate({ children }: { children: React.ReactNode }) {
-  const [fading,  setFading]  = useState(false);  // true = opacity fading to 0
-  const [gone,    setGone]    = useState(false);   // true = overlay removed from DOM
+  const [fading,  setFading]  = useState(false);
+  const [gone,    setGone]    = useState(false);
+  const [tagline, setTagline] = useState('Speak. Cook. Connect');
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then((s) => {
+        if (s.hero_tagline) setTagline(s.hero_tagline);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     // After minimum display time → start fade-out
@@ -255,7 +265,7 @@ function SplashGate({ children }: { children: React.ReactNode }) {
             pointerEvents: fading ? 'none' : 'all',
           }}
         >
-          <LoadingFallback />
+          <LoadingFallback tagline={tagline} />
         </div>
       )}
     </>

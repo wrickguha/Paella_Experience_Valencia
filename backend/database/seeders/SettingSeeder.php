@@ -13,6 +13,7 @@ class SettingSeeder extends Seeder
 
         $settings = [
             // General
+            ['key' => 'hero_tagline', 'value' => 'Speak. Cook. Connect', 'group' => 'general'],
             ['key' => 'site_name', 'value' => 'Paella Experience Valencia', 'group' => 'general'],
             ['key' => 'hero_video', 'value' => 'video/hero-video.mp4', 'group' => 'general'],
             ['key' => 'community_image_1', 'value' => 'assets/images/speakeasy/GPTempDownload(1).jpg', 'group' => 'general'],
