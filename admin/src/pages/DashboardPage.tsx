@@ -112,7 +112,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <PageHeader title="Dashboard" description="Overview of your paella experience business" />
+      <PageHeader title="Dashboard" description="Overview of your speakeasy valencia business" />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

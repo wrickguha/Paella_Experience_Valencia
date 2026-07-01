@@ -49,7 +49,7 @@ export default function LoginPage() {
             <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center mb-4">
               <UtensilsCrossed className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-neutral-dark font-display">Paella Admin</h1>
+            <h1 className="text-2xl font-bold text-neutral-dark font-display">SpeakEasy Valencia Admin</h1>
             <p className="text-sm text-neutral-gray mt-1">Sign in to your dashboard</p>
           </div>
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                placeholder="admin@paella.com"
+                placeholder="admin@speakeasyvalencia.com"
               />
             </div>
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-neutral-gray mt-6">
-          Paella Experience Valencia — Admin Panel
+          SpeakEasy Valencia — Admin Panel
         </p>
       </motion.div>
     </div>

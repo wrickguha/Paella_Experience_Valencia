@@ -503,8 +503,8 @@ export default function LocationsPage() {
               <p className="text-sm font-semibold text-neutral-dark">Experience &amp; Pricing</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormInput label="Subtitle (EN)" value={editing.subtitle_en || ''} onChange={(e) => setEditing({ ...editing, subtitle_en: e.target.value })} placeholder="e.g. Authentic Paella Experience" />
-              <FormInput label="Subtitle (ES)" value={editing.subtitle_es || ''} onChange={(e) => setEditing({ ...editing, subtitle_es: e.target.value })} placeholder="e.g. Experiencia de Paella Auténtica" />
+              <FormInput label="Subtitle (EN)" value={editing.subtitle_en || ''} onChange={(e) => setEditing({ ...editing, subtitle_en: e.target.value })} placeholder="e.g. Authentic SpeakEasy Valencia Experience" />
+              <FormInput label="Subtitle (ES)" value={editing.subtitle_es || ''} onChange={(e) => setEditing({ ...editing, subtitle_es: e.target.value })} placeholder="e.g. Experiencia de SpeakEasy Valencia Auténtica" />
               <FormInput label="Price (€ per person)" type="number" value={editing.price ?? ''} onChange={(e) => setEditing({ ...editing, price: e.target.value ? parseFloat(e.target.value) : null })} placeholder="e.g. 99" />
               <FormInput label="Duration" value={editing.duration || ''} onChange={(e) => setEditing({ ...editing, duration: e.target.value })} placeholder="e.g. 3 hours" />
             </div>

@@ -59,7 +59,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
               <UtensilsCrossed className="w-4 h-4 text-white" />
             </div>
-            <span className="text-white font-display font-bold text-lg">Paella Admin</span>
+            <span className="text-white font-display font-bold text-lg">SpeakEasy Valencia Admin</span>
           </div>
           <button onClick={onClose} className="lg:hidden text-white/60 hover:text-white">
             <X className="w-5 h-5" />
@@ -91,7 +91,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-white/10 text-xs text-white/40">
-          Paella Experience Valencia
+          SpeakEasy Valencia
         </div>
       </motion.aside>
     </>
