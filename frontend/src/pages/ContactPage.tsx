@@ -178,16 +178,30 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Map Placeholder */}
-            <div className="card !p-0 overflow-hidden h-64">
-              <div className="w-full h-full bg-neutral-sand flex items-center justify-center">
-                <div className="text-center">
-                  <span className="text-4xl block mb-2">🗺</span>
-                  <p className="text-sm text-neutral-gray font-body">
-                    Map — {contact.contact_address || 'Valencia, Spain'}
-                  </p>
+            {/* Map */}
+            <div className="card !p-0 overflow-hidden h-64 rounded-2xl">
+              {contact.contact_map_embed && contact.contact_map_embed.includes('/maps/embed') ? (
+                <iframe
+                  src={contact.contact_map_embed}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Location Map"
+                  className="w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-full bg-neutral-sand flex items-center justify-center">
+                  <div className="text-center">
+                    <span className="text-4xl block mb-2">🗺</span>
+                    <p className="text-sm text-neutral-gray font-body">
+                      Map — {contact.contact_address || 'Valencia, Spain'}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </motion.div>
         </div>

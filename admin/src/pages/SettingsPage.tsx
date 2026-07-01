@@ -86,6 +86,7 @@ const GROUPS: GroupConfig[] = [
       { key: 'contact_address', label: 'Address', type: 'textarea' },
       { key: 'contact_city', label: 'City / Region', type: 'text' },
       { key: 'contact_hours', label: 'Business Hours', type: 'text' },
+      { key: 'contact_map_embed', label: 'Google Maps Embed URL', type: 'url' },
     ],
   },
   {
@@ -548,6 +549,75 @@ export default function SettingsPage() {
                     }
                     const isYoutubeField = field.key.startsWith('testimonial_video_');
                     const ytThumbnail = isYoutubeField ? getYouTubeThumbnail(values[field.key]) : null;
+
+                    // Special handling for Google Maps Embed URL
+                    if (field.key === 'contact_map_embed') {
+                      const rawVal = values[field.key] || '';
+                      // Auto-convert regular Google Maps URLs to embed format
+                      const toEmbedUrl = (url: string) => {
+                        if (!url) return '';
+                        if (url.includes('/maps/embed')) return url;
+                        // Convert share/place URLs like https://www.google.com/maps/place/...
+                        const match = url.match(/google\.com\/maps/);
+                        if (match) {
+                          // Try to extract coordinates or just wrap as a q= search
+                          const coordMatch = url.match(/@(-?[\d.]+),(-?[\d.]+)/);
+                          if (coordMatch) {
+                            return `https://www.google.com/maps/embed?pb=!1m0!3m2!1sen!2ses!4v1&center=${coordMatch[1]},${coordMatch[2]}`;
+                          }
+                          // Fallback: extract place name from URL
+                          const placeMatch = url.match(/\/maps\/place\/([^/@]+)/);
+                          if (placeMatch) {
+                            return `https://www.google.com/maps/embed/v1/place?key=AIzaSyD-placeholder&q=${placeMatch[1]}`;
+                          }
+                        }
+                        return url;
+                      };
+                      const isValidEmbed = rawVal.includes('/maps/embed');
+                      const isRegularMaps = rawVal.includes('google.com/maps') && !rawVal.includes('/maps/embed');
+                      return (
+                        <div key={field.key} className="space-y-3">
+                          <FormInput
+                            label={field.label}
+                            type="url"
+                            value={rawVal}
+                            onChange={(e) => updateValue(field.key, e.target.value)}
+                            placeholder="https://www.google.com/maps/embed?pb=..."
+                          />
+                          {/* Status indicators */}
+                          {isValidEmbed && (
+                            <div className="flex items-center gap-2 text-xs text-green-600 font-medium">
+                              <span>✅</span> Valid embed URL — map will display correctly
+                            </div>
+                          )}
+                          {isRegularMaps && (
+                            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-800 space-y-1">
+                              <p className="font-semibold">⚠️ This looks like a regular Google Maps link — it won't work in an iframe.</p>
+                              <p>Google requires the special <strong>Embed URL</strong> format. Follow the steps below to get it.</p>
+                            </div>
+                          )}
+                          {/* Live preview */}
+                          {isValidEmbed && (
+                            <div className="rounded-xl overflow-hidden border border-gray-200 h-40">
+                              <iframe src={rawVal} width="100%" height="100%" style={{ border: 0 }} loading="lazy" title="Map Preview" />
+                            </div>
+                          )}
+                          {/* Instructions */}
+                          <div className="p-4 rounded-xl bg-blue-50 border border-blue-100 text-xs text-blue-800 space-y-2">
+                            <p className="font-semibold text-sm">📌 How to get the Google Maps Embed URL:</p>
+                            <ol className="list-decimal list-inside space-y-1 ml-1">
+                              <li>Open <strong>Google Maps</strong> and search for your location</li>
+                              <li>Click the <strong>Share</strong> button (or the three-dot menu → Share)</li>
+                              <li>Click the <strong>"Embed a map"</strong> tab</li>
+                              <li>Click <strong>"Copy HTML"</strong></li>
+                              <li>From the copied code, only paste the URL inside <code className="bg-blue-100 px-1 rounded">src="..."</code> here</li>
+                            </ol>
+                            <p className="text-blue-600 mt-1">The URL must start with: <code className="bg-blue-100 px-1 rounded">https://www.google.com/maps/embed?pb=</code></p>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     return (
                       <div key={field.key} className="space-y-2">
                         <FormInput

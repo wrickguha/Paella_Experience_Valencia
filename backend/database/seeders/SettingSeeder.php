@@ -40,6 +40,7 @@ class SettingSeeder extends Seeder
             ['key' => 'contact_address', 'value' => "Calle de la Paz, 12\nValencia 46002, Spain", 'group' => 'contact'],
             ['key' => 'contact_city', 'value' => 'Valencia, Spain', 'group' => 'contact'],
             ['key' => 'contact_hours', 'value' => 'Mon-Sun: 9:00 AM - 8:00 PM', 'group' => 'contact'],
+            ['key' => 'contact_map_embed', 'value' => '', 'group' => 'contact'],
 
             // Social
             ['key' => 'social_instagram', 'value' => 'https://instagram.com/paellaexperiencevalencia', 'group' => 'social'],
