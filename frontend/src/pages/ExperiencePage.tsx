@@ -243,14 +243,7 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
 
         {/* Price + CTA */}
         <div className="flex items-center justify-between gap-4 pt-4 border-t border-neutral-sand/20 flex-shrink-0">
-          {location.price != null && (
-            <div>
-              <p className="text-[9px] uppercase tracking-wider text-neutral-gray mb-0.5">Price per person</p>
-              <p className="font-display text-xl sm:text-2xl font-bold text-neutral-dark">
-                €{location.price}
-              </p>
-            </div>
-          )}
+
           {location.is_active !== false && location.experience_is_active !== false ? (
             <Link
               to={`/booking?location=${locationSlug}`}
@@ -579,9 +572,7 @@ export default function ExperiencePage() {
                                             </span>
                                           )}
                                         </h4>
-                                        {loc.price != null && (
-                                          <span className="text-primary font-display font-bold text-sm">€{loc.price}</span>
-                                        )}
+
                                       </div>
                                       {loc.subtitle && (
                                         <p className="text-primary font-heading font-semibold text-xs mb-2">
