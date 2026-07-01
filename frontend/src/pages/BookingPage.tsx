@@ -20,6 +20,7 @@ interface SelectedEvent {
   time: string;
   pricePerPerson: number;
   locationName: string;
+  features: string[];
 }
 
 export default function BookingPage() {
@@ -64,6 +65,7 @@ export default function BookingPage() {
       time: event.time,
       pricePerPerson: event.pricePerPerson,
       locationName: event.locationName,
+      features: event.features ?? [],
     });
     setModalOpen(false);
     setStep('guests');
@@ -98,6 +100,7 @@ export default function BookingPage() {
                 time: match.time,
                 pricePerPerson: match.pricePerPerson,
                 locationName: match.locationName,
+                features: match.features ?? [],
               });
               setStep('guests');
             }
@@ -259,6 +262,22 @@ export default function BookingPage() {
                     {t('booking.summary.edit')}
                   </button>
                 </div>
+                {/* Features / Facilities */}
+                {selectedEvent.features && selectedEvent.features.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-neutral-sand/30">
+                    <p className="text-[9px] uppercase tracking-wider text-neutral-gray font-semibold mb-2">✨ What's included</p>
+                    <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                      {selectedEvent.features.map((feat, i) => (
+                        <li key={i} className="flex items-center gap-1.5 text-xs text-neutral-dark font-body">
+                          <svg className="w-3.5 h-3.5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <GuestSelector

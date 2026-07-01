@@ -34,6 +34,7 @@ export interface CalendarEvent {
   gallery: string[];
   address: string;
   maps_link: string | null;
+  features: string[];
 }
 
 // ── Internal types (backend response shapes) ───────────────────────
@@ -46,6 +47,7 @@ interface ApiLocation {
   price: number | null;
   address: string;
   maps_link: string | null;
+  features: string[];
 }
 
 interface ApiExperience {
@@ -142,6 +144,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         gallery: allImages,
         address: loc?.address ?? '',
         maps_link: loc?.maps_link ?? null,
+        features: loc?.features ?? [],
       };
     });
 }
