@@ -181,17 +181,20 @@ export default function ContactPage() {
             {/* Map */}
             <div className="card !p-0 overflow-hidden h-64 rounded-2xl">
               {(() => {
-                // Use the explicitly configured embed URL if it looks valid
-                const embedUrl = contact.contact_map_embed;
-                if (embedUrl && embedUrl.includes('google.com/maps')) {
-                  // If it's already in embed format, use it directly
-                  // Otherwise, it could be a regular maps link — still render it as embed
-                  const src = embedUrl.includes('/maps/embed')
-                    ? embedUrl
-                    : `https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72I3xi2X5cfvfeQ4T2VBSQ0Rc&q=${encodeURIComponent(contact.contact_address || contact.contact_city || 'Valencia, Spain')}`;
+                const raw = (contact.contact_map_embed || '').trim();
+
+                // Step 1: If admin pasted full <iframe ...> HTML, extract just the src URL
+                let resolvedUrl = raw;
+                if (raw.startsWith('<iframe')) {
+                  const srcMatch = raw.match(/src=["']([^"']+)["']/);
+                  resolvedUrl = srcMatch ? srcMatch[1] : '';
+                }
+
+                // Step 2: Use the resolved URL if it's any Google Maps link
+                if (resolvedUrl && resolvedUrl.includes('google.com/maps')) {
                   return (
                     <iframe
-                      src={src}
+                      src={resolvedUrl}
                       width="100%"
                       height="100%"
                       style={{ border: 0 }}
@@ -203,22 +206,17 @@ export default function ContactPage() {
                     />
                   );
                 }
-                // Fallback: generate a map from the address using Google Maps Embed (no API key needed for this endpoint)
-                const query = encodeURIComponent(
-                  contact.contact_address || contact.contact_city || 'Valencia, Spain'
-                );
+
+                // Step 3: Nothing set by admin — show placeholder
                 return (
-                  <iframe
-                    src={`https://maps.google.com/maps?q=${query}&output=embed`}
-                    width="100%"
-                    height="100%"
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title="Location Map"
-                    className="w-full h-full"
-                  />
+                  <div className="w-full h-full bg-neutral-sand flex items-center justify-center">
+                    <div className="text-center">
+                      <span className="text-4xl block mb-2">🗺</span>
+                      <p className="text-sm text-neutral-gray font-body">
+                        {contact.contact_address || 'Valencia, Spain'}
+                      </p>
+                    </div>
+                  </div>
                 );
               })()}
             </div>
