@@ -30,9 +30,10 @@
 # ── Security headers ───────────────────────────────────────────────
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
     Header set X-XSS-Protection "1; mode=block"
     Header set Referrer-Policy "strict-origin-when-cross-origin"
+    # Allow Google Maps iframes to load inside our site
+    Header set Content-Security-Policy "frame-src 'self' https://www.google.com https://maps.google.com https://www.youtube.com;"
 </IfModule>
 
 # ── Disable directory listing ──────────────────────────────────────
