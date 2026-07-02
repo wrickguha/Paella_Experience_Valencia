@@ -180,28 +180,47 @@ export default function ContactPage() {
 
             {/* Map */}
             <div className="card !p-0 overflow-hidden h-64 rounded-2xl">
-              {contact.contact_map_embed && contact.contact_map_embed.includes('/maps/embed') ? (
-                <iframe
-                  src={contact.contact_map_embed}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Location Map"
-                  className="w-full h-full"
-                />
-              ) : (
-                <div className="w-full h-full bg-neutral-sand flex items-center justify-center">
-                  <div className="text-center">
-                    <span className="text-4xl block mb-2">🗺</span>
-                    <p className="text-sm text-neutral-gray font-body">
-                      Map — {contact.contact_address || 'Valencia, Spain'}
-                    </p>
-                  </div>
-                </div>
-              )}
+              {(() => {
+                // Use the explicitly configured embed URL if it looks valid
+                const embedUrl = contact.contact_map_embed;
+                if (embedUrl && embedUrl.includes('google.com/maps')) {
+                  // If it's already in embed format, use it directly
+                  // Otherwise, it could be a regular maps link — still render it as embed
+                  const src = embedUrl.includes('/maps/embed')
+                    ? embedUrl
+                    : `https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72I3xi2X5cfvfeQ4T2VBSQ0Rc&q=${encodeURIComponent(contact.contact_address || contact.contact_city || 'Valencia, Spain')}`;
+                  return (
+                    <iframe
+                      src={src}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Location Map"
+                      className="w-full h-full"
+                    />
+                  );
+                }
+                // Fallback: generate a map from the address using Google Maps Embed (no API key needed for this endpoint)
+                const query = encodeURIComponent(
+                  contact.contact_address || contact.contact_city || 'Valencia, Spain'
+                );
+                return (
+                  <iframe
+                    src={`https://maps.google.com/maps?q=${query}&output=embed`}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Location Map"
+                    className="w-full h-full"
+                  />
+                );
+              })()}
             </div>
           </motion.div>
         </div>
