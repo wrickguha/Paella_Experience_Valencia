@@ -62,7 +62,7 @@ class LocationController extends Controller
             'id' => $loc->id,
             'name' => $loc->getLocalizedName($lang),
             'subtitle' => $firstExp ? ($lang === 'es' ? $firstExp->title_es : $firstExp->title_en) : null,
-            'description' => $expDesc ?: $loc->getLocalizedDescription($lang),
+            'description' => $loc->getLocalizedDescription($lang),
             'address' => $loc->address,
             'maps_link' => $loc->maps_link,
             'image' => $this->imageUrl($loc->image),

@@ -262,16 +262,7 @@ export function ExperiencesTab({ isTab = false, onRegisterCreate }: ExperiencesT
             value={editing.title_es || ''}
             onChange={(e) => setEditing({ ...editing, title_es: e.target.value })}
           />
-          <FormTextarea
-            label="Description (EN)"
-            value={editing.description_en || ''}
-            onChange={(e) => setEditing({ ...editing, description_en: e.target.value })}
-          />
-          <FormTextarea
-            label="Description (ES)"
-            value={editing.description_es || ''}
-            onChange={(e) => setEditing({ ...editing, description_es: e.target.value })}
-          />
+
           <FormInput
             label="Price (€)"
             type="number"
