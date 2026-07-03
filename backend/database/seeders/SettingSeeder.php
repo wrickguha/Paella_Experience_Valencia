@@ -36,7 +36,7 @@ class SettingSeeder extends Seeder
             ['key' => 'testimonial_video_3', 'value' => 'https://www.youtube.com/watch?v=Kzszc67N4zY', 'group' => 'general'],
 
             // Contact
-            ['key' => 'contact_email', 'value' => 'hello@paellaexperiencevalencia.com', 'group' => 'contact'],
+            ['key' => 'contact_email', 'value' => 'info@speakeasyvalencia.com', 'group' => 'contact'],
             ['key' => 'contact_phone', 'value' => '+34 612 345 678', 'group' => 'contact'],
             ['key' => 'contact_address', 'value' => "Calle de la Paz, 12\nValencia 46002, Spain", 'group' => 'contact'],
             ['key' => 'contact_city', 'value' => 'Valencia, Spain', 'group' => 'contact'],
