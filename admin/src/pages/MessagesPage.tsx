@@ -144,17 +144,34 @@ export default function MessagesPage() {
       header: '',
       render: (r: ContactMessage) => (
         <div className="flex items-center gap-1">
-          <Button size="sm" variant="ghost" onClick={() => handleView(r)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleView(r);
+            }}
+          >
             <Eye className="w-4 h-4" />
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => handleToggleRead(r)}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleToggleRead(r);
+            }}
+          >
             {r.is_read ? <Mail className="w-4 h-4" /> : <MailOpen className="w-4 h-4" />}
           </Button>
           <Button
             size="sm"
             variant="ghost"
             className="text-red-500 hover:text-red-700"
-            onClick={() => handleDelete(r.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(r.id);
+            }}
             disabled={deleting === r.id}
           >
             <Trash2 className="w-4 h-4" />
@@ -226,24 +243,24 @@ export default function MessagesPage() {
         ) : (
           <>
             <DataTable columns={columns} data={data} onRowClick={handleView} />
-            <Pagination page={page} lastPage={lastPage} onChange={setPage} />
+            <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
           </>
         )}
       </Card>
 
       {/* Detail Modal */}
-      {detail && (
-        <Modal title="Message Details" onClose={() => setDetail(null)}>
+      <Modal open={!!detail} title="Message Details" onClose={() => setDetail(null)}>
+        {detail && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-medium text-neutral-gray uppercase tracking-wide">From</label>
-                <p className="font-medium text-neutral-dark mt-1">{detail.name}</p>
+                <p className="font-medium text-neutral-dark mt-1 break-all">{detail.name}</p>
               </div>
               <div>
                 <label className="text-xs font-medium text-neutral-gray uppercase tracking-wide">Email</label>
                 <p className="mt-1">
-                  <a href={`mailto:${detail.email}`} className="text-primary hover:underline">
+                  <a href={`mailto:${detail.email}`} className="text-primary hover:underline break-all">
                     {detail.email}
                   </a>
                 </p>
@@ -252,13 +269,13 @@ export default function MessagesPage() {
 
             <div>
               <label className="text-xs font-medium text-neutral-gray uppercase tracking-wide">Subject</label>
-              <p className="font-medium text-neutral-dark mt-1">{detail.subject}</p>
+              <p className="font-medium text-neutral-dark mt-1 break-all">{detail.subject}</p>
             </div>
 
             <div>
               <label className="text-xs font-medium text-neutral-gray uppercase tracking-wide">Message</label>
               <div className="mt-1 bg-gray-50 rounded-xl p-4">
-                <p className="text-sm text-neutral-dark whitespace-pre-wrap leading-relaxed">{detail.message}</p>
+                <p className="text-sm text-neutral-dark whitespace-pre-wrap leading-relaxed break-all">{detail.message}</p>
               </div>
             </div>
 
@@ -290,8 +307,8 @@ export default function MessagesPage() {
               </div>
             </div>
           </div>
-        </Modal>
-      )}
+        )}
+      </Modal>
     </motion.div>
   );
 }
