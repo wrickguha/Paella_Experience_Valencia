@@ -18,7 +18,17 @@ class ContactController extends Controller
             'message' => 'required|string|max:5000',
         ]);
 
-        ContactMessage::create($validated);
+        $contactMessage = ContactMessage::create($validated);
+
+        try {
+            \Illuminate\Support\Facades\Mail::to('info@speakeasyvalencia.com')
+                ->send(new \App\Mail\NewContactMessageAdminNotification($contactMessage));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Admin contact message notification email failed', [
+                'message_id' => $contactMessage->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
