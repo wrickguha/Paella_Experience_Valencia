@@ -133,14 +133,14 @@ export default function ContactPage() {
             )}
           </motion.div>
 
-          {/* Contact Info + Map */}
+          {/* Contact Info */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.6 }}
-            className="space-y-6"
+            className="h-full flex flex-col"
           >
-            <div className="card">
+            <div className="card flex-1 flex flex-col justify-center">
               <h3 className="font-heading font-semibold text-lg text-neutral-dark mb-6">
                 {contact.contact_city || 'Valencia, Spain'}
               </h3>
@@ -176,49 +176,6 @@ export default function ContactPage() {
                   </div>
                 )}
               </div>
-            </div>
-
-            {/* Map */}
-            <div className="card !p-0 overflow-hidden h-64 rounded-2xl">
-              {(() => {
-                const raw = (contact.contact_map_embed || '').trim();
-
-                // Step 1: If admin pasted full <iframe ...> HTML, extract just the src URL
-                let resolvedUrl = raw;
-                if (raw.startsWith('<iframe')) {
-                  const srcMatch = raw.match(/src=["']([^"']+)["']/);
-                  resolvedUrl = srcMatch ? srcMatch[1] : '';
-                }
-
-                // Step 2: Use the resolved URL if it's any Google Maps link
-                if (resolvedUrl && resolvedUrl.includes('google.com/maps')) {
-                  return (
-                    <iframe
-                      src={resolvedUrl}
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Location Map"
-                      className="w-full h-full"
-                    />
-                  );
-                }
-
-                // Step 3: Nothing set by admin — show placeholder
-                return (
-                  <div className="w-full h-full bg-neutral-sand flex items-center justify-center">
-                    <div className="text-center">
-                      <span className="text-4xl block mb-2">🗺</span>
-                      <p className="text-sm text-neutral-gray font-body">
-                        {contact.contact_address || 'Valencia, Spain'}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
           </motion.div>
         </div>
