@@ -8,7 +8,6 @@ import { Spinner } from '@/components/ui';
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const ExperiencesPage = lazy(() => import('@/pages/ExperiencesPage'));
-const LocationsPage = lazy(() => import('@/pages/LocationsPage'));
 const CalendarPage = lazy(() => import('@/pages/CalendarPage'));
 const BookingsPage = lazy(() => import('@/pages/BookingsPage'));
 const PaymentsPage = lazy(() => import('@/pages/PaymentsPage'));
@@ -45,7 +44,7 @@ export default function App() {
         >
           <Route index element={<DashboardPage />} />
           <Route path="experiences" element={<ExperiencesPage />} />
-          <Route path="locations" element={<LocationsPage />} />
+          <Route path="locations" element={<Navigate to="/admin/experiences" replace />} />
           <Route path="calendar" element={<CalendarPage />} />
           <Route path="bookings" element={<BookingsPage />} />
           <Route path="payments" element={<PaymentsPage />} />

@@ -71,7 +71,12 @@ const EMPTY: Partial<Location> = {
 const EMPTY_SCHEDULE: ScheduleEntry = { day_of_week: 1, start_time: '12:00', end_time: '16:00', total_slots: 12, is_active: true };
 const EMPTY_CUSTOM_DATE: CustomDateEntry = { date: '', start_time: '11:00', end_time: '20:00', total_slots: 12, is_active: true };
 
-export default function LocationsPage() {
+interface LocationsPageProps {
+  isTab?: boolean;
+  onRegisterCreate?: (cb: () => void) => void;
+}
+
+export default function LocationsPage({ isTab = false, onRegisterCreate }: LocationsPageProps) {
   const [data, setData] = useState<Location[]>([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -108,6 +113,12 @@ export default function LocationsPage() {
     setRemoveGalleryIds([]);
     setModalOpen(true);
   };
+
+  useEffect(() => {
+    if (onRegisterCreate) {
+      onRegisterCreate(openCreate);
+    }
+  }, [onRegisterCreate]);
 
   const openEdit = (loc: Location) => {
     const allSchedules = loc.schedules || [];
@@ -269,9 +280,11 @@ export default function LocationsPage() {
 
   return (
     <div>
-      <PageHeader title="Locations" description="Manage your event locations">
-        <Button onClick={openCreate}><Plus className="w-4 h-4" /> Add Location</Button>
-      </PageHeader>
+      {!isTab && (
+        <PageHeader title="Locations" description="Manage your event locations">
+          <Button onClick={openCreate}><Plus className="w-4 h-4" /> Add Location</Button>
+        </PageHeader>
+      )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <Card>

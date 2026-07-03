@@ -1,12 +1,13 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, UtensilsCrossed } from 'lucide-react';
+import { Plus, Pencil, Trash2, UtensilsCrossed, MapPin } from 'lucide-react';
 import { experiencesApi, locationsApi } from '@/services/api';
 import { formatCurrency } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
 import DataTable, { Pagination } from '@/components/DataTable';
 import { Modal, ConfirmDialog } from '@/components/Modal';
 import { FormInput, FormTextarea, FormSelect, ImageUpload, FormToggle } from '@/components/FormFields';
+import LocationsPage from './LocationsPage';
 
 interface Experience {
   id: number;
@@ -34,7 +35,12 @@ const EMPTY: Partial<Experience> = {
   price: 0, duration: '', location_id: 0, is_active: true, sort_order: 0,
 };
 
-export default function ExperiencesPage() {
+interface ExperiencesTabProps {
+  isTab?: boolean;
+  onRegisterCreate?: (cb: () => void) => void;
+}
+
+export function ExperiencesTab({ isTab = false, onRegisterCreate }: ExperiencesTabProps) {
   const [data, setData] = useState<Experience[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [page, setPage] = useState(1);
@@ -72,6 +78,12 @@ export default function ExperiencesPage() {
     setFeatures([]);
     setModalOpen(true);
   };
+
+  useEffect(() => {
+    if (onRegisterCreate) {
+      onRegisterCreate(openCreate);
+    }
+  }, [onRegisterCreate]);
 
   const openEdit = (exp: Experience) => {
     setEditing(exp);
@@ -194,11 +206,13 @@ export default function ExperiencesPage() {
 
   return (
     <div>
-      <PageHeader title="Experiences" description="Manage your cooking experiences">
-        <Button onClick={openCreate}>
-          <Plus className="w-4 h-4" /> Add Experience
-        </Button>
-      </PageHeader>
+      {!isTab && (
+        <PageHeader title="Experiences" description="Manage your cooking experiences">
+          <Button onClick={openCreate}>
+            <Plus className="w-4 h-4" /> Add Experience
+          </Button>
+        </PageHeader>
+      )}
 
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
         <Card>
@@ -351,6 +365,83 @@ export default function ExperiencesPage() {
         message={`Are you sure you want to delete "${deleteTarget?.title_en}"? This action cannot be undone.`}
         loading={deleting}
       />
+    </div>
+  );
+}
+
+export default function ExperiencesPage() {
+  const [activeTab, setActiveTab] = useState<'experiences' | 'locations'>('experiences');
+
+  const createExperienceFn = useRef<() => void>(() => {});
+  const createLocationFn = useRef<() => void>(() => {});
+
+  const handleCreate = () => {
+    if (activeTab === 'experiences') {
+      createExperienceFn.current();
+    } else {
+      createLocationFn.current();
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Experiences & Locations"
+        description={
+          activeTab === 'experiences'
+            ? 'Manage your cooking experiences'
+            : 'Manage your event locations and scheduling'
+        }
+      >
+        <Button onClick={handleCreate} className="flex items-center gap-2">
+          <Plus className="w-4 h-4" />{' '}
+          {activeTab === 'experiences' ? 'Add Experience' : 'Add Location'}
+        </Button>
+      </PageHeader>
+
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('experiences')}
+          className={`flex items-center gap-2 px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${
+            activeTab === 'experiences'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-neutral-gray hover:text-neutral-dark'
+          }`}
+        >
+          <UtensilsCrossed className="w-4 h-4" />
+          Experiences
+        </button>
+        <button
+          onClick={() => setActiveTab('locations')}
+          className={`flex items-center gap-2 px-6 py-3 font-semibold text-sm border-b-2 transition-colors ${
+            activeTab === 'locations'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-neutral-gray hover:text-neutral-dark'
+          }`}
+        >
+          <MapPin className="w-4 h-4" />
+          Locations
+        </button>
+      </div>
+
+      <div className="mt-6">
+        {activeTab === 'experiences' ? (
+          <ExperiencesTab
+            isTab={true}
+            onRegisterCreate={(cb) => {
+              createExperienceFn.current = cb;
+            }}
+          />
+        ) : (
+          <LocationsPage
+            isTab={true}
+            onRegisterCreate={(cb) => {
+              createLocationFn.current = cb;
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
