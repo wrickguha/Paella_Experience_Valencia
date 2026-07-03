@@ -141,7 +141,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/experiences', [AdminExperienceController::class, 'index']);
     Route::get('/experiences/{id}', [AdminExperienceController::class, 'show']);
     Route::post('/experiences', [AdminExperienceController::class, 'store']);
-    Route::post('/experiences/{id}', [AdminExperienceController::class, 'update']);
+    Route::match(['post', 'put'], '/experiences/{id}', [AdminExperienceController::class, 'update']);
     Route::delete('/experiences/{id}', [AdminExperienceController::class, 'destroy']);
 
     // Locations
@@ -149,7 +149,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/locations/all', [AdminLocationController::class, 'all']);
     Route::get('/locations/{id}', [AdminLocationController::class, 'show']);
     Route::post('/locations', [AdminLocationController::class, 'store']);
-    Route::post('/locations/{id}', [AdminLocationController::class, 'update']);
+    Route::match(['post', 'put'], '/locations/{id}', [AdminLocationController::class, 'update']);
     Route::delete('/locations/{id}', [AdminLocationController::class, 'destroy']);
 
     // Calendar

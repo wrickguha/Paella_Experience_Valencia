@@ -12,7 +12,12 @@ class AboutController extends Controller
     private function imageUrl(?string $path): ?string
     {
         if (!$path) return null;
-        return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+        if (str_starts_with($path, 'http')) return $path;
+        $cleanPath = ltrim($path, '/');
+        if (str_starts_with($cleanPath, 'storage/')) {
+            $cleanPath = substr($cleanPath, 8);
+        }
+        return asset('storage/' . $cleanPath);
     }
 
     public function index(Request $request): JsonResponse

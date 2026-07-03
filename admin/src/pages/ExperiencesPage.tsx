@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
+import toast from 'react-hot-toast';
 import { Plus, Pencil, Trash2, UtensilsCrossed, MapPin } from 'lucide-react';
 import { experiencesApi, locationsApi } from '@/services/api';
 import { formatCurrency } from '@/lib/utils';
@@ -122,12 +123,17 @@ export function ExperiencesTab({ isTab = false, onRegisterCreate }: ExperiencesT
       if (editing.id) {
         fd.append('_method', 'PUT');
         await experiencesApi.update(editing.id, fd);
+        toast.success('Experience updated successfully!');
       } else {
         await experiencesApi.create(fd);
+        toast.success('Experience created successfully!');
       }
       setModalOpen(false);
       fetch();
-    } catch { /* empty */ }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save experience';
+      toast.error(msg);
+    }
     setSaving(false);
   };
 
@@ -136,9 +142,13 @@ export function ExperiencesTab({ isTab = false, onRegisterCreate }: ExperiencesT
     setDeleting(true);
     try {
       await experiencesApi.delete(deleteTarget.id);
+      toast.success('Experience deleted successfully!');
       setDeleteTarget(null);
       fetch();
-    } catch { /* empty */ }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to delete experience';
+      toast.error(msg);
+    }
     setDeleting(false);
   };
 

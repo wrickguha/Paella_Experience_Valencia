@@ -13,7 +13,12 @@ class ExperienceController extends Controller
     private function imageUrl(?string $path): ?string
     {
         if (!$path) return null;
-        return str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
+        if (str_starts_with($path, 'http')) return $path;
+        $cleanPath = ltrim($path, '/');
+        if (str_starts_with($cleanPath, 'storage/')) {
+            $cleanPath = substr($cleanPath, 8);
+        }
+        return asset('storage/' . $cleanPath);
     }
 
     public function index(Request $request)
@@ -78,6 +83,10 @@ class ExperienceController extends Controller
         ]);
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
+        $data['title_es'] = $data['title_es'] ?? '';
+        $data['description_en'] = $data['description_en'] ?? '';
+        $data['description_es'] = $data['description_es'] ?? '';
+        $data['duration'] = $data['duration'] ?? '';
 
         if ($request->hasFile('hero_image')) {
             $data['hero_image'] = $request->file('hero_image')->store('experiences', 'public');
@@ -95,6 +104,9 @@ class ExperienceController extends Controller
                 ]);
             }
         }
+
+        \Illuminate\Support\Facades\Cache::forget('locations_en');
+        \Illuminate\Support\Facades\Cache::forget('locations_es');
 
         return response()->json($experience->load('features'), 201);
     }
@@ -116,6 +128,10 @@ class ExperienceController extends Controller
         ]);
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
+        $data['title_es'] = $data['title_es'] ?? '';
+        $data['description_en'] = $data['description_en'] ?? '';
+        $data['description_es'] = $data['description_es'] ?? '';
+        $data['duration'] = $data['duration'] ?? '';
 
         if ($request->hasFile('hero_image')) {
             if ($experience->hero_image) {
@@ -138,6 +154,9 @@ class ExperienceController extends Controller
             }
         }
 
+        \Illuminate\Support\Facades\Cache::forget('locations_en');
+        \Illuminate\Support\Facades\Cache::forget('locations_es');
+
         return response()->json($experience->load('features'));
     }
 
@@ -149,6 +168,9 @@ class ExperienceController extends Controller
         }
         $experience->features()->delete();
         $experience->delete();
+
+        \Illuminate\Support\Facades\Cache::forget('locations_en');
+        \Illuminate\Support\Facades\Cache::forget('locations_es');
 
         return response()->json(['message' => 'Deleted']);
     }
