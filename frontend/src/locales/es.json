@@ -2,6 +2,7 @@
   "nav": {
     "home": "Inicio",
     "experience": "Experiencias y Lugares",
+    "testimonials": "Testimonios",
     "booking": "Reservar",
     "contact": "Contacto",
     "about": "Nosotros",
@@ -710,5 +711,28 @@
     "close": "Cerrar",
     "explore": "Explorar",
     "viewLocations": "Ver Lugares"
+  },
+  "testimonialsPage": {
+    "heroTitle": "Historias de la Mesa",
+    "heroSubtitle": "Escucha a nuestros huéspedes que se unieron a nosotros en Valencia para disfrutar de la comida, el idioma y la conexión humana.",
+    "ratingSummary": "5.0 de 5 basado en más de 1.200 valoraciones globales",
+    "videoSectionTitle": "Historias en Video",
+    "writtenSectionTitle": "Opiniones de Huéspedes",
+    "writtenSectionSubtitle": "Experiencias reales compartidas por viajeros reales",
+    "filters": {
+      "all": "Todas las Opiniones",
+      "food": "Cocina y Comida",
+      "languages": "Idiomas y Aprendizaje",
+      "hosts": "Ambiente y Anfitriones"
+    },
+    "formTitle": "Comparte Tu Historia",
+    "formSubtitle": "¡Nos encantaría saber tu opinión sobre tu experiencia en nuestra mesa!",
+    "formName": "Tu Nombre",
+    "formLocation": "¿De dónde eres?",
+    "formRating": "Tu Calificación",
+    "formReview": "Tu Opinión",
+    "formSubmit": "Enviar Opinión",
+    "formSubmitting": "Enviando...",
+    "formSuccess": "¡Gracias por compartir tu experiencia! Tu historia completa nuestra mesa."
   }
 }

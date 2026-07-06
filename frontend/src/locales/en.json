@@ -2,6 +2,7 @@
   "nav": {
     "home": "Home",
     "experience": "Experiences & Locations",
+    "testimonials": "Testimonials",
     "booking": "Book Now",
     "contact": "Contact",
     "about": "About",
@@ -1257,5 +1258,28 @@
     "close": "Close",
     "explore": "Explore",
     "viewLocations": "View Locations"
+  },
+  "testimonialsPage": {
+    "heroTitle": "Stories From the Table",
+    "heroSubtitle": "Hear from our guests who joined us in Valencia for food, language, and human connection.",
+    "ratingSummary": "5.0 out of 5 based on 1,200+ global guest reviews",
+    "videoSectionTitle": "Video Stories",
+    "writtenSectionTitle": "Guest Reviews",
+    "writtenSectionSubtitle": "Real experiences shared by real travelers",
+    "filters": {
+      "all": "All Reviews",
+      "food": "Cooking & Food",
+      "languages": "Languages & Learning",
+      "hosts": "Atmosphere & Hosts"
+    },
+    "formTitle": "Share Your Story",
+    "formSubtitle": "We would love to hear about your experience around our table!",
+    "formName": "Your Name",
+    "formLocation": "Where are you from?",
+    "formRating": "Your Rating",
+    "formReview": "Your Review",
+    "formSubmit": "Submit Review",
+    "formSubmitting": "Submitting...",
+    "formSuccess": "Thank you for sharing your experience! Your story makes our table complete."
   }
 }

@@ -16,6 +16,7 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
+const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage'));
@@ -311,6 +312,7 @@ export default function App() {
                 <Route path="/payment/cancel" element={<PaymentCancelPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/testimonials" element={<TestimonialsPage />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                 <Route path="/cookie-policy" element={<CookiePolicyPage />} />
