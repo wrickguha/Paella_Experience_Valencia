@@ -3,6 +3,7 @@ import SectionWrapper from './SectionWrapper';
 import { motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { fetchSettings } from '@/services/api';
+import { Link } from 'react-router-dom';
 
 function getYouTubeEmbedUrl(urlOrId: string) {
   if (!urlOrId) return '';
@@ -137,6 +138,22 @@ export default function VideoTestimonialsSection() {
           <LazyVideo key={index} src={src} index={index} />
         ))}
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+        className="text-center mt-12"
+      >
+        <Link
+          to="/testimonials"
+          className="btn-primary group relative overflow-hidden inline-flex items-center gap-2"
+        >
+          <span>{t('videoTestimonials.seeMore')}</span>
+          <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
+        </Link>
+      </motion.div>
     </SectionWrapper>
   );
 }

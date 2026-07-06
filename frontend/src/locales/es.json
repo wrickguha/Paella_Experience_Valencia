@@ -201,6 +201,11 @@
       "Aprende mientras cocinas y socializas"
     ]
   },
+  "videoTestimonials": {
+    "title": "Historias de la Mesa",
+    "subtitle": "Video de testimonios",
+    "seeMore": "Ver Más Historias"
+  },
   "activities": {
     "title": "Más que Cocinar",
     "items": [
