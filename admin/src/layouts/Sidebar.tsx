@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Home,
+  Compass,
   UtensilsCrossed,
   CalendarDays,
   BookOpen,
@@ -19,6 +20,7 @@ import { cn } from '@/lib/utils';
 const NAV_ITEMS = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/admin/homepage', icon: Home, label: 'Homepage' },
+  { to: '/admin/experiences-page', icon: Compass, label: 'Experiences Page' },
   { to: '/admin/experiences', icon: UtensilsCrossed, label: 'Experiences & Locations' },
   { to: '/admin/calendar', icon: CalendarDays, label: 'Calendar' },
   { to: '/admin/bookings', icon: BookOpen, label: 'Bookings' },

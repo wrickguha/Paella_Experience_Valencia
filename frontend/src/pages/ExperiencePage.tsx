@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
-import { fetchLocations, type FrontendLocation, type LocationSchedule } from '@/services/api';
+import { fetchLocations, fetchSettings, type FrontendLocation, type LocationSchedule } from '@/services/api';
 
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -89,8 +89,18 @@ function SafeImage({ src, alt, className }: { src: string; alt: string; classNam
 }
 
 // ── ModalLocationDetails ──────────────────────────────────────────
-function ModalLocationDetails({ location }: { location: FrontendLocation }) {
+function ModalLocationDetails({ 
+  location, 
+  settings, 
+  langSuffix 
+}: { 
+  location: FrontendLocation; 
+  settings: Record<string, string>; 
+  langSuffix: string;
+}) {
   const { t } = useTranslation();
+  const ctaBtnText = settings[`experience_cta_btn_${langSuffix}`] || 'Save your seat at the table';
+  const unavailableBtnText = settings[`experience_unavailable_btn_${langSuffix}`] || 'Booking Unavailable';
   const locationSlug = slugFromName(location.name);
   const availability = formatAvailability(location.schedules, location.availability_type);
   const time = formatTime(location.schedules);
@@ -277,14 +287,14 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
               to={`/booking?location=${locationSlug}`}
               className="btn-primary !px-6 !py-3 text-xs sm:text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg text-center"
             >
-              Save your seat at the table
+              {ctaBtnText}
             </Link>
           ) : (
             <button
               disabled
               className="px-6 py-3 text-xs sm:text-sm font-semibold whitespace-nowrap bg-neutral-sand/20 text-neutral-gray rounded-xl cursor-not-allowed text-center"
             >
-              Booking Unavailable
+              {unavailableBtnText}
             </button>
           )}
         </div>
@@ -294,7 +304,18 @@ function ModalLocationDetails({ location }: { location: FrontendLocation }) {
 }
 
 // ── Locations Intro ───────────────────────────────────────────────
-function LocationsIntro() {
+function LocationsIntro({ 
+  settings, 
+  langSuffix, 
+  t 
+}: { 
+  settings: Record<string, string>; 
+  langSuffix: string; 
+  t: any;
+}) {
+  const title = settings[`experience_intro_title_${langSuffix}`] || t('experience.title', 'Experiences & Locations');
+  const desc1 = settings[`experience_intro_desc1_${langSuffix}`] || "At Speak Easy Valencia, the experience is not only about the language. It’s also about where it happens.";
+  const desc2 = settings[`experience_intro_desc2_${langSuffix}`] || "We carefully choose places that invite people to slow down, connect naturally, and experience the way of life through conversation, food, culture, and sobremesa.";
   return (
     <section className="relative py-24 bg-white overflow-hidden border-t border-neutral-sand/20">
       {/* Decorative background elements */}
@@ -329,14 +350,14 @@ function LocationsIntro() {
             </svg>
           </motion.div>
           <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-dark mb-6 tracking-tight">
-            Experiences & Locations
+            {title}
           </h2>
           <div className="space-y-6 max-w-3xl mx-auto">
             <p className="text-xl sm:text-2xl text-neutral-dark font-body leading-relaxed font-medium">
-              At Speak Easy Valencia, the experience is not only about the language. It’s also about <span className="text-primary italic font-bold">where it happens</span>.
+              {desc1}
             </p>
             <p className="text-lg sm:text-xl text-neutral-gray font-body leading-relaxed">
-              We carefully choose places that invite people to slow down, connect naturally, and experience the way of life through conversation, food, culture, and sobremesa.
+              {desc2}
             </p>
           </div>
         </motion.div>
@@ -355,6 +376,21 @@ export default function ExperiencePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<'city' | 'countryside' | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<FrontendLocation | null>(null);
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+
+  const cityTitle = settings[`experience_city_title_${langSuffix}`] || t('experience.categories.city.title', 'City Experiences');
+  const cityDesc = settings[`experience_city_desc_${langSuffix}`] || t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life');
+  const countryTitle = settings[`experience_country_title_${langSuffix}`] || t('experience.categories.countryside.title', 'Countryside Experiences');
+  const countryDesc = settings[`experience_country_desc_${langSuffix}`] || t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves');
+  const backBtnText = settings[`experience_back_btn_${langSuffix}`] || t('experience.back', 'Back');
 
   useEffect(() => {
     setLocLoading(true);
@@ -399,7 +435,7 @@ export default function ExperiencePage() {
   return (
     <>
       {/* ── Location Sections ─────────────────────────── */}
-      <LocationsIntro />
+      <LocationsIntro settings={settings} langSuffix={langSuffix} t={t} />
       <div id="locations" />
 
       {/* Category Selection Cards */}
@@ -430,10 +466,10 @@ export default function ExperiencePage() {
                     </span>
                   </div>
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
-                    {t('experience.categories.city.title', 'City Experiences')}
+                    {cityTitle}
                   </h3>
                   <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm">
-                    {t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life')}
+                    {cityDesc}
                   </p>
                 </div>
               </div>
@@ -463,10 +499,10 @@ export default function ExperiencePage() {
                     </span>
                   </div>
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
-                    {t('experience.categories.countryside.title', 'Countryside Experiences')}
+                    {countryTitle}
                   </h3>
                   <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm">
-                    {t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves')}
+                    {countryDesc}
                   </p>
                 </div>
               </div>
@@ -504,7 +540,7 @@ export default function ExperiencePage() {
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                       </svg>
-                      {t('experience.back', 'Back')}
+                      {backBtnText}
                     </button>
                   )}
                   <div className="flex flex-col">
@@ -512,15 +548,15 @@ export default function ExperiencePage() {
                       {selectedLocation
                         ? selectedLocation.name
                         : activeCategory === 'city'
-                          ? t('experience.categories.city.title', 'City Experiences')
-                          : t('experience.categories.countryside.title', 'Countryside Experiences')
+                          ? cityTitle
+                          : countryTitle
                       }
                     </h3>
                     {!selectedLocation && (
                       <p className="text-neutral-gray text-xs font-body mt-0.5">
                         {activeCategory === 'city'
-                          ? t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life')
-                          : t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves')
+                          ? cityDesc
+                          : countryDesc
                         }
                       </p>
                     )}
@@ -637,7 +673,11 @@ export default function ExperiencePage() {
                         transition={{ duration: 0.3 }}
                         className="h-full"
                       >
-                        <ModalLocationDetails location={selectedLocation} />
+                        <ModalLocationDetails 
+                          location={selectedLocation} 
+                          settings={settings}
+                          langSuffix={langSuffix}
+                        />
                       </motion.div>
                     )}
                   </AnimatePresence>
