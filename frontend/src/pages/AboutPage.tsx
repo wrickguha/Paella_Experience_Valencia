@@ -10,7 +10,7 @@ import { FiUsers, FiGlobe, FiMessageCircle, FiHeart, FiStar, FiZap } from 'react
 import { fetchAbout, fetchSettings, type AboutSection, type AboutData } from '@/services/api';
 
 /* ── Hero Section ────────────────────────────────────────────────── */
-function AboutHero() {
+function AboutHero({ settings, langSuffix }: { settings: Record<string, string>; langSuffix: string }) {
   const { t } = useTranslation();
   const [videoUrl, setVideoUrl] = useState(() => {
     return localStorage.getItem("hero_video") || "/video/hero-video.mp4";
@@ -64,14 +64,14 @@ function AboutHero() {
           className="text-center max-w-3xl mx-auto"
         >
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            {t('about.hero.title')}
+            {settings[`about_hero_title_${langSuffix}`] || t('about.hero.title')}
           </h1>
           <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl mx-auto">
-            {t('about.hero.subtitle')}
+            {settings[`about_hero_subtitle_${langSuffix}`] || t('about.hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/booking" className="btn-primary !text-lg !px-10 !py-5">
-              {t('about.cta.primary')}
+              {settings[`about_hero_cta_${langSuffix}`] || t('about.cta.primary')}
             </Link>
           </div>
         </motion.div>
@@ -81,12 +81,24 @@ function AboutHero() {
 }
 
 /* ── Our Story Section ───────────────────────────────────────────── */
-function OurStory({ data }: { data?: AboutSection }) {
+function OurStory({ 
+  data, 
+  settings, 
+  langSuffix 
+}: { 
+  data?: AboutSection; 
+  settings: Record<string, string>; 
+  langSuffix: string; 
+}) {
   const { t } = useTranslation();
-  const title = data?.title || t('about.story.title');
-  const subtitle = data?.subtitle || t('about.story.subtitle');
-  const content = data?.content || t('about.story.content');
-  const image = data?.image || "/storage/assets/images/casa-magnolia/Chef Gene.jpg";
+  const title = settings[`about_story_title_${langSuffix}`] || data?.title || t('about.story.title');
+  const subtitle = settings[`about_story_subtitle_${langSuffix}`] || data?.subtitle || t('about.story.subtitle');
+  const content = settings[`about_story_content_${langSuffix}`] || data?.content || t('about.story.content');
+  const image = settings.about_story_image
+    ? (settings.about_story_image.startsWith('blob:') || settings.about_story_image.startsWith('http') || settings.about_story_image.startsWith('/')
+      ? settings.about_story_image
+      : `/storage/${settings.about_story_image}`)
+    : (data?.image || "/storage/assets/images/casa-magnolia/Chef Gene.jpg");
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -172,22 +184,33 @@ function OurStory({ data }: { data?: AboutSection }) {
 }
 
 /* ── Community Vision Section ─────────────────────────────────────── */
-function CommunityVision() {
+function CommunityVision({ settings, langSuffix }: { settings: Record<string, string>; langSuffix: string }) {
   const { t } = useTranslation();
-  const highlights = t('about.vision.highlights', { returnObjects: true }) as any[];
+  const subtitle = settings[`about_vision_subtitle_${langSuffix}`] || t('about.vision.subtitle');
+  const title = settings[`about_vision_title_${langSuffix}`] || t('about.vision.title');
+  const content = settings[`about_vision_content_${langSuffix}`] || t('about.vision.content');
+
+  const fallbackHighlights = t('about.vision.highlights', { returnObjects: true }) as any[];
+  const highlights = [1, 2, 3].map((num, idx) => {
+    const fallback = fallbackHighlights[idx] || { title: '', description: '' };
+    return {
+      title: settings[`about_vision_highlight${num}_title_${langSuffix}`] || fallback.title,
+      description: settings[`about_vision_highlight${num}_desc_${langSuffix}`] || fallback.description,
+    };
+  });
   const icons = [FiUsers, FiHeart, FiGlobe];
 
   return (
     <SectionWrapper className="bg-neutral-cream">
       <div className="text-center mb-16">
         <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
-          {t('about.vision.subtitle')}
+          {subtitle}
         </span>
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
-          {t('about.vision.title')}
+          {title}
         </h2>
         <p className="text-neutral-gray font-body text-lg max-w-2xl mx-auto">
-          {t('about.vision.content')}
+          {content}
         </p>
       </div>
 
@@ -221,9 +244,25 @@ function CommunityVision() {
 }
 
 /* ── Language & Culture Section ──────────────────────────────────── */
-function LanguageAndCulture() {
+function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string, string>; langSuffix: string }) {
   const { t } = useTranslation();
-  const points = t('about.language.points', { returnObjects: true }) as any[];
+  const subtitle = settings[`about_language_subtitle_${langSuffix}`] || t('about.language.subtitle');
+  const title = settings[`about_language_title_${langSuffix}`] || t('about.language.title');
+  const content = settings[`about_language_content_${langSuffix}`] || t('about.language.content');
+  const image = settings.about_language_image
+    ? (settings.about_language_image.startsWith('blob:') || settings.about_language_image.startsWith('http') || settings.about_language_image.startsWith('/')
+      ? settings.about_language_image
+      : `/storage/${settings.about_language_image}`)
+    : "/storage/assets/images/speakeasy/GPTempDownload(2).jpg";
+
+  const fallbackPoints = t('about.language.points', { returnObjects: true }) as any[];
+  const points = [1, 2, 3].map((num, idx) => {
+    const fallback = fallbackPoints[idx] || { title: '', description: '' };
+    return {
+      title: settings[`about_language_point${num}_title_${langSuffix}`] || fallback.title,
+      description: settings[`about_language_point${num}_desc_${langSuffix}`] || fallback.description,
+    };
+  });
   const icons = [FiMessageCircle, FiZap, FiGlobe];
 
   return (
@@ -237,8 +276,8 @@ function LanguageAndCulture() {
           className="lg:order-2 overflow-hidden rounded-2xl shadow-elevated"
         >
           <img
-            src="/storage/assets/images/speakeasy/GPTempDownload(2).jpg"
-            alt={t('about.language.title')}
+            src={image}
+            alt={title}
             className="w-full aspect-[4/3] object-cover object-center"
           />
         </motion.div>
@@ -251,13 +290,13 @@ function LanguageAndCulture() {
           className="lg:order-1"
         >
           <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
-            {t('about.language.subtitle')}
+            {subtitle}
           </span>
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
-            {t('about.language.title')}
+            {title}
           </h2>
           <p className="text-neutral-gray font-body text-lg leading-relaxed mb-10">
-            {t('about.language.content')}
+            {content}
           </p>
 
           <div className="space-y-6">
@@ -290,19 +329,29 @@ function LanguageAndCulture() {
 }
 
 /* ── What Makes Us Different ─────────────────────────────────────── */
-function Differentiators() {
+function Differentiators({ settings, langSuffix }: { settings: Record<string, string>; langSuffix: string }) {
   const { t } = useTranslation();
-  const items = t('about.different.items', { returnObjects: true }) as any[];
+  const subtitle = settings[`about_different_subtitle_${langSuffix}`] || t('about.different.subtitle');
+  const title = settings[`about_different_title_${langSuffix}`] || t('about.different.title');
+
+  const fallbackItems = t('about.different.items', { returnObjects: true }) as any[];
+  const items = [1, 2, 3].map((num, idx) => {
+    const fallback = fallbackItems[idx] || { title: '', description: '' };
+    return {
+      title: settings[`about_different_item${num}_title_${langSuffix}`] || fallback.title,
+      description: settings[`about_different_item${num}_desc_${langSuffix}`] || fallback.description,
+    };
+  });
   const icons = [FiUsers, FiStar, FiHeart];
 
   return (
     <SectionWrapper className="bg-neutral-cream/50">
       <div className="text-center mb-16">
         <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
-          {t('about.different.subtitle')}
+          {subtitle}
         </span>
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
-          {t('about.different.title')}
+          {title}
         </h2>
       </div>
 
@@ -337,8 +386,12 @@ function Differentiators() {
 
 
 /* ── Final CTA Section ───────────────────────────────────────────── */
-function FinalAboutCTA() {
+function FinalAboutCTA({ settings, langSuffix }: { settings: Record<string, string>; langSuffix: string }) {
   const { t } = useTranslation();
+  const title = settings[`about_cta_title_${langSuffix}`] || t('about.cta.title');
+  const description = settings[`about_cta_desc_${langSuffix}`] || t('about.cta.description');
+  const primaryText = settings[`about_cta_primary_${langSuffix}`] || t('about.cta.primary');
+  const secondaryText = settings[`about_cta_secondary_${langSuffix}`] || t('about.cta.secondary');
 
   return (
     <section className="py-24 bg-neutral-cream">
@@ -357,17 +410,17 @@ function FinalAboutCTA() {
 
           <div className="relative z-10 max-w-4xl mx-auto">
             <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
-              {t('about.cta.title')}
+              {title}
             </h2>
             <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-body mb-12 leading-relaxed max-w-3xl mx-auto font-medium">
-              {t('about.cta.description')}
+              {description}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Link to="/booking" className="btn-secondary !bg-white !text-primary !border-white !px-10 !py-5 !text-lg shadow-xl hover:scale-105 transition-transform">
-                {t('about.cta.primary')}
+                {primaryText}
               </Link>
               <Link to="/contact" className="btn-outline !text-white !border-white/40 !px-10 !py-5 !text-lg hover:!bg-white/10 hover:!border-white transition-all">
-                {t('about.cta.secondary')}
+                {secondaryText}
               </Link>
             </div>
           </div>
@@ -382,22 +435,29 @@ export default function AboutPage() {
   useScrollToTop();
   const { i18n } = useTranslation();
   const [aboutData, setAboutData] = useState<AboutData>({});
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchAbout(i18n.language)
       .then(setAboutData)
       .catch(() => {});
+
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
   }, [i18n.language]);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
 
   return (
     <div className="bg-white">
-      <OurStory data={aboutData.story} />
-      <CommunityVision />
-      <LanguageAndCulture />
-      <Differentiators />
+      <OurStory data={aboutData.story} settings={settings} langSuffix={langSuffix} />
+      <CommunityVision settings={settings} langSuffix={langSuffix} />
+      <LanguageAndCulture settings={settings} langSuffix={langSuffix} />
+      <Differentiators settings={settings} langSuffix={langSuffix} />
       <Testimonials />
       <GalleryGrid />
-      <FinalAboutCTA />
+      <FinalAboutCTA settings={settings} langSuffix={langSuffix} />
     </div>
   );
 }
