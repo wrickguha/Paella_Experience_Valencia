@@ -139,6 +139,7 @@ export default function TestimonialsPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'food' | 'languages' | 'hosts'>('all');
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   // Video reels state
   const [videoList, setVideoList] = useState<string[]>([]);
@@ -164,6 +165,7 @@ export default function TestimonialsPage() {
 
     fetchSettings('general')
       .then((s) => {
+        setSettings(s);
         setVideoList([
           s.testimonial_video_1 || '/video/testimonials1.mp4',
           s.testimonial_video_2 || '/video/testimonials2.mp4',
@@ -178,6 +180,21 @@ export default function TestimonialsPage() {
         ]);
       });
   }, [i18n.language]);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+
+  const heroScript = settings[`testimonials_hero_script_${langSuffix}`] || 'Sobremesa';
+  const heroTitle = settings[`testimonials_hero_title_${langSuffix}`] || t('testimonialsPage.heroTitle');
+  const heroSubtitle = settings[`testimonials_hero_subtitle_${langSuffix}`] || t('testimonialsPage.heroSubtitle');
+  const ratingSummary = settings[`testimonials_rating_summary_${langSuffix}`] || t('testimonialsPage.ratingSummary');
+  
+  const videoTitle = settings[`testimonials_video_title_${langSuffix}`] || t('testimonialsPage.videoSectionTitle');
+  const writtenTitle = settings[`testimonials_written_title_${langSuffix}`] || t('testimonialsPage.writtenSectionTitle');
+  const writtenSubtitle = settings[`testimonials_written_subtitle_${langSuffix}`] || t('testimonialsPage.writtenSectionSubtitle');
+  
+  const formTitle = settings[`testimonials_form_title_${langSuffix}`] || t('testimonialsPage.formTitle');
+  const formSubtitle = settings[`testimonials_form_subtitle_${langSuffix}`] || t('testimonialsPage.formSubtitle');
+  const formSuccess = settings[`testimonials_form_success_${langSuffix}`] || t('testimonialsPage.formSuccess');
 
   // Client-side categorization based on review keywords
   const categorizeReview = (text: string): 'food' | 'languages' | 'hosts' => {
@@ -265,20 +282,20 @@ export default function TestimonialsPage() {
             transition={{ duration: 0.8, ease: 'easeOut' }}
           >
             <span className="font-script text-3xl sm:text-4xl text-accent mb-3 block">
-              Sobremesa
+              {heroScript}
             </span>
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6">
-              {t('testimonialsPage.heroTitle')}
+              {heroTitle}
             </h1>
             <p className="text-lg sm:text-xl text-gray-300 font-light max-w-2xl mx-auto leading-relaxed mb-8">
-              {t('testimonialsPage.heroSubtitle')}
+              {heroSubtitle}
             </p>
 
             {/* Google Rating badge */}
             <div className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 px-5 py-3 rounded-full shadow-soft">
               <span className="text-yellow-400 text-lg">★★★★★</span>
               <span className="text-sm font-semibold text-white/95">
-                {t('testimonialsPage.ratingSummary')}
+                {ratingSummary}
               </span>
             </div>
           </motion.div>
@@ -290,7 +307,7 @@ export default function TestimonialsPage() {
         <section className="py-16 sm:py-24 container-max px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
-              {t('testimonialsPage.videoSectionTitle')}
+              {videoTitle}
             </h2>
             <div className="h-1 w-16 bg-accent rounded mx-auto" />
           </div>
@@ -308,10 +325,10 @@ export default function TestimonialsPage() {
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
-              {t('testimonialsPage.writtenSectionTitle')}
+              {writtenTitle}
             </h2>
             <p className="text-neutral-gray max-w-xl mx-auto text-sm sm:text-base">
-              {t('testimonialsPage.writtenSectionSubtitle')}
+              {writtenSubtitle}
             </p>
           </div>
 
@@ -476,7 +493,7 @@ export default function TestimonialsPage() {
                     Thank you!
                   </h3>
                   <p className="text-neutral-gray font-body max-w-md mx-auto leading-relaxed">
-                    {t('testimonialsPage.formSuccess')}
+                    {formSuccess}
                   </p>
                   <button
                     onClick={() => {
@@ -500,10 +517,10 @@ export default function TestimonialsPage() {
                 >
                   <div className="text-center mb-8">
                     <h3 className="font-display text-2xl sm:text-3xl font-bold text-primary mb-2">
-                      {t('testimonialsPage.formTitle')}
+                      {formTitle}
                     </h3>
                     <p className="text-neutral-gray text-sm sm:text-base font-light">
-                      {t('testimonialsPage.formSubtitle')}
+                      {formSubtitle}
                     </p>
                   </div>
 

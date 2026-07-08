@@ -14,6 +14,7 @@ import {
   X,
   Percent,
   MessageSquareQuote,
+  Star,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -21,12 +22,13 @@ const NAV_ITEMS = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
   { to: '/admin/homepage', icon: Home, label: 'Homepage' },
   { to: '/admin/experiences-page', icon: Compass, label: 'Experiences Page' },
+  { to: '/admin/testimonials-page', icon: MessageSquareQuote, label: 'Testimonials Page' },
   { to: '/admin/experiences', icon: UtensilsCrossed, label: 'Experiences & Locations' },
   { to: '/admin/calendar', icon: CalendarDays, label: 'Calendar' },
   { to: '/admin/bookings', icon: BookOpen, label: 'Bookings' },
   { to: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { to: '/admin/gallery', icon: Image, label: 'Gallery' },
-  { to: '/admin/testimonials', icon: MessageSquareQuote, label: 'Testimonials' },
+  { to: '/admin/testimonials', icon: Star, label: 'Testimonials' },
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/admin/coupons', icon: Percent, label: 'Coupons' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
