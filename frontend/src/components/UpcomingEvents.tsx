@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
 import { useCalendarMonth } from '@/hooks/useCalendarMonth';
-import type { CalendarEvent } from '@/services/api';
+import { fetchSettings, type CalendarEvent } from '@/services/api';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -120,6 +120,17 @@ function EventCard({ event, index }: EventCardProps) {
 
 export default function UpcomingEvents() {
   const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+  const sectionTitle = settings[`upcomingEvents_title_${langSuffix}`] || t('upcomingEvents.title');
+  const sectionSubtitle = settings[`upcomingEvents_subtitle_${langSuffix}`] || t('upcomingEvents.subtitle');
 
   // Base date set to today at 00:00:00 (never changes during render)
   const today = useMemo(() => {
@@ -205,10 +216,10 @@ export default function UpcomingEvents() {
             Reserve Your Spot
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-2">
-            {t('upcomingEvents.title')}
+            {sectionTitle}
           </h2>
           <p className="text-neutral-gray font-body max-w-lg">
-            {t('upcomingEvents.subtitle')}
+            {sectionSubtitle}
           </p>
         </div>
 

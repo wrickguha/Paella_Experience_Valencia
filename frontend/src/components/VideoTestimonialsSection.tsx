@@ -93,7 +93,8 @@ function LazyVideo({ src, index }: { src: string; index: number }) {
 }
 
 export default function VideoTestimonialsSection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
   const [videoList, setVideoList] = useState<string[]>(() => {
     try {
       const cached = localStorage.getItem('testimonial_videos');
@@ -114,6 +115,7 @@ export default function VideoTestimonialsSection() {
   useEffect(() => {
     fetchSettings('general')
       .then((s) => {
+        setSettings(s);
         const fetchedVideos = [
           s.testimonial_video_1 || '/video/testimonials1.mp4',
           s.testimonial_video_2 || '/video/testimonials2.mp4',
@@ -125,12 +127,22 @@ export default function VideoTestimonialsSection() {
       .catch(() => {});
   }, []);
 
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+  const sectionTitle = settings[`video_testimonials_title_${langSuffix}`] || t('videoTestimonials.title');
+  const sectionSubtitle = settings[`video_testimonials_subtitle_${langSuffix}`];
+  const seeMoreText = settings[`video_testimonials_seeMore_${langSuffix}`] || t('videoTestimonials.seeMore');
+
   return (
     <SectionWrapper className="bg-white">
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
-          {t('videoTestimonials.title')}
+          {sectionTitle}
         </h2>
+        {sectionSubtitle && (
+          <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
+            {sectionSubtitle}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
@@ -150,7 +162,7 @@ export default function VideoTestimonialsSection() {
           to="/testimonials"
           className="btn-primary group relative overflow-hidden inline-flex items-center gap-2"
         >
-          <span>{t('videoTestimonials.seeMore')}</span>
+          <span>{seeMoreText}</span>
           <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
         </Link>
       </motion.div>

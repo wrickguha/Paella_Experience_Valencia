@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import SectionWrapper from './SectionWrapper';
+import { fetchSettings } from '@/services/api';
 
 type QuizState = 'intro' | 'quiz' | 'result';
 
@@ -14,12 +15,14 @@ interface Question {
 
 interface LevelTestCardProps {
   lang: 'es' | 'en';
+  settings: Record<string, string>;
 }
 
-function LevelTestCard({ lang }: LevelTestCardProps) {
-  const { t } = useTranslation();
+function LevelTestCard({ lang, settings }: LevelTestCardProps) {
+  const { t, i18n } = useTranslation();
   const isSpanish = lang === 'es';
   const i18nKeyPrefix = isSpanish ? 'spanishTest' : 'englishTest';
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
 
   const [quizState, setQuizState] = useState<QuizState>('intro');
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -90,10 +93,10 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
                 <span className="text-3xl">{isSpanish ? 'ES' : 'EN'}</span>
               </div>
               <h2 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-4">
-                {t(`${i18nKeyPrefix}.title`)}
+                {settings[`${i18nKeyPrefix}_title_${langSuffix}`] || t(`${i18nKeyPrefix}.title`)}
               </h2>
               <p className="text-neutral-gray text-lg mb-8 max-w-xl mx-auto leading-relaxed">
-                {t(`${i18nKeyPrefix}.subtitle`)}
+                {settings[`${i18nKeyPrefix}_subtitle_${langSuffix}`] || t(`${i18nKeyPrefix}.subtitle`)}
               </p>
             </div>
             <div>
@@ -101,7 +104,7 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
                 onClick={handleStart}
                 className="bg-primary hover:bg-primary-hover text-white font-heading font-semibold text-lg px-8 py-4 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md"
               >
-                {t(`${i18nKeyPrefix}.startBtn`)}
+                {settings[`${i18nKeyPrefix}_startBtn_${langSuffix}`] || t(`${i18nKeyPrefix}.startBtn`)}
               </button>
             </div>
           </motion.div>
@@ -219,6 +222,14 @@ function LevelTestCard({ lang }: LevelTestCardProps) {
 }
 
 export default function SpanishLevelTest() {
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
   return (
     <SectionWrapper className="bg-neutral-cream/50 relative overflow-hidden">
       {/* Decorative background elements */}
@@ -226,8 +237,8 @@ export default function SpanishLevelTest() {
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
 
       <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-        <LevelTestCard lang="es" />
-        <LevelTestCard lang="en" />
+        <LevelTestCard lang="es" settings={settings} />
+        <LevelTestCard lang="en" settings={settings} />
       </div>
     </SectionWrapper>
   );

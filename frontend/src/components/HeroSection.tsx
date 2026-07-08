@@ -110,11 +110,11 @@ export default function HeroSection() {
                   d="M14 5l7 7m0 0l-7 7m7-7H3"
                 />
               </svg>
-              <span className="now">Let's Go!</span>
-              <span className="play">{t("hero.cta")}</span>
+              <span className="now">{i18n.language.startsWith("es") ? "¡Vamos!" : "Let's Go!"}</span>
+              <span className="play">{settings[`hero_cta_${i18n.language.startsWith("es") ? "es" : "en"}`] || t("hero.cta")}</span>
             </Link>
             <Button variant="premium" href="/experience" className="!px-10 !py-5">
-              {t("hero.scrollDown")}
+              {settings[`hero_scroll_${i18n.language.startsWith("es") ? "es" : "en"}`] || t("hero.scrollDown")}
             </Button>
           </motion.div>
         </motion.div>

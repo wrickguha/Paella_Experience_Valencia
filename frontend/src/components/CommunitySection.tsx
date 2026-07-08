@@ -26,14 +26,14 @@ interface CommunitySettings {
 }
 
 export default function CommunitySection() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const items = t('community.items', { returnObjects: true }) as Array<{
     title: string;
     description: string;
     image: string;
   }>;
 
-  const [settings, setSettings] = useState<CommunitySettings>(() => {
+  const [settings, setSettings] = useState<Record<string, string>>(() => {
     try {
       const cached = localStorage.getItem('community_settings');
       return cached ? JSON.parse(cached) : {};
@@ -45,35 +45,24 @@ export default function CommunitySection() {
   useEffect(() => {
     fetchSettings('general')
       .then((s) => {
-        const next: CommunitySettings = {
-          community_title: s.community_title || '',
-          community_subtitle: s.community_subtitle || '',
-          community_card1_title: s.community_card1_title || '',
-          community_card1_desc: s.community_card1_desc || '',
-          community_card2_title: s.community_card2_title || '',
-          community_card2_desc: s.community_card2_desc || '',
-          community_card3_title: s.community_card3_title || '',
-          community_card3_desc: s.community_card3_desc || '',
-          community_image_1: s.community_image_1 || '',
-          community_image_2: s.community_image_2 || '',
-          community_image_3: s.community_image_3 || '',
-        };
-        setSettings(next);
-        localStorage.setItem('community_settings', JSON.stringify(next));
+        setSettings(s);
+        localStorage.setItem('community_settings', JSON.stringify(s));
       })
       .catch(() => {});
   }, []);
 
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+
   const cardTitles = [
-    settings.community_card1_title || (items[0]?.title ?? ''),
-    settings.community_card2_title || (items[1]?.title ?? ''),
-    settings.community_card3_title || (items[2]?.title ?? ''),
+    settings[`community_card1_title_${langSuffix}`] || settings.community_card1_title || (items[0]?.title ?? ''),
+    settings[`community_card2_title_${langSuffix}`] || settings.community_card2_title || (items[1]?.title ?? ''),
+    settings[`community_card3_title_${langSuffix}`] || settings.community_card3_title || (items[2]?.title ?? ''),
   ];
 
   const cardDescs = [
-    settings.community_card1_desc || (items[0]?.description ?? ''),
-    settings.community_card2_desc || (items[1]?.description ?? ''),
-    settings.community_card3_desc || (items[2]?.description ?? ''),
+    settings[`community_card1_desc_${langSuffix}`] || settings.community_card1_desc || (items[0]?.description ?? ''),
+    settings[`community_card2_desc_${langSuffix}`] || settings.community_card2_desc || (items[1]?.description ?? ''),
+    settings[`community_card3_desc_${langSuffix}`] || settings.community_card3_desc || (items[2]?.description ?? ''),
   ];
 
   const cardImages = [
@@ -82,8 +71,8 @@ export default function CommunitySection() {
     settings.community_image_3 ? resolveImageUrl(settings.community_image_3) : (items[2]?.image ?? ''),
   ];
 
-  const sectionTitle = settings.community_title || t('community.title');
-  const sectionSubtitle = settings.community_subtitle || t('community.subtitle');
+  const sectionTitle = settings[`community_title_${langSuffix}`] || settings.community_title || t('community.title');
+  const sectionSubtitle = settings[`community_subtitle_${langSuffix}`] || settings.community_subtitle || t('community.subtitle');
 
   return (
     <SectionWrapper className="bg-white">

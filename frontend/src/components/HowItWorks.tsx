@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SectionWrapper from './SectionWrapper';
+import { fetchSettings } from '@/services/api';
 
 const ICONS = [
   // Calendar icon
@@ -26,13 +28,35 @@ const ICONS = [
 ];
 
 export default function HowItWorks() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
-  const steps = t('howItWorks.steps', { returnObjects: true }) as Array<{
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+
+  const sectionTitle = settings[`howItWorks_title_${langSuffix}`] || t('howItWorks.title');
+  const sectionSubtitle = settings[`howItWorks_subtitle_${langSuffix}`] || t('howItWorks.subtitle');
+  const ctaText = settings[`howItWorks_cta_${langSuffix}`] || t('howItWorks.cta');
+
+  const fallbackSteps = t('howItWorks.steps', { returnObjects: true }) as Array<{
     number: string;
     title: string;
     description: string;
   }>;
+
+  const steps = [1, 2, 3].map((num, idx) => {
+    const fallback = fallbackSteps[idx] || { number: `0${num}`, title: '', description: '' };
+    return {
+      number: fallback.number,
+      title: settings[`howItWorks_step${num}_title_${langSuffix}`] || fallback.title,
+      description: settings[`howItWorks_step${num}_desc_${langSuffix}`] || fallback.description,
+    };
+  });
 
   const bgColors = ['bg-primary/10', 'bg-secondary/20', 'bg-primary/10'];
   const iconColors = ['text-primary', 'text-secondary-dark', 'text-primary'];
@@ -43,10 +67,10 @@ export default function HowItWorks() {
       {/* Header */}
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
-          {t('howItWorks.title')}
+          {sectionTitle}
         </h2>
         <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
-          {t('howItWorks.subtitle')}
+          {sectionSubtitle}
         </p>
       </div>
 
@@ -103,7 +127,7 @@ export default function HowItWorks() {
           transition={{ duration: 0.45, delay: 0.5 }}
         >
           <Link to="/booking" className="btn-primary inline-flex items-center gap-2">
-            {t('howItWorks.cta')}
+            {ctaText}
             <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
               <path
                 fillRule="evenodd"

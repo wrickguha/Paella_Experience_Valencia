@@ -1,6 +1,8 @@
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
 import { motion } from 'framer-motion';
+import { fetchSettings } from '@/services/api';
 
 const iconMap: Record<string, string> = {
   conversations: '🗣',
@@ -11,7 +13,7 @@ const iconMap: Record<string, string> = {
   immersive: '🌿',
 };
 
-const flowSteps = [
+const DEFAULT_FLOW_STEPS = [
   { id: 1, emoji: '👋', title: 'Meet & Connect',          description: 'Meet people from around the world.' },
   { id: 2, emoji: '🗣️', title: 'Language Experience',      description: 'Practice Spanish and English naturally.' },
   { id: 3, emoji: '🥟', title: 'Food & Drinks',            description: 'Enjoy Argentine empanadas, wine, and beer.' },
@@ -19,7 +21,14 @@ const flowSteps = [
   { id: 5, emoji: '🤝', title: 'Build New Connections',    description: 'Leave with new friends and memorable conversations.' },
 ];
 
-function SnakeFlowchart() {
+interface SnakeFlowStep {
+  id: number;
+  emoji: string;
+  title: string;
+  description: string;
+}
+
+function SnakeFlowchart({ steps }: { steps: SnakeFlowStep[] }) {
   return (
     <div className="relative">
       {/* Continuous vertical line through all nodes */}
@@ -32,7 +41,7 @@ function SnakeFlowchart() {
       />
 
       <div className="space-y-5">
-        {flowSteps.map((step, index) => (
+        {steps.map((step, index) => (
           <motion.div
             key={step.id}
             initial={{ opacity: 0, x: 20 }}
@@ -62,23 +71,66 @@ function SnakeFlowchart() {
 }
 
 export default function ExperienceHighlights() {
-  const { t } = useTranslation();
-  const items = t('highlights.items', { returnObjects: true }) as Array<{
+  const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+
+  // Section Core Headers
+  const sectionTitle = settings[`highlights_title_${langSuffix}`] || t('highlights.title');
+  const sectionSubtitle = settings[`highlights_subtitle_${langSuffix}`] || t('highlights.subtitle');
+
+  // Load items (1 to 6)
+  const fallbackItems = t('highlights.items', { returnObjects: true }) as Array<{
     icon: string;
     title: string;
     description: string;
   }>;
-  const paragraphs = t('highlights.languageParagraphs', { returnObjects: true }) as string[];
+  const items = [1, 2, 3, 4, 5, 6].map((num, idx) => {
+    const fallback = fallbackItems[idx] || { icon: 'immersive', title: '', description: '' };
+    return {
+      icon: fallback.icon,
+      title: settings[`highlights_feat${num}_title_${langSuffix}`] || fallback.title,
+      description: settings[`highlights_feat${num}_desc_${langSuffix}`] || fallback.description,
+    };
+  });
+
+  // Load language paragraphs
+  const fallbackParagraphs = t('highlights.languageParagraphs', { returnObjects: true }) as string[];
+  const paragraphsSetting = settings[`highlights_languageParagraphs_${langSuffix}`];
+  const paragraphs = paragraphsSetting
+    ? paragraphsSetting.split('\n').map(p => p.trim()).filter(Boolean)
+    : fallbackParagraphs;
+
+  const languageTitle = settings[`highlights_languageTitle_${langSuffix}`] || t('highlights.languageTitle');
+  const languageSubtitle = settings[`highlights_languageSubtitle_${langSuffix}`] || t('highlights.languageSubtitle');
+
+  // Load flowchart steps
+  const flowSteps = [1, 2, 3, 4, 5].map((num, idx) => {
+    const fallback = DEFAULT_FLOW_STEPS[idx];
+    return {
+      id: num,
+      emoji: fallback.emoji,
+      title: settings[`flow_step${num}_title_${langSuffix}`] || fallback.title,
+      description: settings[`flow_step${num}_desc_${langSuffix}`] || fallback.description,
+    };
+  });
 
   return (
     <SectionWrapper>
       {/* ── Top Grid: Feature Cards ── */}
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
-          {t('highlights.title')}
+          {sectionTitle}
         </h2>
         <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
-          {t('highlights.subtitle')}
+          {sectionSubtitle}
         </p>
       </div>
 
@@ -96,7 +148,7 @@ export default function ExperienceHighlights() {
               <span className="text-3xl">{iconMap[item.icon] || '✨'}</span>
             </div>
             <h3 className="font-heading font-semibold text-lg text-neutral-dark mb-3">
-              {item.title === 'Sobremesa' ? <em>{item.title}</em> : item.title}
+              {item.title === 'Sobremesa' || item.title === 'Sobremesa' ? <em>{item.title}</em> : item.title}
             </h3>
             <p className="text-neutral-gray font-body text-sm leading-relaxed">
               {item.description}
@@ -116,13 +168,13 @@ export default function ExperienceHighlights() {
           transition={{ duration: 0.7 }}
         >
           <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
-            Learning
+            {i18n.language.startsWith('es') ? 'Aprendizaje' : 'Learning'}
           </span>
           <h3 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4 leading-tight">
-            {t('highlights.languageTitle')}
+            {languageTitle}
           </h3>
           <p className="text-xl sm:text-2xl font-heading text-primary font-semibold mb-8">
-            {t('highlights.languageSubtitle')}
+            {languageSubtitle}
           </p>
           <div className="space-y-4 text-neutral-gray font-body text-base sm:text-lg leading-relaxed">
             {paragraphs.map((paragraph, idx) => (
@@ -145,7 +197,7 @@ export default function ExperienceHighlights() {
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
         >
-          <SnakeFlowchart />
+          <SnakeFlowchart steps={flowSteps} />
         </motion.div>
 
       </div>

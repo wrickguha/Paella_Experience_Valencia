@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
+  Home,
   UtensilsCrossed,
   CalendarDays,
   BookOpen,
@@ -17,6 +18,7 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
+  { to: '/admin/homepage', icon: Home, label: 'Homepage' },
   { to: '/admin/experiences', icon: UtensilsCrossed, label: 'Experiences & Locations' },
   { to: '/admin/calendar', icon: CalendarDays, label: 'Calendar' },
   { to: '/admin/bookings', icon: BookOpen, label: 'Bookings' },
