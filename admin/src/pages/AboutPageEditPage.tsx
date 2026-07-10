@@ -329,6 +329,12 @@ export default function AboutPageEditPage() {
                                 <div key={num} className="bg-gray-50/30 p-4 rounded-xl border border-gray-200/50 space-y-3">
                                   <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Highlight {num} ({editLang.toUpperCase()})</h5>
                                   <FormInput
+                                    label="Highlight Icon / Emoji"
+                                    value={values[`about_vision_highlight${num}_icon`] || ''}
+                                    onChange={(e) => updateValue(`about_vision_highlight${num}_icon`, e.target.value)}
+                                    placeholder="e.g. users, heart, globe, or emoji 👥"
+                                  />
+                                  <FormInput
                                     label="Highlight Title"
                                     value={values[`about_vision_highlight${num}_title_${editLang}`] || ''}
                                     onChange={(e) => updateValue(`about_vision_highlight${num}_title_${editLang}`, e.target.value)}
@@ -388,6 +394,12 @@ export default function AboutPageEditPage() {
                                 <div key={num} className="bg-gray-50/30 p-4 rounded-xl border border-gray-200/50 space-y-3">
                                   <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Point {num} ({editLang.toUpperCase()})</h5>
                                   <FormInput
+                                    label="Point Icon / Emoji"
+                                    value={values[`about_language_point${num}_icon`] || ''}
+                                    onChange={(e) => updateValue(`about_language_point${num}_icon`, e.target.value)}
+                                    placeholder="e.g. message, zap, globe, or emoji 💬"
+                                  />
+                                  <FormInput
                                     label="Point Title"
                                     value={values[`about_language_point${num}_title_${editLang}`] || ''}
                                     onChange={(e) => updateValue(`about_language_point${num}_title_${editLang}`, e.target.value)}
@@ -431,6 +443,12 @@ export default function AboutPageEditPage() {
                               {[1, 2, 3].map((num) => (
                                 <div key={num} className="bg-gray-50/30 p-4 rounded-xl border border-gray-200/50 space-y-3">
                                   <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Item {num} ({editLang.toUpperCase()})</h5>
+                                  <FormInput
+                                    label="Item Icon / Emoji"
+                                    value={values[`about_different_item${num}_icon`] || ''}
+                                    onChange={(e) => updateValue(`about_different_item${num}_icon`, e.target.value)}
+                                    placeholder="e.g. users, star, heart, or emoji ⭐"
+                                  />
                                   <FormInput
                                     label="Item Title"
                                     value={values[`about_different_item${num}_title_${editLang}`] || ''}

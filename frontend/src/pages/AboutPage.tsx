@@ -9,6 +9,15 @@ import GalleryGrid from '@/components/GalleryGrid';
 import { FiUsers, FiGlobe, FiMessageCircle, FiHeart, FiStar, FiZap } from 'react-icons/fi';
 import { fetchAbout, fetchSettings, type AboutSection, type AboutData } from '@/services/api';
 
+const iconMap: Record<string, any> = {
+  users: FiUsers,
+  heart: FiHeart,
+  globe: FiGlobe,
+  message: FiMessageCircle,
+  star: FiStar,
+  zap: FiZap,
+};
+
 /* ── Hero Section ────────────────────────────────────────────────── */
 function AboutHero({ settings, langSuffix }: { settings: Record<string, string>; langSuffix: string }) {
   const { t } = useTranslation();
@@ -191,14 +200,15 @@ function CommunityVision({ settings, langSuffix }: { settings: Record<string, st
   const content = settings[`about_vision_content_${langSuffix}`] || t('about.vision.content');
 
   const fallbackHighlights = t('about.vision.highlights', { returnObjects: true }) as any[];
+  const fallbackIcons = ['users', 'heart', 'globe'];
   const highlights = [1, 2, 3].map((num, idx) => {
     const fallback = fallbackHighlights[idx] || { title: '', description: '' };
     return {
+      icon: settings[`about_vision_highlight${num}_icon`] || fallbackIcons[idx % fallbackIcons.length],
       title: settings[`about_vision_highlight${num}_title_${langSuffix}`] || fallback.title,
       description: settings[`about_vision_highlight${num}_desc_${langSuffix}`] || fallback.description,
     };
   });
-  const icons = [FiUsers, FiHeart, FiGlobe];
 
   return (
     <SectionWrapper className="bg-neutral-cream">
@@ -216,7 +226,7 @@ function CommunityVision({ settings, langSuffix }: { settings: Record<string, st
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {highlights.map((item, idx) => {
-          const Icon = icons[idx % icons.length];
+          const IconComponent = iconMap[item.icon];
           return (
             <motion.div
               key={idx}
@@ -227,7 +237,7 @@ function CommunityVision({ settings, langSuffix }: { settings: Record<string, st
               className="card text-center !p-8 group hover:shadow-elevated transition-all"
             >
               <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                <Icon size={32} />
+                {IconComponent ? <IconComponent size={32} /> : <span className="text-3xl">{item.icon}</span>}
               </div>
               <h3 className="font-display text-xl font-bold text-neutral-dark mb-3">
                 {item.title}
@@ -256,14 +266,15 @@ function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string,
     : "/storage/assets/images/speakeasy/GPTempDownload(2).jpg";
 
   const fallbackPoints = t('about.language.points', { returnObjects: true }) as any[];
+  const fallbackIcons = ['message', 'zap', 'globe'];
   const points = [1, 2, 3].map((num, idx) => {
     const fallback = fallbackPoints[idx] || { title: '', description: '' };
     return {
+      icon: settings[`about_language_point${num}_icon`] || fallbackIcons[idx % fallbackIcons.length],
       title: settings[`about_language_point${num}_title_${langSuffix}`] || fallback.title,
       description: settings[`about_language_point${num}_desc_${langSuffix}`] || fallback.description,
     };
   });
-  const icons = [FiMessageCircle, FiZap, FiGlobe];
 
   return (
     <SectionWrapper>
@@ -301,7 +312,7 @@ function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string,
 
           <div className="space-y-6">
             {points.map((point, idx) => {
-              const Icon = icons[idx % icons.length];
+              const IconComponent = iconMap[point.icon];
               return (
                 <motion.div
                   key={idx}
@@ -312,7 +323,7 @@ function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string,
                   className="flex items-start gap-4"
                 >
                   <div className="mt-1 w-10 h-10 rounded-xl bg-accent/10 text-accent flex items-center justify-center shrink-0">
-                    <Icon size={20} />
+                    {IconComponent ? <IconComponent size={20} /> : <span className="text-xl">{point.icon}</span>}
                   </div>
                   <div>
                     <h4 className="font-heading font-bold text-neutral-dark">{point.title}</h4>
@@ -335,14 +346,15 @@ function Differentiators({ settings, langSuffix }: { settings: Record<string, st
   const title = settings[`about_different_title_${langSuffix}`] || t('about.different.title');
 
   const fallbackItems = t('about.different.items', { returnObjects: true }) as any[];
+  const fallbackIcons = ['users', 'star', 'heart'];
   const items = [1, 2, 3].map((num, idx) => {
     const fallback = fallbackItems[idx] || { title: '', description: '' };
     return {
+      icon: settings[`about_different_item${num}_icon`] || fallbackIcons[idx % fallbackIcons.length],
       title: settings[`about_different_item${num}_title_${langSuffix}`] || fallback.title,
       description: settings[`about_different_item${num}_desc_${langSuffix}`] || fallback.description,
     };
   });
-  const icons = [FiUsers, FiStar, FiHeart];
 
   return (
     <SectionWrapper className="bg-neutral-cream/50">
@@ -357,7 +369,7 @@ function Differentiators({ settings, langSuffix }: { settings: Record<string, st
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {items.map((item, idx) => {
-          const Icon = icons[idx % icons.length];
+          const IconComponent = iconMap[item.icon];
           return (
             <motion.div
               key={idx}
@@ -368,7 +380,7 @@ function Differentiators({ settings, langSuffix }: { settings: Record<string, st
               className="group p-8 rounded-2xl bg-white border border-neutral-sand/20 hover:shadow-card transition-all"
             >
               <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                <Icon size={24} />
+                {IconComponent ? <IconComponent size={24} /> : <span className="text-2xl">{item.icon}</span>}
               </div>
               <h3 className="font-display text-xl font-bold text-neutral-dark mb-3">
                 {item.title}
