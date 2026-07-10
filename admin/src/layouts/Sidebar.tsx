@@ -19,12 +19,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-const NAV_ITEMS = [
+const MAIN_NAV_ITEMS = [
   { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-  { to: '/admin/homepage', icon: Home, label: 'Homepage' },
-  { to: '/admin/experiences-page', icon: Compass, label: 'Experiences Page' },
-  { to: '/admin/testimonials-page', icon: MessageSquareQuote, label: 'Testimonials Page' },
-  { to: '/admin/about-page', icon: Info, label: 'About Page' },
   { to: '/admin/experiences', icon: UtensilsCrossed, label: 'Experiences & Locations' },
   { to: '/admin/calendar', icon: CalendarDays, label: 'Calendar' },
   { to: '/admin/bookings', icon: BookOpen, label: 'Bookings' },
@@ -34,6 +30,13 @@ const NAV_ITEMS = [
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/admin/coupons', icon: Percent, label: 'Coupons' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
+];
+
+const CONTENT_PAGE_ITEMS = [
+  { to: '/admin/homepage', icon: Home, label: 'Home Page' },
+  { to: '/admin/experiences-page', icon: Compass, label: 'Experiences Page' },
+  { to: '/admin/testimonials-page', icon: MessageSquareQuote, label: 'Testimonials Page' },
+  { to: '/admin/about-page', icon: Info, label: 'About Page' },
 ];
 
 interface SidebarProps {
@@ -73,26 +76,60 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-sidebar-active text-white'
-                    : 'text-white/60 hover:bg-sidebar-hover hover:text-white',
-                )
-              }
-            >
-              <item.icon className="w-5 h-5 shrink-0" />
-              {item.label}
-            </NavLink>
-          ))}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 flex flex-col">
+          {/* Main nav items */}
+          <div className="space-y-1">
+            {MAIN_NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                onClick={onClose}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-sidebar-active text-white'
+                      : 'text-white/60 hover:bg-sidebar-hover hover:text-white',
+                  )
+                }
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Content Change Section */}
+          <div className="mt-auto pt-4">
+            <div className="flex items-center gap-2 px-3 mb-2">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/40 whitespace-nowrap">
+                Content Change Section
+              </span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+            <div className="space-y-1">
+              {CONTENT_PAGE_ITEMS.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    cn(
+                      'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-sidebar-active text-white'
+                        : 'text-white/60 hover:bg-sidebar-hover hover:text-white',
+                    )
+                  }
+                >
+                  <item.icon className="w-5 h-5 shrink-0" />
+                  {item.label}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         </nav>
 
         {/* Footer */}
