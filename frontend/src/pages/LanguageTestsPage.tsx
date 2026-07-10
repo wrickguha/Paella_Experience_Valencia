@@ -675,8 +675,8 @@ export default function LanguageTestsPage() {
       <section className="py-14 px-4 sm:px-6 lg:px-8 bg-neutral-cream/20">
         <div className="container-max mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-            <LevelTestCard lang="es" />
-            <LevelTestCard lang="en" />
+            <LevelTestCard lang="es" settings={settings} />
+            <LevelTestCard lang="en" settings={settings} />
           </div>
         </div>
       </section>

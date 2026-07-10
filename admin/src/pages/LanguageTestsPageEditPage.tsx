@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Save, Globe, ChevronDown, Check, Compass, Info, ListChecks, FileText, 
-  FlaskConical, Plus, Pencil, Trash2, Volume2, VolumeX, Upload, X 
+  FlaskConical, Plus, Pencil, Trash2, Volume2, VolumeX, Upload, X, GraduationCap 
 } from 'lucide-react';
 import { settingsApi, languageSessionsApi } from '@/services/api';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
@@ -36,6 +36,12 @@ interface LangSession {
   sort_order: number;
   test_type: 'session' | 'level_test';
   audio_url: string | null;
+}
+
+interface QuizQuestion {
+  q: string;
+  options: string[];
+  answer: number;
 }
 
 const EMPTY_TEST: Partial<LangSession> = {
@@ -223,6 +229,128 @@ function LevelTestModal({
   );
 }
 
+// ── Questions Editor Modal ────────────────────────────────────────────────────────
+function QuestionsEditorModal({
+  open,
+  onClose,
+  questions,
+  setQuestions,
+  onSave,
+  testLabel,
+}: {
+  open: boolean;
+  onClose: () => void;
+  questions: QuizQuestion[];
+  setQuestions: (qs: QuizQuestion[]) => void;
+  onSave: () => void;
+  testLabel: string;
+}) {
+  const addQuestion = () => {
+    setQuestions([...questions, { q: '', options: ['', '', '', ''], answer: 0 }]);
+  };
+
+  const removeQuestion = (idx: number) => {
+    setQuestions(questions.filter((_, i) => i !== idx));
+  };
+
+  const updateQuestionText = (idx: number, text: string) => {
+    const updated = [...questions];
+    updated[idx] = { ...updated[idx], q: text };
+    setQuestions(updated);
+  };
+
+  const updateOptionText = (qIdx: number, oIdx: number, text: string) => {
+    const updated = [...questions];
+    const opts = [...(updated[qIdx].options || ['', '', '', ''])];
+    opts[oIdx] = text;
+    updated[qIdx] = { ...updated[qIdx], options: opts };
+    setQuestions(updated);
+  };
+
+  const updateAnswer = (qIdx: number, val: number) => {
+    const updated = [...questions];
+    updated[qIdx] = { ...updated[qIdx], answer: val };
+    setQuestions(updated);
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={`Manage Questions: ${testLabel}`}
+      size="xl"
+    >
+      <div className="space-y-6 max-h-[60vh] overflow-y-auto px-1 pr-3">
+        {questions.length === 0 ? (
+          <div className="text-center py-10 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50">
+            <p className="text-sm text-neutral-gray">No questions in this test yet. Click below to add one!</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {questions.map((q, qIdx) => (
+              <div key={qIdx} className="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-205 relative group space-y-4">
+                <div className="flex justify-between items-center border-b border-gray-200 pb-2 mb-2">
+                  <span className="text-xs font-bold text-primary uppercase">Question {qIdx + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeQuestion(qIdx)}
+                    className="p-1 rounded-md text-neutral-gray hover:bg-red-50 hover:text-danger transition-colors"
+                    title="Delete Question"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <FormInput
+                  label="Question Text"
+                  value={q.q || ''}
+                  onChange={(e) => updateQuestionText(qIdx, e.target.value)}
+                  placeholder="e.g. Hola, ¿Cómo _______?"
+                />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[0, 1, 2, 3].map((oIdx) => (
+                    <FormInput
+                      key={oIdx}
+                      label={`Option ${oIdx + 1}`}
+                      value={q.options?.[oIdx] || ''}
+                      onChange={(e) => updateOptionText(qIdx, oIdx, e.target.value)}
+                      placeholder={`Option ${oIdx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                <FormSelect
+                  label="Correct Answer"
+                  value={q.answer ?? 0}
+                  onChange={(e) => updateAnswer(qIdx, parseInt(e.target.value) || 0)}
+                  options={[
+                    { value: 0, label: 'Option 1' },
+                    { value: 1, label: 'Option 2' },
+                    { value: 2, label: 'Option 3' },
+                    { value: 3, label: 'Option 4' },
+                  ]}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex justify-center pt-2">
+          <Button type="button" variant="secondary" onClick={addQuestion} className="flex items-center gap-1.5">
+            <Plus className="w-4 h-4" /> Add Question
+          </Button>
+        </div>
+      </div>
+      <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button onClick={onSave}>
+          Apply Changes
+        </Button>
+      </div>
+    </Modal>
+  );
+}
+
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function LanguageTestsPageEditPage() {
   const [values, setValues] = useState<Record<string, string>>({});
@@ -234,7 +362,7 @@ export default function LanguageTestsPageEditPage() {
   const [originalValues, setOriginalValues] = useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = useState('');
 
-  // Level Tests Management state
+  // Level Tests List state
   const [levelTests, setLevelTests] = useState<LangSession[]>([]);
   const [testLoading, setTestLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -243,11 +371,17 @@ export default function LanguageTestsPageEditPage() {
   const [deleteTarget, setDeleteTarget] = useState<LangSession | null>(null);
   const [deletingTest, setDeletingTest] = useState(false);
 
+  // Quiz Questions builder state
+  const [questionsModalOpen, setQuestionsModalOpen] = useState(false);
+  const [editingQuestionsKey, setEditingQuestionsKey] = useState<string>(''); // 'spanishTest' or 'englishTest'
+  const [tempQuestions, setTempQuestions] = useState<QuizQuestion[]>([]);
+
   const SECTIONS: SectionConfig[] = [
     { id: 'hero', label: 'Hero Header Section', icon: <Compass className="w-5 h-5" />, description: 'Edit main heading, subtitle scripts, descriptions, CTAs, and floating emojis.' },
     { id: 'info', label: 'Info Strip Indicators', icon: <Info className="w-5 h-5" />, description: 'Modify the four quick indicators listed below the hero section.' },
     { id: 'works', label: 'How It Works Steps', icon: <ListChecks className="w-5 h-5" />, description: 'Customize section header and the 3 step cards detail.' },
     { id: 'cta', label: 'Lead Capture Form Settings', icon: <FileText className="w-5 h-5" />, description: 'Edit titles, form descriptions, success prompts, and submit button texts.' },
+    { id: 'cards', label: 'Placement Test Intro Cards', icon: <GraduationCap className="w-5 h-5" />, description: 'Edit titles and descriptions for the Spanish and English placement test entry cards.' },
     { id: 'tests', label: 'Manage Level Tests List', icon: <FlaskConical className="w-5 h-5" />, description: 'Create, edit, delete, and upload audio files for individual level tests.' },
   ];
 
@@ -311,7 +445,7 @@ export default function LanguageTestsPageEditPage() {
     setSaving(false);
   };
 
-  // CRUD level tests
+  // CRUD level tests list
   const openCreateTest = () => {
     setEditingTest({ ...EMPTY_TEST });
     setModalOpen(true);
@@ -366,6 +500,39 @@ export default function LanguageTestsPageEditPage() {
     }
     setDeletingTest(false);
   };
+
+  // Questions editor state helper methods
+  const openQuestionsEditor = (key: string) => {
+    setEditingQuestionsKey(key);
+    let qList: QuizQuestion[] = [];
+    try {
+      const stored = values[`${key}_questions`];
+      if (stored) qList = JSON.parse(stored);
+    } catch {}
+    setTempQuestions(qList);
+    setQuestionsModalOpen(true);
+  };
+
+  const handleSaveQuestions = () => {
+    const cleaned = tempQuestions.map(q => ({
+      q: q.q || '',
+      options: (q.options || ['', '', '', '']).map(o => o || ''),
+      answer: typeof q.answer === 'number' ? q.answer : 0
+    }));
+    updateValue(`${editingQuestionsKey}_questions`, JSON.stringify(cleaned));
+    setQuestionsModalOpen(false);
+    toast.success('Questions list updated! Don\'t forget to click "Save Page Content" at the top to save changes.');
+  };
+
+  const getQuestionsCount = (key: string) => {
+    try {
+      const q = values[`${key}_questions`];
+      if (q) return JSON.parse(q).length;
+    } catch {}
+    return 0;
+  };
+  const spanishQuestionsCount = getQuestionsCount('spanishTest');
+  const englishQuestionsCount = getQuestionsCount('englishTest');
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
@@ -651,6 +818,65 @@ export default function LanguageTestsPageEditPage() {
                         </div>
                       )}
 
+                      {/* PLACEMENT TEST INTRO CARDS SECTION */}
+                      {section.id === 'cards' && (
+                        <div className="space-y-6">
+                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-4">
+                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-2">
+                              <span>🇪🇸</span> Spanish Placement Test Card ({editLang.toUpperCase()})
+                            </h4>
+                            <FormInput
+                              label="Card Title"
+                              value={values[`spanishTest_title_${editLang}`] || ''}
+                              onChange={(e) => updateValue(`spanishTest_title_${editLang}`, e.target.value)}
+                            />
+                            <FormTextarea
+                              label="Card Description"
+                              value={values[`spanishTest_subtitle_${editLang}`] || ''}
+                              onChange={(e) => updateValue(`spanishTest_subtitle_${editLang}`, e.target.value)}
+                              rows={3}
+                            />
+                            <div className="pt-2">
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => openQuestionsEditor('spanishTest')}
+                                className="flex items-center gap-1.5 text-xs"
+                              >
+                                <ListChecks className="w-3.5 h-3.5" /> Edit Spanish Questions ({spanishQuestionsCount} questions)
+                              </Button>
+                            </div>
+                          </div>
+
+                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-4">
+                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-2">
+                              <span>🇬🇧</span> English Placement Test Card ({editLang.toUpperCase()})
+                            </h4>
+                            <FormInput
+                              label="Card Title"
+                              value={values[`englishTest_title_${editLang}`] || ''}
+                              onChange={(e) => updateValue(`englishTest_title_${editLang}`, e.target.value)}
+                            />
+                            <FormTextarea
+                              label="Card Description"
+                              value={values[`englishTest_subtitle_${editLang}`] || ''}
+                              onChange={(e) => updateValue(`englishTest_subtitle_${editLang}`, e.target.value)}
+                              rows={3}
+                            />
+                            <div className="pt-2">
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                onClick={() => openQuestionsEditor('englishTest')}
+                                className="flex items-center gap-1.5 text-xs"
+                              >
+                                <ListChecks className="w-3.5 h-3.5" /> Edit English Questions ({englishQuestionsCount} questions)
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* MANAGE LEVEL TESTS SECTION */}
                       {section.id === 'tests' && (
                         <div className="space-y-6">
@@ -762,6 +988,15 @@ export default function LanguageTestsPageEditPage() {
         setEditing={setEditingTest}
         onSave={handleSaveTest}
         saving={savingTest}
+      />
+
+      <QuestionsEditorModal
+        open={questionsModalOpen}
+        onClose={() => setQuestionsModalOpen(false)}
+        questions={tempQuestions}
+        setQuestions={setTempQuestions}
+        onSave={handleSaveQuestions}
+        testLabel={editingQuestionsKey === 'spanishTest' ? 'Spanish Test' : 'English Test'}
       />
 
       <ConfirmDialog

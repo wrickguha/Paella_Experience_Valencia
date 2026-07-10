@@ -29,7 +29,17 @@ export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
 
-  const questions = t(`${i18nKeyPrefix}.questions`, { returnObjects: true }) as Question[];
+  let questions: Question[] = [];
+  try {
+    const customQuestions = settings[`${i18nKeyPrefix}_questions`];
+    if (customQuestions) {
+      questions = JSON.parse(customQuestions);
+    } else {
+      questions = t(`${i18nKeyPrefix}.questions`, { returnObjects: true }) as Question[];
+    }
+  } catch {
+    questions = t(`${i18nKeyPrefix}.questions`, { returnObjects: true }) as Question[];
+  }
   const totalQuestions = questions ? questions.length : 0;
 
   const handleStart = () => {
