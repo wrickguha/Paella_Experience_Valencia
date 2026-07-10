@@ -228,6 +228,36 @@ export default function TestimonialsPageEditPage() {
                             value={values[`testimonials_rating_summary_${editLang}`] || ''}
                             onChange={(e) => updateValue(`testimonials_rating_summary_${editLang}`, e.target.value)}
                           />
+
+                          <div className="border-t border-gray-200/60 pt-4 mt-4 space-y-4">
+                            <h5 className="text-sm font-bold text-neutral-dark">Floating Hero Particle Emojis</h5>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                              <FormInput
+                                label="Particle 1"
+                                value={values.testimonials_particle_1 || ''}
+                                onChange={(e) => updateValue('testimonials_particle_1', e.target.value)}
+                                placeholder="e.g. 🥘"
+                              />
+                              <FormInput
+                                label="Particle 2"
+                                value={values.testimonials_particle_2 || ''}
+                                onChange={(e) => updateValue('testimonials_particle_2', e.target.value)}
+                                placeholder="e.g. 🍷"
+                              />
+                              <FormInput
+                                label="Particle 3"
+                                value={values.testimonials_particle_3 || ''}
+                                onChange={(e) => updateValue('testimonials_particle_3', e.target.value)}
+                                placeholder="e.g. ✨"
+                              />
+                              <FormInput
+                                label="Particle 4"
+                                value={values.testimonials_particle_4 || ''}
+                                onChange={(e) => updateValue('testimonials_particle_4', e.target.value)}
+                                placeholder="e.g. 🍊"
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
 

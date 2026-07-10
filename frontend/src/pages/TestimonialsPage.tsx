@@ -251,10 +251,10 @@ export default function TestimonialsPage() {
         {/* Floating food/sparkle particles inside hero */}
         <div className="absolute inset-0 pointer-events-none">
           {[
-            { symbol: '🥘', x: '10%', y: '25%', duration: 6, size: 'text-2xl sm:text-3xl' },
-            { symbol: '🍷', x: '85%', y: '20%', duration: 8, size: 'text-xl sm:text-2xl' },
-            { symbol: '✨', x: '20%', y: '70%', duration: 5, size: 'text-lg sm:text-xl' },
-            { symbol: '🍊', x: '75%', y: '65%', duration: 7, size: 'text-xl sm:text-2xl' },
+            { symbol: settings.testimonials_particle_1 || '🥘', x: '10%', y: '25%', duration: 6, size: 'text-2xl sm:text-3xl' },
+            { symbol: settings.testimonials_particle_2 || '🍷', x: '85%', y: '20%', duration: 8, size: 'text-xl sm:text-2xl' },
+            { symbol: settings.testimonials_particle_3 || '✨', x: '20%', y: '70%', duration: 5, size: 'text-lg sm:text-xl' },
+            { symbol: settings.testimonials_particle_4 || '🍊', x: '75%', y: '65%', duration: 7, size: 'text-xl sm:text-2xl' },
           ].map((p, i) => (
             <motion.div
               key={i}
