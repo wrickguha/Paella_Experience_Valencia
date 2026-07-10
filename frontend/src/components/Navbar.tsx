@@ -55,7 +55,6 @@ export default function Navbar() {
     { to: "/testimonials", label: t("nav.testimonials") },
     { to: "/booking", label: t("nav.booking") },
     { to: "/about", label: t("nav.about") },
-    { to: "/contact", label: t("nav.contact") },
   ];
 
   return (
