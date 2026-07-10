@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Save, Globe, ChevronDown, Check, Compass, Eye, Info } from 'lucide-react';
 import { settingsApi } from '@/services/api';
 import PageHeader, { Card, Button, Spinner } from '@/components/ui';
-import { FormInput, FormTextarea } from '@/components/FormFields';
+import { FormInput, FormTextarea, ImageUpload } from '@/components/FormFields';
 import { cn } from '@/lib/utils';
 
 interface Setting {
@@ -28,10 +28,11 @@ export default function ExperiencesPageEditPage() {
   const [hasChanges, setHasChanges] = useState(false);
   const [originalValues, setOriginalValues] = useState<Record<string, string>>({});
   const [successMsg, setSuccessMsg] = useState('');
+  const [files, setFiles] = useState<Record<string, File>>({});
 
   const SECTIONS: SectionConfig[] = [
     { id: 'intro', label: 'Intro Section', icon: <Compass className="w-5 h-5" />, description: 'Edit the header title and paragraph explanations of the page.' },
-    { id: 'categories', label: 'Category Cards', icon: <Eye className="w-5 h-5" />, description: 'Customize titles and taglines for City and Countryside experience panels.' },
+    { id: 'categories', label: 'Category Cards & Media', icon: <Eye className="w-5 h-5" />, description: 'Customize titles, descriptions, card backgrounds, and category emojis/icons.' },
     { id: 'buttons', label: 'Interaction Buttons', icon: <Info className="w-5 h-5" />, description: 'Modify the "Back", booking CTA and "Booking Unavailable" buttons.' },
   ];
 
@@ -60,11 +61,40 @@ export default function ExperiencesPageEditPage() {
     setHasChanges(JSON.stringify(next) !== JSON.stringify(originalValues));
   };
 
+  const updateFile = (key: string, file: File | null) => {
+    const nextFiles = { ...files };
+    if (file) {
+      nextFiles[key] = file;
+      updateValue(key, URL.createObjectURL(file));
+    } else {
+      delete nextFiles[key];
+      updateValue(key, '');
+    }
+    setFiles(nextFiles);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
       const fd = new FormData();
-      fd.append('settings', JSON.stringify(values));
+      const cleanValues = { ...values };
+
+      // Clean up local blob URLs for images & videos
+      const mediaKeys = [
+        'experience_city_image',
+        'experience_country_image'
+      ];
+      mediaKeys.forEach(k => {
+        if (cleanValues[k] && cleanValues[k].startsWith('blob:')) {
+          delete cleanValues[k];
+        }
+      });
+
+      fd.append('settings', JSON.stringify(cleanValues));
+      Object.entries(files).forEach(([k, file]) => {
+        fd.append(k, file);
+      });
+
       await settingsApi.update(fd);
 
       const res = await settingsApi.list();
@@ -75,6 +105,7 @@ export default function ExperiencesPageEditPage() {
       });
       setValues(map);
       setOriginalValues(map);
+      setFiles({});
       setHasChanges(false);
       setSuccessMsg('Experiences page changes saved successfully!');
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -228,17 +259,37 @@ export default function ExperiencesPageEditPage() {
 
                       {/* CATEGORIES SECTION */}
                       {section.id === 'categories' && (
-                        <div className="space-y-6">
+                        <div className="space-y-8">
                           {/* City Experiences Card */}
-                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-4">
-                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5">
-                              🏙️ City Experience Card ({editLang.toUpperCase()})
+                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-5">
+                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 border-b border-gray-200/50 pb-2">
+                              🏙️ City Experience Card
                             </h4>
-                            <FormInput
-                              label="City Title"
-                              value={values[`experience_city_title_${editLang}`] || ''}
-                              onChange={(e) => updateValue(`experience_city_title_${editLang}`, e.target.value)}
-                            />
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              <div>
+                                <label className="block text-sm font-semibold text-neutral-dark mb-2">City Category Background</label>
+                                <ImageUpload
+                                  label="Upload City Image"
+                                  preview={values.experience_city_image ? (values.experience_city_image.startsWith('blob:') || values.experience_city_image.startsWith('http') || values.experience_city_image.startsWith('/') ? values.experience_city_image : `/storage/${values.experience_city_image}`) : ''}
+                                  onChange={(file) => updateFile('experience_city_image', file)}
+                                />
+                              </div>
+                              <div className="space-y-4">
+                                <FormInput
+                                  label="City Card Icon / Emoji"
+                                  value={values.experience_city_icon || ''}
+                                  onChange={(e) => updateValue('experience_city_icon', e.target.value)}
+                                  placeholder="e.g. 🏙️"
+                                />
+                                <FormInput
+                                  label="City Title"
+                                  value={values[`experience_city_title_${editLang}`] || ''}
+                                  onChange={(e) => updateValue(`experience_city_title_${editLang}`, e.target.value)}
+                                />
+                              </div>
+                            </div>
+
                             <FormTextarea
                               label="City Tagline / Description"
                               value={values[`experience_city_desc_${editLang}`] || ''}
@@ -248,15 +299,35 @@ export default function ExperiencesPageEditPage() {
                           </div>
 
                           {/* Countryside Experiences Card */}
-                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-4">
-                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5">
-                              🌿 Countryside Experience Card ({editLang.toUpperCase()})
+                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-5">
+                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 border-b border-gray-200/50 pb-2">
+                              🌿 Countryside Experience Card
                             </h4>
-                            <FormInput
-                              label="Countryside Title"
-                              value={values[`experience_country_title_${editLang}`] || ''}
-                              onChange={(e) => updateValue(`experience_country_title_${editLang}`, e.target.value)}
-                            />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              <div>
+                                <label className="block text-sm font-semibold text-neutral-dark mb-2">Countryside Category Background</label>
+                                <ImageUpload
+                                  label="Upload Countryside Image"
+                                  preview={values.experience_country_image ? (values.experience_country_image.startsWith('blob:') || values.experience_country_image.startsWith('http') || values.experience_country_image.startsWith('/') ? values.experience_country_image : `/storage/${values.experience_country_image}`) : ''}
+                                  onChange={(file) => updateFile('experience_country_image', file)}
+                                />
+                              </div>
+                              <div className="space-y-4">
+                                <FormInput
+                                  label="Countryside Card Icon / Emoji"
+                                  value={values.experience_country_icon || ''}
+                                  onChange={(e) => updateValue('experience_country_icon', e.target.value)}
+                                  placeholder="e.g. 🌿"
+                                />
+                                <FormInput
+                                  label="Countryside Title"
+                                  value={values[`experience_country_title_${editLang}`] || ''}
+                                  onChange={(e) => updateValue(`experience_country_title_${editLang}`, e.target.value)}
+                                />
+                              </div>
+                            </div>
+
                             <FormTextarea
                               label="Countryside Tagline / Description"
                               value={values[`experience_country_desc_${editLang}`] || ''}
@@ -305,6 +376,7 @@ export default function ExperiencesPageEditPage() {
               variant="secondary" 
               onClick={() => {
                 setValues(originalValues);
+                setFiles({});
                 setHasChanges(false);
               }}
               disabled={!hasChanges || saving}

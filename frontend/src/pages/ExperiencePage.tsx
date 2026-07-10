@@ -392,6 +392,23 @@ export default function ExperiencePage() {
   const countryDesc = settings[`experience_country_desc_${langSuffix}`] || t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves');
   const backBtnText = settings[`experience_back_btn_${langSuffix}`] || t('experience.back', 'Back');
 
+  const resolveImageUrl = (path: string) => {
+    if (!path) return '';
+    return path.startsWith('http') || path.startsWith('/') || path.startsWith('data:')
+      ? path
+      : `/storage/${path}`;
+  };
+
+  const cityImage = settings.experience_city_image
+    ? resolveImageUrl(settings.experience_city_image)
+    : "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=800&auto=format&fit=crop";
+  const cityIcon = settings.experience_city_icon || '🏙️';
+
+  const countryImage = settings.experience_country_image
+    ? resolveImageUrl(settings.experience_country_image)
+    : "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=800&auto=format&fit=crop";
+  const countryIcon = settings.experience_country_icon || '🌿';
+
   useEffect(() => {
     setLocLoading(true);
     fetchLocations(i18n.language)
@@ -450,14 +467,14 @@ export default function ExperiencePage() {
               className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
             >
               <img
-                src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=800&auto=format&fit=crop"
+                src={cityImage}
                 alt="City Experiences"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-955/90 via-slate-900/40 to-transparent bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
               <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
-                  🏙️
+                  {cityIcon}
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-2">
@@ -483,14 +500,14 @@ export default function ExperiencePage() {
               className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
             >
               <img
-                src="https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=800&auto=format&fit=crop"
+                src={countryImage}
                 alt="Countryside Experiences"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-955/40 to-transparent bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-transparent" />
               <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
                 <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
-                  🌿
+                  {countryIcon}
                 </div>
                 <div>
                   <div className="flex items-center gap-3 mb-2">
