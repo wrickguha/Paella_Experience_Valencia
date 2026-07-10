@@ -131,6 +131,436 @@ function AudioPlayer({ src, title }: { src: string; title: string }) {
   );
 }
 
+// ── Quiz Data ─────────────────────────────────────────────────────────────────
+const SPANISH_QUIZ = [
+  {
+    q: 'Complete: "Yo ___ al mercado todos los días."',
+    options: ['voy', 'vaya', 'fui', 'iba'],
+    correct: 0,
+  },
+  {
+    q: '¿Cuál es el plural de "el lápiz"?',
+    options: ['los lápizes', 'los lápices', 'los lápizs', 'los lápices'],
+    correct: 1,
+  },
+  {
+    q: 'Select the correct subjunctive: "Espero que ella ___ aquí."',
+    options: ['está', 'estará', 'esté', 'estaría'],
+    correct: 2,
+  },
+  {
+    q: '¿Qué significa "soler + infinitivo"?',
+    options: ['to be able to', 'to tend to / usually do', 'to want to', 'to have to'],
+    correct: 1,
+  },
+  {
+    q: 'Fill in: "Si ___ más tiempo, estudiaría más."',
+    options: ['tuviera', 'tiene', 'tuvo', 'tenía'],
+    correct: 0,
+  },
+];
+
+const ENGLISH_QUIZ = [
+  {
+    q: 'Choose the correct form: "She ___ to work every day."',
+    options: ['walk', 'walks', 'walking', 'walked'],
+    correct: 1,
+  },
+  {
+    q: 'Which sentence is in the Present Perfect?',
+    options: [
+      'She was cooking dinner.',
+      'She has cooked dinner.',
+      'She cooked dinner.',
+      'She cooks dinner.',
+    ],
+    correct: 1,
+  },
+  {
+    q: '"Despite ___ tired, he continued working." Complete correctly.',
+    options: ['to be', 'be', 'being', 'been'],
+    correct: 2,
+  },
+  {
+    q: 'Choose the correct conditional: "If I ___ rich, I would travel."',
+    options: ['am', 'were', 'will be', 'have been'],
+    correct: 1,
+  },
+  {
+    q: 'Which word is a synonym for "ubiquitous"?',
+    options: ['rare', 'omnipresent', 'ancient', 'fragile'],
+    correct: 1,
+  },
+];
+
+const LEVEL_THRESHOLDS = [
+  { min: 0, max: 1, label: 'Beginner', es: 'Principiante', color: 'from-emerald-400 to-emerald-600', emoji: '🌱' },
+  { min: 2, max: 3, label: 'Intermediate', es: 'Intermedio', color: 'from-amber-400 to-amber-600', emoji: '🌿' },
+  { min: 4, max: 5, label: 'Advanced', es: 'Avanzado', color: 'from-primary to-accent', emoji: '🌟' },
+];
+
+function getLevel(score: number) {
+  return LEVEL_THRESHOLDS.find((t) => score >= t.min && score <= t.max) || LEVEL_THRESHOLDS[0];
+}
+
+// ── Quiz Modal ─────────────────────────────────────────────────────────────────
+function QuizModal({
+  open,
+  onClose,
+  language,
+  isEs,
+}: {
+  open: boolean;
+  onClose: () => void;
+  language: 'spanish' | 'english';
+  isEs: boolean;
+}) {
+  const questions = language === 'spanish' ? SPANISH_QUIZ : ENGLISH_QUIZ;
+  const [step, setStep] = useState(0); // 0 = start, 1..N = question, N+1 = result
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  const current = questions[step - 1];
+  const isStart = step === 0;
+  const isResult = step === questions.length + 1;
+  const score = answers.filter((a, i) => a === questions[i]?.correct).length;
+  const level = getLevel(score);
+
+  const reset = () => {
+    setStep(0);
+    setAnswers([]);
+    setSelected(null);
+    setRevealed(false);
+  };
+
+  const handleStart = () => setStep(1);
+
+  const handleSelect = (idx: number) => {
+    if (revealed) return;
+    setSelected(idx);
+    setRevealed(true);
+  };
+
+  const handleNext = () => {
+    if (selected === null) return;
+    const newAnswers = [...answers, selected];
+    setAnswers(newAnswers);
+    setSelected(null);
+    setRevealed(false);
+    if (step === questions.length) {
+      setStep(questions.length + 1);
+    } else {
+      setStep(step + 1);
+    }
+  };
+
+  const handleClose = () => { reset(); onClose(); };
+
+  if (!open) return null;
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: 24 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: 24 }}
+            transition={{ type: 'spring', damping: 22, stiffness: 300 }}
+            className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
+          >
+            {/* Header */}
+            <div className={`bg-gradient-to-r ${language === 'spanish' ? 'from-[#c60b1e] to-[#f1bf00]' : 'from-primary to-accent'} px-6 py-5 flex items-center justify-between`}>
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{language === 'spanish' ? '🇪🇸' : '🇬🇧'}</span>
+                <div>
+                  <p className="text-white/70 text-xs uppercase tracking-widest font-semibold">
+                    {isEs ? 'Prueba de nivel' : 'Level Test'}
+                  </p>
+                  <h3 className="text-white font-bold text-lg leading-tight">
+                    {language === 'spanish'
+                      ? (isEs ? 'Test de Español' : 'Spanish Level Test')
+                      : (isEs ? 'Test de Inglés' : 'English Level Test')
+                    }
+                  </h3>
+                </div>
+              </div>
+              <button onClick={handleClose} className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors">
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+
+            {/* Progress bar */}
+            {!isStart && !isResult && (
+              <div className="h-1.5 bg-gray-100">
+                <motion.div
+                  className={`h-full bg-gradient-to-r ${language === 'spanish' ? 'from-[#c60b1e] to-[#f1bf00]' : 'from-primary to-accent'}`}
+                  initial={false}
+                  animate={{ width: `${((step) / questions.length) * 100}%` }}
+                  transition={{ duration: 0.4 }}
+                />
+              </div>
+            )}
+
+            <div className="p-6">
+              {/* START SCREEN */}
+              {isStart && (
+                <div className="text-center py-4">
+                  <div className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
+                    <span className="text-4xl">{language === 'spanish' ? '🇪🇸' : '🇬🇧'}</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-primary mb-2">
+                    {language === 'spanish'
+                      ? (isEs ? 'Test de Español (5 preguntas)' : 'Spanish Test (5 questions)')
+                      : (isEs ? 'Test de Inglés (5 preguntas)' : 'English Test (5 questions)')
+                    }
+                  </h4>
+                  <p className="text-neutral-gray text-sm mb-6">
+                    {isEs
+                      ? 'Responde 5 preguntas para descubrir tu nivel de idioma. ¡Tómate tu tiempo!'
+                      : 'Answer 5 questions to discover your language level. Take your time!'
+                    }
+                  </p>
+                  <button
+                    onClick={handleStart}
+                    className="btn-primary w-full"
+                  >
+                    {isEs ? 'Empezar el test ✨' : 'Start Quiz ✨'}
+                  </button>
+                </div>
+              )}
+
+              {/* QUESTION */}
+              {!isStart && !isResult && current && (
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold text-primary/50 uppercase tracking-widest">
+                      {isEs ? `Pregunta ${step} de ${questions.length}` : `Question ${step} of ${questions.length}`}
+                    </span>
+                  </div>
+
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={step}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <p className="text-primary font-semibold text-base mb-5 leading-relaxed">{current.q}</p>
+
+                      <div className="space-y-3 mb-6">
+                        {current.options.map((option, idx) => {
+                          let cls = 'w-full text-left px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all duration-200 ';
+                          if (!revealed) {
+                            cls += selected === idx
+                              ? 'border-primary bg-primary/5 text-primary'
+                              : 'border-gray-200 hover:border-primary/40 hover:bg-primary/5 text-neutral-gray cursor-pointer';
+                          } else {
+                            if (idx === current.correct) cls += 'border-emerald-500 bg-emerald-50 text-emerald-700';
+                            else if (idx === selected) cls += 'border-red-400 bg-red-50 text-red-600';
+                            else cls += 'border-gray-100 text-gray-400';
+                          }
+                          return (
+                            <motion.button
+                              key={idx}
+                              className={cls}
+                              onClick={() => handleSelect(idx)}
+                              whileTap={!revealed ? { scale: 0.98 } : {}}
+                            >
+                              <span className="flex items-center gap-3">
+                                <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 text-xs font-bold ${
+                                  revealed && idx === current.correct ? 'border-emerald-500 bg-emerald-500 text-white' :
+                                  revealed && idx === selected ? 'border-red-400 bg-red-400 text-white' :
+                                  'border-current'
+                                }`}>
+                                  {revealed && idx === current.correct ? '✓' :
+                                   revealed && idx === selected ? '✗' :
+                                   String.fromCharCode(65 + idx)}
+                                </span>
+                                {option}
+                              </span>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+
+                      {revealed && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`p-3 rounded-xl text-sm font-medium mb-4 ${
+                            selected === current.correct
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-red-50 text-red-700 border border-red-200'
+                          }`}
+                        >
+                          {selected === current.correct
+                            ? (isEs ? '¡Correcto! 🎉' : 'Correct! 🎉')
+                            : (isEs ? `Incorrecto. La respuesta es: "${current.options[current.correct]}"` : `Incorrect. The correct answer is: "${current.options[current.correct]}"`)
+                          }
+                        </motion.div>
+                      )}
+
+                      <button
+                        onClick={handleNext}
+                        disabled={!revealed}
+                        className="btn-primary w-full disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {step === questions.length
+                          ? (isEs ? 'Ver mi resultado →' : 'See my result →')
+                          : (isEs ? 'Siguiente pregunta →' : 'Next question →')
+                        }
+                      </button>
+                    </motion.div>
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* RESULT */}
+              {isResult && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-2"
+                >
+                  <div className={`w-24 h-24 rounded-2xl bg-gradient-to-br ${level.color} flex items-center justify-center mx-auto mb-5 shadow-lg`}>
+                    <span className="text-5xl">{level.emoji}</span>
+                  </div>
+
+                  <p className="text-neutral-gray text-sm mb-1">
+                    {isEs ? 'Tu puntuación:' : 'Your score:'}
+                  </p>
+                  <p className="text-4xl font-black text-primary mb-1">
+                    {score}/{questions.length}
+                  </p>
+
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r ${level.color} text-white font-bold text-sm mb-4`}>
+                    {isEs ? level.es : level.label}
+                  </div>
+
+                  <p className="text-neutral-gray text-sm mb-6 leading-relaxed">
+                    {isEs
+                      ? score >= 4
+                        ? '¡Excelente! Tu nivel es avanzado. Nuestras sesiones avanzadas son perfectas para ti.'
+                        : score >= 2
+                          ? 'Buen trabajo. Nivel intermedio — mejora con nosotros.'
+                          : 'Nivel principiante — ¡no te preocupes! Empezaremos desde el principio.'
+                      : score >= 4
+                        ? 'Excellent! You\'re at an advanced level. Our advanced sessions are perfect for you.'
+                        : score >= 2
+                          ? 'Good work! Intermediate level — improve with us.'
+                          : 'Beginner level — don\'t worry! We\'ll start from the beginning together.'
+                    }
+                  </p>
+
+                  <div className="flex gap-3">
+                    <button onClick={reset} className="flex-1 px-4 py-3 rounded-xl border-2 border-gray-200 text-neutral-gray text-sm font-semibold hover:border-primary hover:text-primary transition-colors">
+                      {isEs ? 'Repetir test' : 'Retake Quiz'}
+                    </button>
+                    <a href="#join" onClick={handleClose} className="flex-1 btn-primary text-center text-sm !py-3">
+                      {isEs ? 'Reservar sesión' : 'Book a Session'}
+                    </a>
+                  </div>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+// ── Quiz Section (the two cards) ──────────────────────────────────────────────
+function QuizSection({ isEs }: { isEs: boolean }) {
+  const [activeQuiz, setActiveQuiz] = useState<'spanish' | 'english' | null>(null);
+
+  return (
+    <>
+      <section className="py-14 px-4 sm:px-6 lg:px-8">
+        <div className="container-max mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Spanish card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5 }}
+              className="bg-white rounded-3xl shadow-card border border-neutral-sand/30 p-8 flex flex-col items-center text-center hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
+            >
+              {/* Flag badge */}
+              <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center mb-5 text-3xl shadow-inner">
+                🇪🇸
+              </div>
+              <p className="text-xs font-black tracking-[0.25em] text-red-500 uppercase mb-2">ES</p>
+              <h3 className="text-2xl font-bold text-primary mb-3 leading-tight">
+                {isEs ? 'Prueba tu nivel de Español' : 'Test Your Spanish Level'}
+              </h3>
+              <p className="text-neutral-gray text-sm leading-relaxed mb-7">
+                {isEs
+                  ? 'Realiza nuestro test de 5 preguntas para saber qué experiencia es perfecta para ti.'
+                  : 'Take our quick 5-question quiz to find out which experience is best for you.'
+                }
+              </p>
+              <button
+                onClick={() => setActiveQuiz('spanish')}
+                className="w-full bg-primary text-white font-bold py-3.5 px-6 rounded-xl hover:bg-primary-light transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
+              >
+                {isEs ? 'Empezar el test ✨' : 'Start Quiz ✨'}
+              </button>
+            </motion.div>
+
+            {/* English card */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.5, delay: 0.12 }}
+              className="bg-white rounded-3xl shadow-card border border-neutral-sand/30 p-8 flex flex-col items-center text-center hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
+            >
+              {/* Flag badge */}
+              <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-5 text-3xl shadow-inner">
+                🇬🇧
+              </div>
+              <p className="text-xs font-black tracking-[0.25em] text-blue-600 uppercase mb-2">EN</p>
+              <h3 className="text-2xl font-bold text-primary mb-3 leading-tight">
+                {isEs ? 'Prueba tu nivel de Inglés' : 'Test Your English Level'}
+              </h3>
+              <p className="text-neutral-gray text-sm leading-relaxed mb-7">
+                {isEs
+                  ? 'Descubre tu nivel de inglés en 5 minutos con nuestra evaluación enfocada en la comunicación.'
+                  : 'Find out your English level in 5 minutes with our speaking-focused assessment.'
+                }
+              </p>
+              <button
+                onClick={() => setActiveQuiz('english')}
+                className="w-full bg-primary text-white font-bold py-3.5 px-6 rounded-xl hover:bg-primary-light transition-all duration-300 hover:scale-105 active:scale-95 shadow-md hover:shadow-lg text-sm"
+              >
+                {isEs ? 'Empezar el test ✨' : 'Start Quiz ✨'}
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <QuizModal
+        open={activeQuiz !== null}
+        onClose={() => setActiveQuiz(null)}
+        language={activeQuiz || 'spanish'}
+        isEs={isEs}
+      />
+    </>
+  );
+}
+
 // ── Test Card ─────────────────────────────────────────────────────────────────
 function TestCard({ test, index, lang }: { test: LevelTestItem; index: number; lang: string }) {
   const { ref, isInView } = useScrollReveal(0.15);
@@ -430,6 +860,9 @@ export default function LanguageTestsPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Quiz Cards ──────────────────────────────────────────────── */}
+      <QuizSection isEs={isEs} />
 
       {/* ── Tests Grid ────────────────────────────────────────────── */}
       <section id="tests" className="section-padding" ref={sectionRef.ref}>
