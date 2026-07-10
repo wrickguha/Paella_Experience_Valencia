@@ -1031,7 +1031,13 @@ export default function LanguageTestsPage() {
             <Link to="/experience" className="btn-primary">
               {isEs ? 'Ver experiencias' : 'Explore Experiences'}
             </Link>
-            <Link to="/contact" className="btn-secondary !border-white/30 !text-white hover:!bg-white/10 hover:!text-white">
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-lg font-semibold font-modern
+                         bg-transparent text-white border-2 border-white/40
+                         hover:bg-white hover:text-primary
+                         transition-all duration-300 hover:scale-105 active:scale-95 shadow-soft"
+            >
               {isEs ? 'Contáctanos' : 'Contact Us'}
             </Link>
           </div>
