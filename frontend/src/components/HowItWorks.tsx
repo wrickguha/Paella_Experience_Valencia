@@ -53,6 +53,7 @@ export default function HowItWorks() {
     const fallback = fallbackSteps[idx] || { number: `0${num}`, title: '', description: '' };
     return {
       number: fallback.number,
+      emoji: settings[`howItWorks_step${num}_emoji`],
       title: settings[`howItWorks_step${num}_title_${langSuffix}`] || fallback.title,
       description: settings[`howItWorks_step${num}_desc_${langSuffix}`] || fallback.description,
     };
@@ -98,7 +99,9 @@ export default function HowItWorks() {
                 <div
                   className={`w-24 h-24 rounded-full border-2 ${borderColors[index]} ${bgColors[index]} flex items-center justify-center`}
                 >
-                  <span className={`${iconColors[index]}`}>{ICONS[index]}</span>
+                  <span className={`${iconColors[index]} ${step.emoji ? 'text-3xl' : ''}`}>
+                    {step.emoji ? step.emoji : ICONS[index]}
+                  </span>
                 </div>
                 {/* Step number pill */}
                 <span className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-white text-xs font-heading font-bold flex items-center justify-center shadow-md">

@@ -95,7 +95,7 @@ export default function ExperienceHighlights() {
   const items = [1, 2, 3, 4, 5, 6].map((num, idx) => {
     const fallback = fallbackItems[idx] || { icon: 'immersive', title: '', description: '' };
     return {
-      icon: fallback.icon,
+      icon: settings[`highlights_feat${num}_icon`] || fallback.icon,
       title: settings[`highlights_feat${num}_title_${langSuffix}`] || fallback.title,
       description: settings[`highlights_feat${num}_desc_${langSuffix}`] || fallback.description,
     };
@@ -116,7 +116,7 @@ export default function ExperienceHighlights() {
     const fallback = DEFAULT_FLOW_STEPS[idx];
     return {
       id: num,
-      emoji: fallback.emoji,
+      emoji: settings[`flow_step${num}_emoji`] || fallback.emoji,
       title: settings[`flow_step${num}_title_${langSuffix}`] || fallback.title,
       description: settings[`flow_step${num}_desc_${langSuffix}`] || fallback.description,
     };
@@ -145,7 +145,7 @@ export default function ExperienceHighlights() {
             className="card text-center hover:shadow-elevated transition-shadow duration-300"
           >
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
-              <span className="text-3xl">{iconMap[item.icon] || '✨'}</span>
+              <span className="text-3xl">{iconMap[item.icon] || item.icon || '✨'}</span>
             </div>
             <h3 className="font-heading font-semibold text-lg text-neutral-dark mb-3">
               {item.title === 'Sobremesa' || item.title === 'Sobremesa' ? <em>{item.title}</em> : item.title}

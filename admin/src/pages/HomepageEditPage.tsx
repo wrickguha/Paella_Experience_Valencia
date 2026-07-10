@@ -338,6 +338,12 @@ export default function HomepageEditPage() {
                                 <div key={num} className="bg-gray-50/30 p-4 rounded-xl border border-gray-200/50 space-y-3">
                                   <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Card {num} ({editLang.toUpperCase()})</h5>
                                   <FormInput
+                                    label="Card Icon / Emoji"
+                                    value={values[`highlights_feat${num}_icon`] || ''}
+                                    onChange={(e) => updateValue(`highlights_feat${num}_icon`, e.target.value)}
+                                    placeholder="e.g. 🥘, 🗣, 🍷, etc."
+                                  />
+                                  <FormInput
                                     label="Card Title"
                                     value={values[`highlights_feat${num}_title_${editLang}`] || ''}
                                     onChange={(e) => updateValue(`highlights_feat${num}_title_${editLang}`, e.target.value)}
@@ -385,6 +391,12 @@ export default function HomepageEditPage() {
                               {[1, 2, 3, 4, 5].map((num) => (
                                 <div key={num} className="bg-gray-50/30 p-4 rounded-xl border border-gray-200/50 space-y-3">
                                   <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Step {num} ({editLang.toUpperCase()})</h5>
+                                  <FormInput
+                                    label="Step Emoji / Icon"
+                                    value={values[`flow_step${num}_emoji`] || ''}
+                                    onChange={(e) => updateValue(`flow_step${num}_emoji`, e.target.value)}
+                                    placeholder="e.g. 👋"
+                                  />
                                   <FormInput
                                     label="Step Title"
                                     value={values[`flow_step${num}_title_${editLang}`] || ''}
@@ -614,6 +626,12 @@ export default function HomepageEditPage() {
                               {[1, 2, 3].map((num) => (
                                 <div key={num} className="bg-gray-50/30 p-4 rounded-xl border border-gray-200/50 space-y-3">
                                   <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Step {num} ({editLang.toUpperCase()})</h5>
+                                  <FormInput
+                                    label="Step Emoji / Icon"
+                                    value={values[`howItWorks_step${num}_emoji`] || ''}
+                                    onChange={(e) => updateValue(`howItWorks_step${num}_emoji`, e.target.value)}
+                                    placeholder="e.g. 📅 (empty uses default SVG)"
+                                  />
                                   <FormInput
                                     label="Step Title"
                                     value={values[`howItWorks_step${num}_title_${editLang}`] || ''}
