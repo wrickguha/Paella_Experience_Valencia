@@ -450,7 +450,7 @@ export default function ExperiencePage() {
               className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
             >
               <img
-                src="/city-experience.png"
+                src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=800&auto=format&fit=crop"
                 alt="City Experiences"
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
