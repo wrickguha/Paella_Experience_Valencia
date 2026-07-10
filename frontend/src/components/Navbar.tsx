@@ -64,7 +64,7 @@ export default function Navbar() {
       <div className="container-max px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 shrink-0 mr-6">
             <img src="/speakeasylogo.jpeg" alt="SpeakEasy Valencia Logo" className="w-12 h-12 object-cover rounded-xl" />
             <span className="font-script text-2xl font-bold text-white tracking-wide">
               SpeakEasy Valencia
@@ -72,7 +72,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-4 lg:gap-8 shrink-0">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
