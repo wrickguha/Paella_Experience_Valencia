@@ -73,6 +73,12 @@ class LanguageSessionController extends Controller
     {
         $data = $request->validated();
 
+        $audioUrl = null;
+        if ($request->hasFile('audio')) {
+            $path = $request->file('audio')->store('public/leads/audios');
+            $audioUrl = Storage::url($path);
+        }
+
         // Track as lead
         Lead::create([
             'source'   => 'language_join',
@@ -81,6 +87,7 @@ class LanguageSessionController extends Controller
             'metadata' => [
                 'language_type' => $data['language_type'],
                 'skill_level'   => $data['skill_level'] ?? null,
+                'audio_url'     => $audioUrl,
             ],
         ]);
 

@@ -18,6 +18,7 @@ class JoinLanguageRequest extends FormRequest
             'email'          => ['required', 'email', 'max:255'],
             'language_type'  => ['required', 'in:spanish,english,both'],
             'skill_level'    => ['nullable', 'in:beginner,intermediate,advanced'],
+            'audio'          => ['nullable', 'file', 'mimes:mp3,wav,m4a,ogg,webm,audio/mpeg,audio/wav,audio/m4a,audio/ogg,audio/webm', 'max:20480'],
         ];
     }
 }

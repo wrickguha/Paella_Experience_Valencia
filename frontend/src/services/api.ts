@@ -443,8 +443,20 @@ export async function joinLanguageSession(data: {
   email: string;
   language_type: 'spanish' | 'english' | 'both';
   skill_level?: string;
+  audio?: File | null;
 }): Promise<void> {
-  await apiClient.post('/language/join', data);
+  const fd = new FormData();
+  fd.append('name', data.name);
+  fd.append('email', data.email);
+  fd.append('language_type', data.language_type);
+  if (data.skill_level) fd.append('skill_level', data.skill_level);
+  if (data.audio) fd.append('audio', data.audio);
+
+  await apiClient.post('/language/join', fd, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 }
 
 // ── Lead Tracking API ──────────────────────────────────────────────

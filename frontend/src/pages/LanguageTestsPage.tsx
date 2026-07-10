@@ -641,7 +641,85 @@ function JoinForm({ lang }: { lang: string }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  // Audio Upload & Recording states
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [uploadMode, setUploadMode] = useState<'upload' | 'record' | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<any>(null);
   const isEs = lang === 'es';
+
+  const formatTime = (sec: number) => {
+    const mins = Math.floor(sec / 60);
+    const secs = sec % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const startRecording = async () => {
+    setError('');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const file = new File([blob], 'introduction.webm', { type: 'audio/webm' });
+        setAudioFile(file);
+        setAudioPreviewUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+      timerRef.current = setInterval(() => {
+        setRecordingTime((t) => t + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Mic access denied:', err);
+      setError(isEs ? 'No se pudo acceder al micrófono. Por favor, comprueba los permisos.' : 'Could not access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 20 * 1024 * 1024) {
+        setError(isEs ? 'El archivo es demasiado grande (máx 20MB).' : 'File is too large (max 20MB).');
+        return;
+      }
+      setAudioFile(file);
+      setAudioPreviewUrl(URL.createObjectURL(file));
+      setError('');
+    }
+  };
+
+  const removeAudio = () => {
+    setAudioFile(null);
+    setAudioPreviewUrl(null);
+    setUploadMode(null);
+    setIsRecording(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -649,14 +727,35 @@ function JoinForm({ lang }: { lang: string }) {
     setSubmitting(true);
     setError('');
     try {
-      await joinLanguageSession({ name, email, language_type: 'both', skill_level: level || undefined });
-      await trackLead({ source: 'language_join', name, email, metadata: { skill_level: level, from: 'level-tests-page' } });
+      await joinLanguageSession({
+        name,
+        email,
+        language_type: 'both',
+        skill_level: level || undefined,
+        audio: audioFile,
+      });
+      await trackLead({
+        source: 'language_join',
+        name,
+        email,
+        metadata: {
+          skill_level: level,
+          from: 'level-tests-page',
+          has_audio: !!audioFile,
+        },
+      });
       setSuccess(true);
     } catch {
       setError(isEs ? 'Error al enviar. Por favor, inténtalo de nuevo.' : 'Failed to send. Please try again.');
     }
     setSubmitting(false);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
 
   if (success) {
     return (
@@ -681,7 +780,7 @@ function JoinForm({ lang }: { lang: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-primary mb-1.5">
@@ -725,8 +824,139 @@ function JoinForm({ lang }: { lang: string }) {
           <option value="advanced">{isEs ? 'Avanzado' : 'Advanced'}</option>
         </select>
       </div>
-      {error && <p className="text-red-600 text-sm">{error}</p>}
-      <button type="submit" disabled={submitting} className="btn-primary w-full">
+
+      {/* Audio Introduction Section */}
+      <div className="border border-neutral-sand/50 rounded-2xl p-4 bg-gray-50/50">
+        <label className="block text-sm font-semibold text-primary mb-2">
+          {isEs ? 'Añade tu voz (Opcional)' : 'Add your voice introduction (Optional)'}
+        </label>
+        <p className="text-xs text-neutral-gray mb-3.5 leading-relaxed">
+          {isEs
+            ? 'Graba o sube una breve introducción hablando en el idioma que quieres practicar. Te ayudará a conseguir el grupo perfecto.'
+            : 'Record or upload a short voice introduction speaking the language you want to practice. It helps us match you to the right group.'}
+        </p>
+
+        {/* Action Buttons if nothing is selected yet */}
+        {!audioPreviewUrl && !uploadMode && (
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              type="button"
+              onClick={() => setUploadMode('record')}
+              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/20 bg-white text-primary hover:bg-primary/5 font-semibold text-sm transition-all"
+            >
+              <span>🎙️</span> {isEs ? 'Grabar voz directamente' : 'Record directly'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setUploadMode('upload')}
+              className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/20 bg-white text-primary hover:bg-primary/5 font-semibold text-sm transition-all"
+            >
+              <span>📤</span> {isEs ? 'Subir archivo de audio' : 'Upload audio file'}
+            </button>
+          </div>
+        )}
+
+        {/* Record Mode */}
+        {uploadMode === 'record' && !audioPreviewUrl && (
+          <div className="flex flex-col items-center py-4 bg-white rounded-xl border border-neutral-sand/20 shadow-sm p-4">
+            {isRecording ? (
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping inline-block" />
+                  <span className="text-sm font-semibold text-red-600 tracking-wide font-mono">
+                    {isEs ? 'GRABANDO' : 'RECORDING'} ({formatTime(recordingTime)})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={stopRecording}
+                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full text-sm flex items-center gap-2 transition-all shadow-md"
+                >
+                  ⏹️ {isEs ? 'Parar grabación' : 'Stop Recording'}
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <p className="text-xs text-neutral-gray">{isEs ? 'Pulsa el botón para iniciar tu micrófono' : 'Click the button to start your microphone'}</p>
+                <div className="flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={startRecording}
+                    className="bg-primary hover:bg-primary-light text-white font-bold py-3 px-6 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md"
+                  >
+                    🎙️ {isEs ? 'Iniciar Grabación' : 'Start Recording'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeAudio}
+                    className="border border-gray-200 text-neutral-gray font-bold py-3 px-4 rounded-xl text-sm hover:bg-gray-50 transition-all"
+                  >
+                    {isEs ? 'Atrás' : 'Back'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Upload Mode */}
+        {uploadMode === 'upload' && !audioPreviewUrl && (
+          <div className="flex flex-col items-center py-4 bg-white rounded-xl border border-neutral-sand/20 shadow-sm p-4">
+            <p className="text-xs text-neutral-gray mb-3">{isEs ? 'Selecciona un archivo MP3, WAV, M4A o OGG' : 'Select an MP3, WAV, M4A, or OGG file'}</p>
+            <div className="flex gap-2.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-primary hover:bg-primary-light text-white font-bold py-3 px-6 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md"
+              >
+                📁 {isEs ? 'Seleccionar archivo' : 'Select File'}
+              </button>
+              <button
+                type="button"
+                onClick={removeAudio}
+                className="border border-gray-200 text-neutral-gray font-bold py-3 px-4 rounded-xl text-sm hover:bg-gray-50 transition-all"
+              >
+                {isEs ? 'Atrás' : 'Back'}
+              </button>
+            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="audio/mp3,audio/mpeg,audio/wav,audio/m4a,audio/ogg,audio/webm,.mp3,.wav,.m4a,.ogg"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
+        )}
+
+        {/* Selected Audio Preview */}
+        {audioPreviewUrl && (
+          <div className="bg-white rounded-xl border border-neutral-sand/20 shadow-sm p-4">
+            <div className="flex items-center justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🎵</span>
+                <div>
+                  <p className="text-xs font-semibold text-primary">{isEs ? 'Introducción preparada' : 'Introduction ready'}</p>
+                  <p className="text-[10px] text-neutral-gray truncate max-w-[200px]">
+                    {audioFile?.name || 'audio-sample.webm'}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={removeAudio}
+                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-semibold"
+              >
+                ❌ {isEs ? 'Eliminar' : 'Remove'}
+              </button>
+            </div>
+            <audio controls src={audioPreviewUrl} className="w-full" style={{ height: 40 }} />
+          </div>
+        )}
+      </div>
+
+      {error && <p className="text-red-600 text-sm font-medium">{error}</p>}
+      <button type="submit" disabled={submitting} className="btn-primary w-full shadow-md">
         {submitting
           ? (isEs ? 'Enviando...' : 'Sending...')
           : (isEs ? 'Quiero hacer mi prueba de nivel' : 'I want to take a level test')
