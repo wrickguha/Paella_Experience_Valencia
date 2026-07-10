@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
-import { fetchLevelTests, joinLanguageSession, trackLead, type LevelTestItem } from '@/services/api';
+import { fetchLevelTests, joinLanguageSession, trackLead, fetchSettings, type LevelTestItem } from '@/services/api';
 import { LevelTestCard } from '@/components/SpanishLevelTest';
 
 // ── Skill Level Badge ─────────────────────────────────────────────────────────
@@ -204,7 +204,7 @@ function TestCard({ test, index, lang }: { test: LevelTestItem; index: number; l
 }
 
 // ── Join CTA Form ──────────────────────────────────────────────────────────────
-function JoinForm({ lang }: { lang: string }) {
+function JoinForm({ lang, settings = {} }: { lang: string; settings?: Record<string, string> }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [level, setLevel] = useState('');
@@ -341,10 +341,10 @@ function JoinForm({ lang }: { lang: string }) {
           </svg>
         </div>
         <h3 className="text-xl font-bold text-primary mb-2">
-          {isEs ? '¡Recibido! Nos ponemos en contacto.' : 'Received! We\'ll be in touch.'}
+          {settings[`langtests_cta_success_title_${lang}`] || (isEs ? '¡Recibido! Nos ponemos en contacto.' : 'Received! We\'ll be in touch.')}
         </h3>
         <p className="text-neutral-gray text-sm">
-          {isEs ? 'Gracias por tu interés en nuestras pruebas de nivel.' : 'Thank you for your interest in our level tests.'}
+          {settings[`langtests_cta_success_desc_${lang}`] || (isEs ? 'Gracias por tu interés en nuestras pruebas de nivel.' : 'Thank you for your interest in our level tests.')}
         </p>
       </motion.div>
     );
@@ -530,7 +530,7 @@ function JoinForm({ lang }: { lang: string }) {
       <button type="submit" disabled={submitting} className="btn-primary w-full shadow-md">
         {submitting
           ? (isEs ? 'Enviando...' : 'Sending...')
-          : (isEs ? 'Quiero hacer mi prueba de nivel' : 'I want to take a level test')
+          : (settings[`langtests_cta_submit_${lang}`] || (isEs ? 'Quiero hacer mi prueba de nivel' : 'I want to take a level test'))
         }
       </button>
     </form>
@@ -546,10 +546,19 @@ export default function LanguageTestsPage() {
 
   const [tests, setTests] = useState<LevelTestItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
   const heroRef = useScrollReveal(0.05);
   const sectionRef = useScrollReveal(0.1);
   const ctaRef = useScrollReveal(0.15);
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(res => {
+        setSettings(res || {});
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetchLevelTests(lang)
@@ -568,7 +577,7 @@ export default function LanguageTestsPage() {
           <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-accent/10 blur-3xl" />
           <div className="absolute -bottom-32 -right-32 w-[500px] h-[500px] rounded-full bg-primary-light/20 blur-3xl" />
           {/* Floating language emojis */}
-          {['🇪🇸', '🇬🇧', '🗣️', '🎧', '📖', '✍️'].map((emoji, i) => (
+          {(settings.langtests_hero_emojis ? settings.langtests_hero_emojis.split(',') : ['🇪🇸', '🇬🇧', '🗣️', '🎧', '📖', '✍️']).map((emoji, i) => (
             <motion.span
               key={i}
               className="absolute text-3xl opacity-20 select-none"
@@ -599,22 +608,22 @@ export default function LanguageTestsPage() {
 
             {/* Main heading — bilingual stacked */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-3">
-              {isEs ? 'Pruebas de Nivel' : 'Language Level Tests'}
+              {settings[`langtests_hero_title_${lang}`] || (isEs ? 'Pruebas de Nivel' : 'Language Level Tests')}
             </h1>
             <p className="text-accent font-script text-3xl sm:text-4xl mb-6">
-              {isEs ? 'Language Level Tests' : 'Pruebas de Nivel'}
+              {settings[`langtests_hero_subtitle_${lang}`] || (isEs ? 'Language Level Tests' : 'Pruebas de Nivel')}
             </p>
 
             <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
-              {isEs
+              {settings[`langtests_hero_desc_${lang}`] || (isEs
                 ? 'Descubre tu nivel de español o inglés con nuestras pruebas diseñadas para encontrarte donde estás y llevarte más lejos.'
                 : 'Discover your Spanish or English level with our carefully designed tests — we meet you where you are and take you further.'
-              }
+              )}
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#tests" className="btn-primary">
-                {isEs ? 'Ver las pruebas' : 'Explore the Tests'}
+                {settings[`langtests_hero_primary_cta_${lang}`] || (isEs ? 'Ver las pruebas' : 'Explore the Tests')}
               </a>
               <Link
                 to="/booking"
@@ -623,7 +632,7 @@ export default function LanguageTestsPage() {
                            hover:bg-white hover:text-primary
                            transition-all duration-300 hover:scale-105 active:scale-95 shadow-soft"
               >
-                {isEs ? 'Reservar una experiencia' : 'Book an Experience'}
+                {settings[`langtests_hero_secondary_cta_${lang}`] || (isEs ? 'Reservar una experiencia' : 'Book an Experience')}
               </Link>
             </div>
           </motion.div>
@@ -642,10 +651,10 @@ export default function LanguageTestsPage() {
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {[
-              { icon: '🎧', label: isEs ? 'Introducción en audio' : 'Audio Introduction' },
-              { icon: '📊', label: isEs ? 'Por nivel de habilidad' : 'By Skill Level' },
-              { icon: '🌐', label: isEs ? 'Español & Inglés' : 'Spanish & English' },
-              { icon: '🆓', label: isEs ? 'Totalmente gratuito' : 'Completely Free' },
+              { icon: settings.langtests_info1_icon || '🎧', label: settings[`langtests_info1_text_${lang}`] || (isEs ? 'Introducción en audio' : 'Audio Introduction') },
+              { icon: settings.langtests_info2_icon || '📊', label: settings[`langtests_info2_text_${lang}`] || (isEs ? 'Por nivel de habilidad' : 'By Skill Level') },
+              { icon: settings.langtests_info3_icon || '🌐', label: settings[`langtests_info3_text_${lang}`] || (isEs ? 'Español & Inglés' : 'Spanish & English') },
+              { icon: settings.langtests_info4_icon || '🆓', label: settings[`langtests_info4_text_${lang}`] || (isEs ? 'Totalmente gratuito' : 'Completely Free') },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -744,34 +753,34 @@ export default function LanguageTestsPage() {
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold text-primary">
-              {isEs ? '¿Cómo funcionan las pruebas?' : 'How Do the Tests Work?'}
+              {settings[`langtests_works_title_${lang}`] || (isEs ? '¿Cómo funcionan las pruebas?' : 'How Do the Tests Work?')}
             </h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
             {[
               {
                 num: '01',
-                icon: '🎧',
-                title: isEs ? 'Escucha el audio' : 'Listen to audio',
-                desc: isEs
+                icon: settings.langtests_works1_icon || '🎧',
+                title: settings[`langtests_works1_title_${lang}`] || (isEs ? 'Escucha el audio' : 'Listen to audio'),
+                desc: settings[`langtests_works1_desc_${lang}`] || (isEs
                   ? 'Cada prueba tiene una introducción de audio para evaluar tu comprensión auditiva.'
-                  : 'Each test has an audio introduction to evaluate your listening comprehension.',
+                  : 'Each test has an audio introduction to evaluate your listening comprehension.'),
               },
               {
                 num: '02',
-                icon: '📝',
-                title: isEs ? 'Evalúa tu nivel' : 'Assess your level',
-                desc: isEs
+                icon: settings.langtests_works2_icon || '📝',
+                title: settings[`langtests_works2_title_${lang}`] || (isEs ? 'Evalúa tu nivel' : 'Assess your level'),
+                desc: settings[`langtests_works2_desc_${lang}`] || (isEs
                   ? 'Lee la descripción de cada prueba y determina cuál describe mejor tus habilidades actuales.'
-                  : 'Read each test description and determine which best describes your current abilities.',
+                  : 'Read each test description and determine which best describes your current abilities.'),
               },
               {
                 num: '03',
-                icon: '🚀',
-                title: isEs ? 'Únete a nosotros' : 'Join us',
-                desc: isEs
+                icon: settings.langtests_works3_icon || '🚀',
+                title: settings[`langtests_works3_title_${lang}`] || (isEs ? 'Únete a nosotros' : 'Join us'),
+                desc: settings[`langtests_works3_desc_${lang}`] || (isEs
                   ? 'Regístrate y te conectamos con la sesión de idiomas perfecta para tu nivel.'
-                  : 'Register and we\'ll match you with the perfect language session for your level.',
+                  : 'Register and we\'ll match you with the perfect language session for your level.'),
               },
             ].map((step, i) => (
               <motion.div
@@ -807,20 +816,20 @@ export default function LanguageTestsPage() {
           >
             {/* Card header */}
             <div className="bg-gradient-to-r from-primary to-primary-light px-8 py-8 text-center">
-              <span className="text-5xl mb-4 block">🎓</span>
+              <span className="text-5xl mb-4 block">{settings.langtests_cta_icon || '🎓'}</span>
               <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                {isEs ? '¿Quieres descubrir tu nivel?' : 'Want to discover your level?'}
+                {settings[`langtests_cta_title_${lang}`] || (isEs ? '¿Quieres descubrir tu nivel?' : 'Want to discover your level?')}
               </h2>
               <p className="text-white/75 text-sm">
-                {isEs
+                {settings[`langtests_cta_subtitle_${lang}`] || (isEs
                   ? 'Déjanos tus datos y te ayudamos a encontrar el programa perfecto para ti.'
                   : 'Leave your details and we\'ll help find the perfect programme for you.'
-                }
+                )}
               </p>
             </div>
             {/* Form */}
             <div className="p-8">
-              <JoinForm lang={lang} />
+              <JoinForm lang={lang} settings={settings} />
             </div>
           </motion.div>
         </div>

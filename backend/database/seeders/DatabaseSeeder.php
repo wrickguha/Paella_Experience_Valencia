@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             FaqSeeder::class,
             SettingSeeder::class,
             AboutSectionSeeder::class,
+            LanguageSessionSeeder::class,
         ]);
     }
 }

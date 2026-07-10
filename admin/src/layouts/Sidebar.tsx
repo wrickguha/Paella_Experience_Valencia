@@ -16,6 +16,7 @@ import {
   MessageSquareQuote,
   Star,
   Info,
+  GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -37,6 +38,7 @@ const CONTENT_PAGE_ITEMS = [
   { to: '/admin/experiences-page', icon: Compass, label: 'Experiences Page' },
   { to: '/admin/testimonials-page', icon: MessageSquareQuote, label: 'Testimonials Page' },
   { to: '/admin/about-page', icon: Info, label: 'About Page' },
+  { to: '/admin/language-test-page', icon: GraduationCap, label: 'Language Tests Page' },
 ];
 
 interface SidebarProps {
