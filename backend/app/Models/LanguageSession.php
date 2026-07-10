@@ -18,6 +18,8 @@ class LanguageSession extends Model
         'skill_level',
         'is_active',
         'sort_order',
+        'test_type',
+        'audio_url',
     ];
 
     protected $casts = [

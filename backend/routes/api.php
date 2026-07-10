@@ -64,6 +64,7 @@ Route::get('/activities', [ActivityController::class, 'index']);
 Route::get('/community', [CommunityController::class, 'index']);
 Route::post('/community/join', [CommunityController::class, 'join']);
 Route::get('/languages', [LanguageSessionController::class, 'index']);
+Route::get('/level-tests', [LanguageSessionController::class, 'levelTests']);
 Route::post('/language/join', [LanguageSessionController::class, 'join']);
 Route::post('/leads', [LeadController::class, 'store']);
 
@@ -232,7 +233,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Language Sessions
     Route::get('/language-sessions', [AdminLanguageSessionController::class, 'index']);
     Route::post('/language-sessions', [AdminLanguageSessionController::class, 'store']);
-    Route::put('/language-sessions/{id}', [AdminLanguageSessionController::class, 'update']);
+    Route::post('/language-sessions/{id}', [AdminLanguageSessionController::class, 'update']);
     Route::delete('/language-sessions/{id}', [AdminLanguageSessionController::class, 'destroy']);
 
     // Leads

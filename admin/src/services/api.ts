@@ -170,8 +170,10 @@ export const communityApi = {
 // ── Language Sessions ──
 export const languageSessionsApi = {
   list: () => api.get('/admin/language-sessions'),
-  create: (data: object) => api.post('/admin/language-sessions', data),
-  update: (id: number, data: object) => api.put(`/admin/language-sessions/${id}`, data),
+  create: (data: FormData) =>
+    api.post('/admin/language-sessions', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id: number, data: FormData) =>
+    api.post(`/admin/language-sessions/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id: number) => api.delete(`/admin/language-sessions/${id}`),
 };
 

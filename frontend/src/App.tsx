@@ -20,6 +20,7 @@ const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
 const PrivacyPolicyPage = lazy(() => import('@/pages/PrivacyPolicyPage'));
 const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage'));
+const LanguageTestsPage = lazy(() => import('@/pages/LanguageTestsPage'));
 
 function LoadingFallback({ tagline = 'Speak. Cook. Connect' }: { tagline?: string }) {
   return (
@@ -316,6 +317,7 @@ export default function App() {
                 <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
                 <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                 <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+                <Route path="/language-tests" element={<LanguageTestsPage />} />
                 <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
                 <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

@@ -414,11 +414,28 @@ export interface LanguageSessionItem {
   description: string | null;
   language_type: 'spanish' | 'english' | 'both';
   skill_level: string | null;
+  audio_url?: string | null;
+}
+
+export interface LevelTestItem {
+  id: number;
+  title: string;
+  title_en: string;
+  title_es: string;
+  description: string | null;
+  language_type: 'spanish' | 'english' | 'both';
+  skill_level: string | null;
+  audio_url: string | null;
 }
 
 export async function fetchLanguageSessions(lang = 'en'): Promise<LanguageSessionItem[]> {
   const res = await apiClient.get('/languages', { params: { lang } });
   return res.data.data as LanguageSessionItem[];
+}
+
+export async function fetchLevelTests(lang = 'en'): Promise<LevelTestItem[]> {
+  const res = await apiClient.get('/level-tests', { params: { lang } });
+  return res.data.data as LevelTestItem[];
 }
 
 export async function joinLanguageSession(data: {
