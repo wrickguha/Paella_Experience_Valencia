@@ -13,12 +13,12 @@ interface Question {
   answer: number;
 }
 
-interface LevelTestCardProps {
+export interface LevelTestCardProps {
   lang: 'es' | 'en';
-  settings: Record<string, string>;
+  settings?: Record<string, string>;
 }
 
-function LevelTestCard({ lang, settings }: LevelTestCardProps) {
+export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
   const { t, i18n } = useTranslation();
   const isSpanish = lang === 'es';
   const i18nKeyPrefix = isSpanish ? 'spanishTest' : 'englishTest';
