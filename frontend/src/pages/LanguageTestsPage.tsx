@@ -385,7 +385,13 @@ export default function LanguageTestsPage() {
               <a href="#tests" className="btn-primary">
                 {isEs ? 'Ver las pruebas' : 'Explore the Tests'}
               </a>
-              <Link to="/booking" className="btn-secondary !text-white !border-white/40 hover:!bg-white/10 hover:!text-white">
+              <Link
+                to="/booking"
+                className="inline-flex items-center justify-center px-8 py-4 rounded-xl text-lg font-semibold font-modern
+                           bg-transparent text-white border-2 border-white/40
+                           hover:bg-white hover:text-primary
+                           transition-all duration-300 hover:scale-105 active:scale-95 shadow-soft"
+              >
                 {isEs ? 'Reservar una experiencia' : 'Book an Experience'}
               </Link>
             </div>
