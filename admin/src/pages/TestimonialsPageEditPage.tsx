@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Save, Globe, ChevronDown, Check, Compass, MessageSquareQuote, FileText } from 'lucide-react';
+import { Save, Globe, ChevronDown, Check, Compass, MessageSquareQuote, FileText, Video } from 'lucide-react';
 import { settingsApi } from '@/services/api';
 import PageHeader, { Card, Button, Spinner } from '@/components/ui';
 import { FormInput, FormTextarea } from '@/components/FormFields';
@@ -19,6 +19,25 @@ interface SectionConfig {
   description: string;
 }
 
+function getYouTubeThumbnail(urlOrId: string) {
+  if (!urlOrId) return null;
+  let videoId = '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = urlOrId.match(regExp);
+  if (match && match[2].length === 11) {
+    videoId = match[2];
+  } else {
+    const shortsRegExp = /youtube\.com\/shorts\/([^#\&\?]*)/;
+    const shortsMatch = urlOrId.match(shortsRegExp);
+    if (shortsMatch && shortsMatch[1].length === 11) {
+      videoId = shortsMatch[1];
+    } else if (urlOrId.length === 11) {
+      videoId = urlOrId;
+    }
+  }
+  return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : null;
+}
+
 export default function TestimonialsPageEditPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -32,6 +51,7 @@ export default function TestimonialsPageEditPage() {
   const SECTIONS: SectionConfig[] = [
     { id: 'hero', label: 'Hero Header Section', icon: <Compass className="w-5 h-5" />, description: 'Edit tagline script, hero titles, subtitles, and rating summary badges.' },
     { id: 'headers', label: 'Video & Reviews Titles', icon: <MessageSquareQuote className="w-5 h-5" />, description: 'Modify headers for the video reels block and written guest reviews block.' },
+    { id: 'videos', label: 'Video Testimonials', icon: <Video className="w-5 h-5" />, description: 'Edit the three customer YouTube video testimonial links.' },
     { id: 'form', label: 'Submission Form Settings', icon: <FileText className="w-5 h-5" />, description: 'Customize form headings, descriptions, and submission success prompts.' },
   ];
 
@@ -290,6 +310,49 @@ export default function TestimonialsPageEditPage() {
                               onChange={(e) => updateValue(`testimonials_written_subtitle_${editLang}`, e.target.value)}
                               rows={3}
                             />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* VIDEO TESTIMONIALS SECTION */}
+                      {section.id === 'videos' && (
+                        <div className="space-y-6">
+                          <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-4">
+                            <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-2">
+                              🎥 YouTube Video Links
+                            </h4>
+                            <div className="space-y-4">
+                              {[1, 2, 3].map((num) => {
+                                const val = values[`testimonial_video_${num}`] || '';
+                                const ytThumbnail = getYouTubeThumbnail(val);
+                                return (
+                                  <div key={num} className="bg-white p-4 rounded-xl border border-gray-200/50 flex flex-col md:flex-row gap-4 items-center">
+                                    <div className="flex-1 w-full">
+                                      <FormInput
+                                        label={`YouTube Video Link ${num}`}
+                                        value={val}
+                                        onChange={(e) => updateValue(`testimonial_video_${num}`, e.target.value)}
+                                        placeholder="e.g. https://www.youtube.com/watch?v=... or Video ID"
+                                      />
+                                    </div>
+                                    {ytThumbnail && (
+                                      <div className="w-36 h-20 bg-neutral-cream rounded-lg overflow-hidden shrink-0 border border-gray-200 flex items-center justify-center shadow-sm relative">
+                                        <img 
+                                          src={ytThumbnail}
+                                          alt="Preview"
+                                          className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+                                          <svg className="w-6 h-6 text-white drop-shadow-md" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z" />
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         </div>
                       )}
