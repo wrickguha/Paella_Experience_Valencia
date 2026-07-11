@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
-import { fetchLevelTests, joinLanguageSession, trackLead, fetchSettings, type LevelTestItem } from '@/services/api';
+import { joinLanguageSession, trackLead, fetchSettings } from '@/services/api';
 import { LevelTestCard } from '@/components/SpanishLevelTest';
 
 // ── Skill Level Badge ─────────────────────────────────────────────────────────
@@ -26,180 +26,6 @@ function LevelBadge({ level }: { level: string | null }) {
       <span className={`w-1.5 h-1.5 rounded-full ${c.dot} inline-block`} />
       {level.charAt(0).toUpperCase() + level.slice(1)}
     </span>
-  );
-}
-
-// ── Custom Audio Player ───────────────────────────────────────────────────────
-function AudioPlayer({ src, title }: { src: string; title: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [currentTime, setCurrentTime] = useState(0);
-  const barRef = useRef<HTMLDivElement>(null);
-
-  const toggle = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (playing) { audio.pause(); setPlaying(false); }
-    else { audio.play(); setPlaying(true); }
-  };
-
-  const handleTimeUpdate = () => {
-    const audio = audioRef.current;
-    if (!audio || !audio.duration) return;
-    setCurrentTime(audio.currentTime);
-    setProgress((audio.currentTime / audio.duration) * 100);
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) setDuration(audioRef.current.duration);
-  };
-
-  const handleEnded = () => setPlaying(false);
-
-  const handleBarClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = barRef.current?.getBoundingClientRect();
-    if (!rect || !audioRef.current || !audioRef.current.duration) return;
-    const ratio = (e.clientX - rect.left) / rect.width;
-    audioRef.current.currentTime = ratio * audioRef.current.duration;
-  };
-
-  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-
-  return (
-    <div className="mt-4 bg-gradient-to-br from-primary/5 to-accent/5 rounded-2xl p-4 border border-primary/10">
-      <audio
-        ref={audioRef}
-        src={src}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
-        onEnded={handleEnded}
-      />
-      <div className="flex items-center gap-3">
-        {/* Play button */}
-        <button
-          onClick={toggle}
-          className="w-11 h-11 rounded-full bg-primary flex items-center justify-center shrink-0 hover:bg-primary-light transition-colors shadow-md hover:shadow-lg active:scale-95 transition-all"
-          aria-label={playing ? 'Pause' : 'Play'}
-        >
-          {playing ? (
-            <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="4" width="4" height="16" rx="1" />
-              <rect x="14" y="4" width="4" height="16" rx="1" />
-            </svg>
-          ) : (
-            <svg className="w-4 h-4 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
-
-        {/* Waveform bar */}
-        <div className="flex-1 flex flex-col gap-1.5">
-          <p className="text-xs font-medium text-primary/70 truncate">🎧 {title}</p>
-          <div
-            ref={barRef}
-            onClick={handleBarClick}
-            className="relative h-2 bg-primary/15 rounded-full cursor-pointer overflow-hidden"
-          >
-            <motion.div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary to-accent rounded-full"
-              style={{ width: `${progress}%` }}
-              transition={{ duration: 0.1 }}
-            />
-            {/* Animated waveform dots when playing */}
-            {playing && (
-              <div className="absolute inset-0 flex items-center justify-center gap-0.5 pointer-events-none">
-                {[...Array(12)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-0.5 rounded-full bg-white/60"
-                    animate={{ height: ['4px', '8px', '4px'] }}
-                    transition={{ duration: 0.8, delay: i * 0.07, repeat: Infinity }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex justify-between text-[10px] text-primary/50 font-mono">
-            <span>{fmt(currentTime)}</span>
-            <span>{duration > 0 ? fmt(duration) : '--:--'}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Test Card ─────────────────────────────────────────────────────────────────
-function TestCard({ test, index, lang }: { test: LevelTestItem; index: number; lang: string }) {
-  const { ref, isInView } = useScrollReveal(0.15);
-
-  // Show bilingual title
-  const titlePrimary = lang === 'es' ? test.title_es : test.title_en;
-  const titleSecondary = lang === 'es' ? test.title_en : test.title_es;
-
-  const langLabels: Record<string, { en: string; es: string }> = {
-    spanish:     { en: '🇪🇸 Spanish', es: '🇪🇸 Español' },
-    english:     { en: '🇬🇧 English', es: '🇬🇧 Inglés' },
-    both:        { en: '🌐 Bilingual', es: '🌐 Bilingüe' },
-  };
-  const langLabel = langLabels[test.language_type]?.[lang === 'es' ? 'es' : 'en'] || test.language_type;
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.55, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] }}
-      className="bg-white rounded-2xl shadow-card border border-neutral-sand/30 overflow-hidden group hover:-translate-y-1 hover:shadow-elevated transition-all duration-300"
-    >
-      {/* Card header strip */}
-      <div className="h-1.5 bg-gradient-to-r from-primary via-accent to-primary-light" />
-
-      <div className="p-6">
-        {/* Tags row */}
-        <div className="flex flex-wrap items-center gap-2 mb-4">
-          <LevelBadge level={test.skill_level} />
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-neutral-gray bg-gray-50 px-2.5 py-1 rounded-full">
-            {langLabel}
-          </span>
-        </div>
-
-        {/* Title bilingual */}
-        <h3 className="text-xl font-bold text-primary leading-snug mb-1 group-hover:text-accent transition-colors">
-          {titlePrimary}
-        </h3>
-        {titleSecondary && titleSecondary !== titlePrimary && (
-          <p className="text-sm text-neutral-gray italic mb-3">{titleSecondary}</p>
-        )}
-
-        {/* Description */}
-        {test.description && (
-          <p className="text-neutral-gray text-sm leading-relaxed mt-3">
-            {test.description}
-          </p>
-        )}
-
-        {/* Audio player */}
-        {test.audio_url && (
-          <AudioPlayer
-            src={test.audio_url}
-            title={lang === 'es' ? 'Introducción de audio' : 'Audio introduction'}
-          />
-        )}
-
-        {!test.audio_url && (
-          <div className="mt-4 flex items-center gap-2 text-xs text-neutral-gray/60">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
-            </svg>
-            {lang === 'es' ? 'Sin audio introducción' : 'No audio introduction'}
-          </div>
-        )}
-      </div>
-    </motion.div>
   );
 }
 
@@ -544,12 +370,9 @@ export default function LanguageTestsPage() {
   const lang = i18n.language.startsWith('es') ? 'es' : 'en';
   const isEs = lang === 'es';
 
-  const [tests, setTests] = useState<LevelTestItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   const heroRef = useScrollReveal(0.05);
-  const sectionRef = useScrollReveal(0.1);
   const ctaRef = useScrollReveal(0.15);
 
   useEffect(() => {
@@ -559,13 +382,6 @@ export default function LanguageTestsPage() {
       })
       .catch(() => {});
   }, []);
-
-  useEffect(() => {
-    fetchLevelTests(lang)
-      .then(setTests)
-      .catch(() => setTests([]))
-      .finally(() => setLoading(false));
-  }, [lang]);
 
   return (
     <div className="bg-bg-main min-h-screen">
@@ -672,135 +488,11 @@ export default function LanguageTestsPage() {
       </section>
 
       {/* ── Level Tests Section (20-30 Questions Real Tests) ────────── */}
-      <section className="py-14 px-4 sm:px-6 lg:px-8 bg-neutral-cream/20">
+      <section id="tests" className="py-14 px-4 sm:px-6 lg:px-8 bg-neutral-cream/20">
         <div className="container-max mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             <LevelTestCard lang="es" settings={settings} />
             <LevelTestCard lang="en" settings={settings} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Tests Grid ────────────────────────────────────────────── */}
-      <section id="tests" className="section-padding" ref={sectionRef.ref}>
-        <div className="container-max px-4 sm:px-6 lg:px-8">
-          {/* Section heading */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={sectionRef.isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-14"
-          >
-            <span className="text-accent font-script text-2xl">
-              {isEs ? 'Explora' : 'Explore'}
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-primary mt-1 mb-4">
-              {isEs ? 'Nuestras Pruebas de Nivel' : 'Our Level Tests'}
-            </h2>
-            <p className="text-neutral-gray max-w-xl mx-auto text-base">
-              {isEs
-                ? 'Cada prueba incluye una introducción en audio. Escucha, evalúa tu comprensión, y descubre en qué nivel estás.'
-                : 'Each test includes an audio introduction. Listen, assess your comprehension, and find out which level you are at.'
-              }
-            </p>
-          </motion.div>
-
-          {/* Cards */}
-          {loading ? (
-            <div className="flex justify-center py-24">
-              <div className="flex gap-2">
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="w-3 h-3 rounded-full bg-accent"
-                    animate={{ scale: [1, 1.4, 1], opacity: [0.5, 1, 0.5] }}
-                    transition={{ duration: 1, delay: i * 0.2, repeat: Infinity }}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : tests.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-24"
-            >
-              <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center mx-auto mb-6">
-                <span className="text-4xl">📋</span>
-              </div>
-              <h3 className="text-xl font-bold text-primary mb-2">
-                {isEs ? 'Pruebas próximamente' : 'Tests Coming Soon'}
-              </h3>
-              <p className="text-neutral-gray max-w-sm mx-auto">
-                {isEs
-                  ? 'Estamos preparando nuestras pruebas de nivel. ¡Regresa pronto o déjanos tus datos!'
-                  : 'We\'re preparing our level tests. Check back soon or leave your details below!'
-                }
-              </p>
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tests.map((test, i) => (
-                <TestCard key={test.id} test={test} index={i} lang={lang} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ── How it works strip ────────────────────────────────────── */}
-      <section className="py-16 bg-gradient-to-br from-primary/5 to-accent/5 border-y border-primary/10">
-        <div className="container-max px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold text-primary">
-              {settings[`langtests_works_title_${lang}`] || (isEs ? '¿Cómo funcionan las pruebas?' : 'How Do the Tests Work?')}
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
-            {[
-              {
-                num: '01',
-                icon: settings.langtests_works1_icon || '🎧',
-                title: settings[`langtests_works1_title_${lang}`] || (isEs ? 'Escucha el audio' : 'Listen to audio'),
-                desc: settings[`langtests_works1_desc_${lang}`] || (isEs
-                  ? 'Cada prueba tiene una introducción de audio para evaluar tu comprensión auditiva.'
-                  : 'Each test has an audio introduction to evaluate your listening comprehension.'),
-              },
-              {
-                num: '02',
-                icon: settings.langtests_works2_icon || '📝',
-                title: settings[`langtests_works2_title_${lang}`] || (isEs ? 'Evalúa tu nivel' : 'Assess your level'),
-                desc: settings[`langtests_works2_desc_${lang}`] || (isEs
-                  ? 'Lee la descripción de cada prueba y determina cuál describe mejor tus habilidades actuales.'
-                  : 'Read each test description and determine which best describes your current abilities.'),
-              },
-              {
-                num: '03',
-                icon: settings.langtests_works3_icon || '🚀',
-                title: settings[`langtests_works3_title_${lang}`] || (isEs ? 'Únete a nosotros' : 'Join us'),
-                desc: settings[`langtests_works3_desc_${lang}`] || (isEs
-                  ? 'Regístrate y te conectamos con la sesión de idiomas perfecta para tu nivel.'
-                  : 'Register and we\'ll match you with the perfect language session for your level.'),
-              },
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.5, delay: i * 0.15 }}
-                className="text-center"
-              >
-                <div className="relative w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 shadow-inner">
-                  <span className="text-2xl">{step.icon}</span>
-                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">
-                    {step.num}
-                  </span>
-                </div>
-                <h3 className="font-bold text-primary mb-2">{step.title}</h3>
-                <p className="text-sm text-neutral-gray leading-relaxed">{step.desc}</p>
-              </motion.div>
-            ))}
           </div>
         </div>
       </section>
