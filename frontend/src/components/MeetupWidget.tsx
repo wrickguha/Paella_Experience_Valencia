@@ -1,7 +1,7 @@
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-
-const MEETUP_URL =
-  'https://meetup.com/speakeasy-valencia?member_id=399615136';
+import { useTranslation } from 'react-i18next';
+import { fetchSettings } from '@/services/api';
 
 /** URL path segments that are considered payment / checkout pages. */
 const PAYMENT_PATHS = ['/payment', '/checkout', '/pay', '/order'];
@@ -24,6 +24,14 @@ function MeetupIcon({ size = 22 }: { size?: number }) {
 
 export default function MeetupWidget() {
   const { pathname } = useLocation();
+  const { i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings()
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
 
   // Hide on any payment / checkout related path
   const isPaymentPage = PAYMENT_PATHS.some((segment) =>
@@ -31,14 +39,18 @@ export default function MeetupWidget() {
   );
   if (isPaymentPage) return null;
 
+  const meetupUrl = settings.footer_meetup_url || 'https://meetup.com/speakeasy-valencia?member_id=399615136';
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+  const meetupText = settings[`footer_meetup_text_${langSuffix}`] || (langSuffix === 'es' ? 'Únete a nuestro grupo de Meetup' : 'Join Our Meetup Group');
+
   return (
     <>
       <a
         id="meetup-widget-btn"
-        href={MEETUP_URL}
+        href={meetupUrl}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Join Our Meetup Group"
+        aria-label={meetupText}
         style={{
           position: 'fixed',
           zIndex: 9000,
@@ -67,7 +79,7 @@ export default function MeetupWidget() {
         className="meetup-widget"
       >
         <MeetupIcon size={24} />
-        <span className="meetup-widget-label">Join Our Meetup Group</span>
+        <span className="meetup-widget-label">{meetupText}</span>
       </a>
 
       <style>{`

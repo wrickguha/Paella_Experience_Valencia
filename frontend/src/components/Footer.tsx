@@ -1,9 +1,61 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok } from 'react-icons/fa';
+import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok, FaTripadvisor, FaGoogle } from 'react-icons/fa';
+import { fetchSettings } from '@/services/api';
 
 export default function Footer() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings()
+      .then(setSettings)
+      .catch(() => {});
+  }, []);
+
+  const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
+  const description = settings[`footer_description_${langSuffix}`] || t('footer.description');
+  const copyright = settings[`footer_copyright_${langSuffix}`] || t('footer.copyright');
+
+  const socialLinks = [
+    {
+      name: 'Instagram',
+      url: settings.social_instagram || 'https://www.instagram.com/speakeasyvalencia?igsh=MWpmbjAwZjN5cjZsYg==',
+      icon: <FaInstagram className="w-5 h-5" />
+    },
+    {
+      name: 'Facebook',
+      url: settings.social_facebook || 'https://www.facebook.com/share/18aMiVTDqF/',
+      icon: <FaFacebookF className="w-5 h-5" />
+    },
+    {
+      name: 'TikTok',
+      url: settings.social_tiktok || 'https://www.tiktok.com/@speakeasyvalencia?is_from_webapp=1&sender_device=pc',
+      icon: <FaTiktok className="w-5 h-5" />
+    },
+    {
+      name: 'YouTube',
+      url: settings.social_youtube || 'https://youtube.com/@speakeasyvalencia?si=Lr6AeePW3zitpCNN',
+      icon: <FaYoutube className="w-5 h-5" />
+    }
+  ];
+
+  if (settings.social_tripadvisor) {
+    socialLinks.push({
+      name: 'TripAdvisor',
+      url: settings.social_tripadvisor,
+      icon: <FaTripadvisor className="w-5 h-5" />
+    });
+  }
+
+  if (settings.social_google) {
+    socialLinks.push({
+      name: 'Google',
+      url: settings.social_google,
+      icon: <FaGoogle className="w-5 h-5" />
+    });
+  }
 
   return (
     <footer className="bg-primary text-white">
@@ -16,7 +68,7 @@ export default function Footer() {
               <span className="font-script text-3xl font-bold">SpeakEasy Valencia</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
-              {t('footer.description')}
+              {description}
             </p>
           </div>
 
@@ -85,28 +137,7 @@ export default function Footer() {
               {t('footer.followUs')}
             </h4>
             <div className="flex gap-4">
-              {[
-                {
-                  name: 'Instagram',
-                  url: 'https://www.instagram.com/speakeasyvalencia?igsh=MWpmbjAwZjN5cjZsYg==',
-                  icon: <FaInstagram className="w-5 h-5" />
-                },
-                {
-                  name: 'Facebook',
-                  url: 'https://www.facebook.com/share/18aMiVTDqF/',
-                  icon: <FaFacebookF className="w-5 h-5" />
-                },
-                {
-                  name: 'TikTok',
-                  url: 'https://www.tiktok.com/@speakeasyvalencia?is_from_webapp=1&sender_device=pc',
-                  icon: <FaTiktok className="w-5 h-5" />
-                },
-                {
-                  name: 'YouTube',
-                  url: 'https://youtube.com/@speakeasyvalencia?si=Lr6AeePW3zitpCNN',
-                  icon: <FaYoutube className="w-5 h-5" />
-                }
-              ].map((platform) => (
+              {socialLinks.map((platform) => (
                 <a
                   key={platform.name}
                   href={platform.url}
@@ -124,7 +155,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-8 text-center">
-          <p className="text-gray-500 text-sm">{t('footer.copyright')}</p>
+          <p className="text-gray-500 text-sm">{copyright}</p>
         </div>
       </div>
     </footer>
