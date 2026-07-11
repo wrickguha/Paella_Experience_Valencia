@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\JoinLanguageRequest;
 use App\Models\LanguageSession;
+use App\Models\ContactMessage;
 use App\Models\Lead;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -89,6 +90,16 @@ class LanguageSessionController extends Controller
                 'skill_level'   => $data['skill_level'] ?? null,
                 'audio_url'     => $audioUrl,
             ],
+        ]);
+
+        // Also track as contact message to show up in Admin Messages
+        ContactMessage::create([
+            'name'    => $data['name'],
+            'email'   => $data['email'],
+            'subject' => 'Placement Level Test Submission',
+            'message' => 'Language Level: ' . ($data['skill_level'] ?? 'Not selected') . 
+                         "\nLanguage Type: " . $data['language_type'] .
+                         ($audioUrl ? "\nAudio Introduction: " . url($audioUrl) : "\nNo audio introduction provided."),
         ]);
 
         return response()->json([
