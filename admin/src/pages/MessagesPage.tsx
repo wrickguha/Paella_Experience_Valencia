@@ -18,6 +18,15 @@ interface ContactMessage {
   created_at: string;
 }
 
+const getAudioUrl = (messageText: string) => {
+  if (!messageText) return null;
+  const match = messageText.match(/((?:https?:\/\/[^\s]+?|\/storage[^\s]+?)\.(?:mp3|wav|m4a|ogg|webm))/i);
+  if (!match) return null;
+  let url = match[1];
+  url = url.replace(/^https?:\/\/(?:localhost|127\.0\.0\.1):8000(\/storage)/i, '$1');
+  return url;
+};
+
 export default function MessagesPage() {
   const [data, setData] = useState<ContactMessage[]>([]);
   const [page, setPage] = useState(1);
@@ -276,6 +285,19 @@ export default function MessagesPage() {
               <label className="text-xs font-medium text-neutral-gray uppercase tracking-wide">Message</label>
               <div className="mt-1 bg-gray-50 rounded-xl p-4">
                 <p className="text-sm text-neutral-dark whitespace-pre-wrap leading-relaxed break-all">{detail.message}</p>
+                {getAudioUrl(detail.message) && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
+                      🎙️ Audio Voice Introduction
+                    </label>
+                    <audio
+                      controls
+                      src={getAudioUrl(detail.message)!}
+                      className="w-full"
+                      preload="metadata"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 

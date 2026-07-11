@@ -76,7 +76,7 @@ class LanguageSessionController extends Controller
 
         $audioUrl = null;
         if ($request->hasFile('audio')) {
-            $path = $request->file('audio')->store('public/leads/audios');
+            $path = $request->file('audio')->store('leads/audios', 'public');
             $audioUrl = Storage::url($path);
         }
 
