@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok, FaTripadvisor, FaGoogle } from 'react-icons/fa';
+import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok } from 'react-icons/fa';
 import { fetchSettings } from '@/services/api';
 
 export default function Footer() {
@@ -40,22 +40,6 @@ export default function Footer() {
       icon: <FaYoutube className="w-5 h-5" />
     }
   ];
-
-  if (settings.social_tripadvisor) {
-    socialLinks.push({
-      name: 'TripAdvisor',
-      url: settings.social_tripadvisor,
-      icon: <FaTripadvisor className="w-5 h-5" />
-    });
-  }
-
-  if (settings.social_google) {
-    socialLinks.push({
-      name: 'Google',
-      url: settings.social_google,
-      icon: <FaGoogle className="w-5 h-5" />
-    });
-  }
 
   return (
     <footer className="bg-primary text-white">

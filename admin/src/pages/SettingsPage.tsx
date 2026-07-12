@@ -47,8 +47,6 @@ const GROUPS: GroupConfig[] = [
       { key: 'social_facebook', label: 'Facebook URL', type: 'url' },
       { key: 'social_tiktok', label: 'TikTok URL', type: 'url' },
       { key: 'social_youtube', label: 'YouTube URL', type: 'url' },
-      { key: 'social_tripadvisor', label: 'TripAdvisor URL', type: 'url' },
-      { key: 'social_google', label: 'Google Maps URL', type: 'url' },
     ],
   },
 ];
