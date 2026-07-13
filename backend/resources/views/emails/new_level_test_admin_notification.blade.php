@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>New Level Test Submission Notification</title>
+</head>
+<body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #334155; margin: 0; padding: 0; background-color: #f1f5f9; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+    <div style="max-width: 600px; margin: 40px auto; padding: 0 16px;">
+        <div style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05); border: 1px solid #e2e8f0;">
+            <!-- Header Banner -->
+            <div style="background-color: #0f172a; padding: 36px 32px; text-align: center; position: relative; border-bottom: 4px solid #ea580c;">
+                <h1 style="color: #ffffff; font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -0.02em;">New Level Test Request!</h1>
+                <p style="color: #94a3b8; font-size: 14px; margin: 8px 0 0 0; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;">A user submitted the placement test form</p>
+            </div>
+
+            <!-- Body Content -->
+            <div style="padding: 32px 32px 40px 32px;">
+                <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #475569;">
+                    Hi Admin,
+                </p>
+                <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #475569;">
+                    A new language placement level test form has been filled out. Below are the details of the submission.
+                </p>
+
+                <!-- Detail Table -->
+                <h3 style="color: #0f172a; font-size: 16px; font-weight: 700; margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.02em;">Submission Details</h3>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 28px;">
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px 0; color: #64748b; font-weight: 500; font-size: 14px;">Name</td>
+                        <td style="padding: 12px 0; color: #0f172a; font-weight: 600; font-size: 14px; text-align: right;">{{ $name }}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px 0; color: #64748b; font-weight: 500; font-size: 14px;">Email</td>
+                        <td style="padding: 12px 0; color: #0f172a; font-weight: 600; font-size: 14px; text-align: right;"><a href="mailto:{{ $email }}" style="color: #ea580c; text-decoration: none;">{{ $email }}</a></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px 0; color: #64748b; font-weight: 500; font-size: 14px;">Language Type</td>
+                        <td style="padding: 12px 0; color: #0f172a; font-weight: 600; font-size: 14px; text-align: right; text-transform: capitalize;">{{ $language_type }}</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px 0; color: #64748b; font-weight: 500; font-size: 14px;">Current Level</td>
+                        <td style="padding: 12px 0; color: #0f172a; font-weight: 600; font-size: 14px; text-align: right; text-transform: capitalize;">{{ $skill_level }}</td>
+                    </tr>
+                </table>
+
+                @if($audio_url)
+                    <h3 style="color: #0f172a; font-size: 16px; font-weight: 700; margin-top: 0; margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; text-transform: uppercase; letter-spacing: 0.02em;">Voice Introduction</h3>
+                    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; font-size: 14px; text-align: center;">
+                        <p style="margin: 0 0 16px 0; color: #475569;">The user recorded or uploaded a voice introduction.</p>
+                        <a href="{{ url($audio_url) }}" target="_blank" style="background-color: #ea580c; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block; transition: background-color 0.2s;">
+                            Listen to Audio Introduction
+                        </a>
+                    </div>
+                @else
+                    <p style="font-size: 14px; color: #64748b; font-style: italic; margin-top: 20px;">No voice introduction was provided with this submission.</p>
+                @endif
+
+                <div style="margin-top: 36px; border-top: 1px solid #e2e8f0; padding-top: 24px; text-align: center;">
+                    <p style="font-size: 12px; color: #94a3b8; margin: 0;">This email was automatically generated by SpeakEasy Valencia Admin panel.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

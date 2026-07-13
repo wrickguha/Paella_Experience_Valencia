@@ -102,6 +102,22 @@ class LanguageSessionController extends Controller
                          ($audioUrl ? "\nAudio Introduction: " . url($audioUrl) : "\nNo audio introduction provided."),
         ]);
 
+        try {
+            \Illuminate\Support\Facades\Mail::to('info@speakeasyvalencia.com')
+                ->send(new \App\Mail\NewLevelTestAdminNotification([
+                    'name'          => $data['name'],
+                    'email'         => $data['email'],
+                    'language_type' => $data['language_type'],
+                    'skill_level'   => $data['skill_level'] ?? null,
+                    'audio_url'     => $audioUrl,
+                ]));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Admin placement test notification email failed', [
+                'email' => $data['email'],
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Thanks for your interest! We\'ll be in touch.',
