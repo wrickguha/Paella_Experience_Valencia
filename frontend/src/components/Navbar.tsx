@@ -53,7 +53,6 @@ export default function Navbar() {
     { to: "/experience", label: t("nav.experience") },
     { to: "/language-tests", label: t("nav.languageTests") },
     { to: "/testimonials", label: t("nav.testimonials") },
-    { to: "/booking", label: t("nav.booking") },
     { to: "/about", label: t("nav.about") },
   ];
 
