@@ -218,7 +218,7 @@ function LoadingFallback({ tagline = 'Speak. Cook. Connect' }: { tagline?: strin
 }
 
 
-const SPLASH_MS = 1500; // minimum splash display time in ms
+const SPLASH_MS = 3000; // minimum splash display time in ms
 const FADE_MS   = 500;  // fade-out duration in ms
 
 /**
