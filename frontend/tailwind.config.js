@@ -39,11 +39,13 @@ export default {
         },
       },
       fontFamily: {
+        // Script/decorative font stays hardcoded — it's branding, not body text
         'script-family': ['"Great Vibes"', 'cursive'],
-        'modern-family': ['Montserrat', 'sans-serif'],
-        display: ['Montserrat', 'sans-serif'],
-        heading: ['Montserrat', 'sans-serif'],
-        body: ['Montserrat', 'sans-serif'],
+        // All body/heading fonts point to the CSS variable set by the admin panel
+        'modern-family': ['var(--site-font-family)', 'sans-serif'],
+        display: ['var(--site-font-family)', 'sans-serif'],
+        heading: ['var(--site-font-family)', 'sans-serif'],
+        body: ['var(--site-font-family)', 'sans-serif'],
       },
       borderRadius: {
         'xl': '16px',
