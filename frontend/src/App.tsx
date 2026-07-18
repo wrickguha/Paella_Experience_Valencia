@@ -4,6 +4,46 @@ import MainLayout from '@/layouts/MainLayout';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
 import { fetchSettings } from '@/services/api';
 
+// System fonts that don't need a Google Fonts link
+const SYSTEM_FONTS = new Set(['Georgia', 'Arial', 'Helvetica', 'Times New Roman', 'Courier New', 'Verdana']);
+
+/** Load a Google Font dynamically by injecting a <link> into <head> */
+function loadGoogleFont(fontFamily: string) {
+  if (!fontFamily || SYSTEM_FONTS.has(fontFamily)) return;
+  const id = `gfont-${fontFamily.replace(/\s+/g, '-').toLowerCase()}`;
+  if (document.getElementById(id)) return; // already loaded
+  const href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontFamily)}:wght@300;400;500;600;700;800&display=swap`;
+  const link = document.createElement('link');
+  link.id = id;
+  link.rel = 'stylesheet';
+  link.href = href;
+  document.head.appendChild(link);
+}
+
+/** Apply typography CSS variables to <html> so every page inherits them */
+function applyTypography(fontFamily: string, fontSize: number) {
+  const root = document.documentElement;
+  root.style.setProperty('--site-font-family', `"${fontFamily}", sans-serif`);
+  root.style.setProperty('--site-font-size', `${fontSize}px`);
+}
+
+/** Fetch typography settings once at startup and apply globally */
+async function loadTypographySettings() {
+  try {
+    const settings = await fetchSettings('typography');
+    const fontFamily = settings.typography_font_family || 'Montserrat';
+    const fontSize   = parseInt(settings.typography_font_size || '16', 10) || 16;
+    loadGoogleFont(fontFamily);
+    applyTypography(fontFamily, fontSize);
+  } catch {
+    // Fall back to defaults silently
+    applyTypography('Montserrat', 16);
+  }
+}
+
+// Kick off the typography fetch immediately (before React renders)
+loadTypographySettings();
+
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const ExperiencePage = lazy(() => import('@/pages/ExperiencePage'));
 const BookingPage = lazy(() => import('@/pages/BookingPage'));

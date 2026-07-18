@@ -75,6 +75,8 @@ class SettingController extends Controller
         Cache::forget('settings_public_social');
         Cache::forget('settings_public_footer');
         Cache::forget('settings_public_stats');
+        Cache::forget('settings_public_typography');
+        Cache::forget('settings_all'); // flush the global model cache too
 
         return response()->json(['message' => 'Settings updated']);
     }
