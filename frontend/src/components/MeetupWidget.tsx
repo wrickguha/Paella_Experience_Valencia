@@ -64,7 +64,7 @@ export default function MeetupWidget() {
           boxShadow:
             '0 4px 18px rgba(246, 64, 96, 0.45), 0 2px 6px rgba(0, 0, 0, 0.18)',
           textDecoration: 'none',
-          fontFamily: 'Montserrat, Inter, sans-serif',
+          fontFamily: 'var(--site-font-family)',
           fontWeight: 700,
           fontSize: 14,
           letterSpacing: '0.02em',

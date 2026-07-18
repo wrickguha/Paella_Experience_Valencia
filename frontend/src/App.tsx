@@ -170,7 +170,7 @@ function LoadingFallback({ tagline = 'Speak. Cook. Connect' }: { tagline?: strin
 
         {/* Tagline */}
         <p style={{
-          fontFamily: 'Montserrat, sans-serif',
+          fontFamily: 'var(--site-font-family)',
           fontSize: 13,
           fontWeight: 500,
           color: 'rgba(255,255,255,0.55)',

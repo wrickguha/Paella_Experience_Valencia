@@ -31,6 +31,7 @@
     overflow-x: hidden;
     max-width: 100%;
     font-size: var(--site-font-size);
+    font-family: var(--site-font-family);
   }
 
   body {
@@ -40,10 +41,31 @@
     max-width: 100%;
   }
 
+  h1, h2, h3, h4, h5, h6, p, span, a, button, input, textarea, select, label, li, td, th {
+    font-family: inherit;
+  }
+
   h1, h2, h3, h4 {
     @apply text-primary;
     font-family: var(--site-font-family);
   }
+}
+
+/*
+ * Universal font override — applied OUTSIDE @layer so it beats all Tailwind utilities.
+ * Excludes the Great Vibes script font used for branding/decorative elements.
+ * The --site-font-family variable is set dynamically by App.tsx after fetching admin settings.
+ */
+*:not(.font-script):not(.font-script-family):not([style*="Great Vibes"]) {
+  font-family: var(--site-font-family) !important;
+}
+
+/* Restore script/branding font explicitly so !important doesn't clobber it */
+.font-script,
+.font-script-family,
+[style*="Great Vibes"],
+[style*="cursive"] {
+  font-family: "Great Vibes", cursive !important;
 }
 
 @layer components {
