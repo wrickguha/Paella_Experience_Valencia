@@ -15,10 +15,47 @@ interface Setting {
 interface GroupConfig {
   label: string;
   icon: string;
-  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' }[];
+  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'font-family' | 'font-size' }[];
 }
 
+const GOOGLE_FONTS = [
+  { label: 'Inherit (Global Default)', value: '', category: 'Default' },
+  { label: 'Montserrat', value: 'Montserrat', category: 'Sans-serif' },
+  { label: 'Inter', value: 'Inter', category: 'Sans-serif' },
+  { label: 'Roboto', value: 'Roboto', category: 'Sans-serif' },
+  { label: 'Lato', value: 'Lato', category: 'Sans-serif' },
+  { label: 'Open Sans', value: 'Open Sans', category: 'Sans-serif' },
+  { label: 'Nunito', value: 'Nunito', category: 'Sans-serif' },
+  { label: 'Poppins', value: 'Poppins', category: 'Sans-serif' },
+  { label: 'Raleway', value: 'Raleway', category: 'Sans-serif' },
+  { label: 'Outfit', value: 'Outfit', category: 'Sans-serif' },
+  { label: 'DM Sans', value: 'DM Sans', category: 'Sans-serif' },
+  { label: 'Source Sans 3', value: 'Source Sans 3', category: 'Sans-serif' },
+  { label: 'Playfair Display', value: 'Playfair Display', category: 'Serif' },
+  { label: 'Merriweather', value: 'Merriweather', category: 'Serif' },
+  { label: 'Lora', value: 'Lora', category: 'Serif' },
+  { label: 'Cormorant Garamond', value: 'Cormorant Garamond', category: 'Serif' },
+  { label: 'EB Garamond', value: 'EB Garamond', category: 'Serif' },
+  { label: 'PT Serif', value: 'PT Serif', category: 'Serif' },
+  { label: 'Libre Baskerville', value: 'Libre Baskerville', category: 'Serif' },
+  { label: 'Georgia (system)', value: 'Georgia', category: 'System Serif' },
+  { label: 'Courier Prime', value: 'Courier Prime', category: 'Monospace' },
+];
+
+const FONT_SIZE_MIN = 12;
+const FONT_SIZE_MAX = 28;
+
 const GROUPS: GroupConfig[] = [
+  {
+    label: 'Header & Footer Typography',
+    icon: '🔤',
+    fields: [
+      { key: 'header_font_family', label: 'Navigation Header Font Family', type: 'font-family' },
+      { key: 'header_font_size', label: 'Navigation Header Base Font Size', type: 'font-size' },
+      { key: 'footer_font_family', label: 'Site Footer Font Family', type: 'font-family' },
+      { key: 'footer_font_size', label: 'Site Footer Base Font Size', type: 'font-size' },
+    ],
+  },
   {
     label: 'Contact',
     icon: '📞',
@@ -99,7 +136,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <PageHeader title="Settings" description="Manage site content, contact info, and configuration">
+      <PageHeader title="Settings" description="Manage site content, contact info, header/footer typography, and configuration">
         <Button onClick={handleSave} loading={saving} disabled={!hasChanges}>
           <Save className="w-4 h-4" /> Save Changes
         </Button>
@@ -148,8 +185,120 @@ export default function SettingsPage() {
                 <span>{currentGroup.icon}</span> {currentGroup.label}
               </h3>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {currentGroup.fields?.map(field => {
+                  if (field.type === 'font-family') {
+                    const selectedFont = values[field.key] || '';
+                    const previewFont = selectedFont || 'Montserrat';
+                    const fontsByCategory = GOOGLE_FONTS.reduce<Record<string, typeof GOOGLE_FONTS>>((acc, f) => {
+                      acc[f.category] = acc[f.category] || [];
+                      acc[f.category].push(f);
+                      return acc;
+                    }, {});
+
+                    return (
+                      <div key={field.key} className="space-y-2.5 pb-4 border-b border-gray-100 last:border-0">
+                        <label className="block text-sm font-semibold text-neutral-dark">{field.label}</label>
+                        <select
+                          value={selectedFont}
+                          onChange={(e) => updateValue(field.key, e.target.value)}
+                          className="w-full px-4 py-2.5 rounded-xl border-2 border-neutral-200 bg-white text-sm text-neutral-dark transition-colors focus:outline-none focus:border-primary"
+                          style={{ fontFamily: previewFont }}
+                        >
+                          {Object.entries(fontsByCategory).map(([cat, fonts]) => (
+                            <optgroup key={cat} label={cat}>
+                              {fonts.map((f) => (
+                                <option key={f.value} value={f.value} style={{ fontFamily: f.value || 'inherit' }}>
+                                  {f.label}
+                                </option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
+
+                        <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4">
+                          <p className="text-[10px] text-gray-400 mb-2 uppercase tracking-widest font-medium">Live Preview</p>
+                          <p style={{ fontFamily: previewFont, fontSize: 18, fontWeight: 700, color: '#032451', marginBottom: 4 }}>
+                            SpeakEasy Valencia
+                          </p>
+                          <p style={{ fontFamily: previewFont, fontSize: 13, color: '#4b5563', lineHeight: 1.6 }}>
+                            The quick brown fox jumps over the lazy dog. Descubre Valencia a través de la comida y la conversación.
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  if (field.type === 'font-size') {
+                    const rawSize = parseInt(values[field.key] || '0', 10);
+                    const hasCustomSize = !isNaN(rawSize) && rawSize >= FONT_SIZE_MIN;
+                    const size = hasCustomSize ? Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, rawSize)) : 16;
+                    const pct = ((size - FONT_SIZE_MIN) / (FONT_SIZE_MAX - FONT_SIZE_MIN)) * 100;
+
+                    return (
+                      <div key={field.key} className="space-y-2.5 pb-4 border-b border-gray-100 last:border-0">
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-semibold text-neutral-dark">{field.label}</label>
+                          <div className="flex items-center gap-2">
+                            {hasCustomSize && (
+                              <button
+                                type="button"
+                                onClick={() => updateValue(field.key, '')}
+                                className="text-[10px] text-red-400 hover:text-red-600 underline font-medium"
+                              >
+                                Reset
+                              </button>
+                            )}
+                            <span className="text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                              {hasCustomSize ? `${size}px` : 'Auto'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            type="range"
+                            min={FONT_SIZE_MIN}
+                            max={FONT_SIZE_MAX}
+                            step={1}
+                            value={size}
+                            onChange={(e) => updateValue(field.key, e.target.value)}
+                            className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                            style={{
+                              background: `linear-gradient(to right, var(--color-primary) ${pct}%, #e5e7eb ${pct}%)`,
+                            }}
+                          />
+                          <div className="flex justify-between text-xs text-neutral-400 mt-1">
+                            <span>{FONT_SIZE_MIN}px (Small)</span>
+                            <span>16px (Default)</span>
+                            <span>{FONT_SIZE_MAX}px (Large)</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-neutral-400">Or type a value:</span>
+                          <input
+                            type="number"
+                            min={FONT_SIZE_MIN}
+                            max={FONT_SIZE_MAX}
+                            value={hasCustomSize ? size : ''}
+                            placeholder="Auto"
+                            onChange={(e) => {
+                              const v = parseInt(e.target.value, 10);
+                              if (!e.target.value) {
+                                updateValue(field.key, '');
+                              } else {
+                                updateValue(field.key, String(Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, isNaN(v) ? FONT_SIZE_MIN : v))));
+                              }
+                            }}
+                            className="w-20 px-3 py-1.5 rounded-lg border-2 border-neutral-200 text-sm text-center focus:outline-none focus:border-primary"
+                          />
+                          <span className="text-sm text-neutral-400">px</span>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   if (field.type === 'textarea') {
                     return (
                       <FormTextarea

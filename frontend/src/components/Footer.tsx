@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FaInstagram, FaFacebookF, FaYoutube, FaTiktok } from 'react-icons/fa';
 import { fetchSettings } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 export default function Footer() {
+  const footerStyle = useSectionStyle('footer');
   const { t, i18n } = useTranslation();
   const [settings, setSettings] = useState<Record<string, string>>({});
 
@@ -42,7 +44,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-primary text-white">
+    <footer className="bg-primary text-white" style={footerStyle}>
       <div className="container-max px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
