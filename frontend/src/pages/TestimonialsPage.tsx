@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 import { fetchTestimonials, fetchSettings, type Testimonial } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 // Utility helper to resolve YouTube URLs or local paths
 function getYouTubeEmbedUrl(urlOrId: string) {
@@ -236,10 +237,15 @@ export default function TestimonialsPage() {
 
   const confettiColors = ['#f4a261', '#d4a373', '#032451', '#e8ceb0', '#ffcc00', '#f28482'];
 
+  const heroStyle = useSectionStyle('hero', 'testim');
+  const videosStyle = useSectionStyle('videos', 'testim');
+  const headersStyle = useSectionStyle('headers', 'testim');
+  const formStyle = useSectionStyle('form', 'testim');
+
   return (
     <div className="bg-neutral-cream min-h-screen overflow-x-hidden font-body text-text-primary pb-24">
       {/* 1. HERO HEADER */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-dark via-primary to-primary-light py-24 sm:py-32 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-primary-dark via-primary to-primary-light py-24 sm:py-32 text-white" style={heroStyle}>
         {/* Animated background glows */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-32 -left-32 h-96 w-96 rounded-full bg-accent/20 blur-[120px]" />
@@ -304,7 +310,7 @@ export default function TestimonialsPage() {
 
       {/* 2. VIDEO STORIES SECTION */}
       {videoList.length > 0 && (
-        <section className="py-16 sm:py-24 container-max px-4 sm:px-6 lg:px-8">
+        <section className="py-16 sm:py-24 container-max px-4 sm:px-6 lg:px-8" style={videosStyle}>
           <div className="text-center mb-12">
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
               {videoTitle}
@@ -321,7 +327,7 @@ export default function TestimonialsPage() {
       )}
 
       {/* 3. WRITTEN REVIEWS SECTION */}
-      <section className="py-16 bg-white/40 border-y border-neutral-beige/40">
+      <section className="py-16 bg-white/40 border-y border-neutral-beige/40" style={headersStyle}>
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
@@ -447,7 +453,7 @@ export default function TestimonialsPage() {
       </section>
 
       {/* 4. SHARE YOUR STORY FORM */}
-      <section className="py-16 sm:py-24 container-max px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24 container-max px-4 sm:px-6 lg:px-8" style={formStyle}>
         <div className="max-w-2xl mx-auto relative">
           
           {/* Confetti Drift Area */}

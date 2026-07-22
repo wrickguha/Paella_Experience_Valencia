@@ -66,14 +66,29 @@ export function useSettings() {
  * sectionId examples: 'hero', 'highlights', 'community', 'testimonials',
  *                     'level_test', 'how_it_works', 'events'
  */
-export function useSectionStyle(sectionId: string): CSSProperties {
+export function useSectionStyle(sectionId: string, pagePrefix = 'hp'): CSSProperties {
   const { settings } = useSettings();
 
   const normalizedId = sectionId.replace(/-/g, '_');
-  const fontFamily = settings[`hp_${normalizedId}_font_family`];
-  const rawSize    = settings[`hp_${normalizedId}_font_size`];
-  const fontSize   = rawSize ? parseInt(rawSize, 10) : undefined;
+  let fontFamily = settings[sectionId + '_font_family'];
+  let rawSize    = settings[sectionId + '_font_size'];
 
+  if (!fontFamily) {
+    fontFamily =
+      settings[`${pagePrefix}_${normalizedId}_font_family`] ||
+      settings[`testim_${normalizedId}_font_family`] ||
+      settings[`exp_${normalizedId}_font_family`] ||
+      settings[`hp_${normalizedId}_font_family`];
+  }
+  if (!rawSize) {
+    rawSize =
+      settings[`${pagePrefix}_${normalizedId}_font_size`] ||
+      settings[`testim_${normalizedId}_font_size`] ||
+      settings[`exp_${normalizedId}_font_size`] ||
+      settings[`hp_${normalizedId}_font_size`];
+  }
+
+  const fontSize = rawSize ? parseInt(rawSize, 10) : undefined;
   const style: Record<string, string> = {};
 
   if (fontFamily) {
