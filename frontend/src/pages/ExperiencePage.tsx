@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
 import { fetchLocations, fetchSettings, type FrontendLocation, type LocationSchedule } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -313,11 +314,12 @@ function LocationsIntro({
   langSuffix: string; 
   t: any;
 }) {
+  const introStyle = useSectionStyle('intro', 'exp');
   const title = settings[`experience_intro_title_${langSuffix}`] || t('experience.title', 'Experiences & Locations');
   const desc1 = settings[`experience_intro_desc1_${langSuffix}`] || "At Speak Easy Valencia, the experience is not only about the language. It’s also about where it happens.";
   const desc2 = settings[`experience_intro_desc2_${langSuffix}`] || "We carefully choose places that invite people to slow down, connect naturally, and experience the way of life through conversation, food, culture, and sobremesa.";
   return (
-    <section className="relative py-24 bg-white overflow-hidden border-t border-neutral-sand/20">
+    <section className="relative py-24 bg-white overflow-hidden border-t border-neutral-sand/20" style={introStyle}>
       {/* Decorative background elements */}
       <motion.div 
         animate={{ rotate: 360 }}
@@ -449,6 +451,9 @@ export default function ExperiencePage() {
     (loc) => (loc.category || 'city') === activeCategory
   );
 
+  const categoriesStyle = useSectionStyle('categories', 'exp');
+  const buttonsStyle = useSectionStyle('buttons', 'exp');
+
   return (
     <>
       {/* ── Location Sections ─────────────────────────── */}
@@ -456,7 +461,7 @@ export default function ExperiencePage() {
       <div id="locations" />
 
       {/* Category Selection Cards */}
-      <section className="pb-24 bg-white">
+      <section className="pb-24 bg-white" style={categoriesStyle}>
         <div className="container-max px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* City Card */}
@@ -544,6 +549,7 @@ export default function ExperiencePage() {
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 180 }}
               className="relative w-full max-w-5xl h-[90vh] md:h-[80vh] bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden"
+              style={buttonsStyle}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}

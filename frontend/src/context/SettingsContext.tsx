@@ -39,7 +39,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setSettings(data);
         // Auto-load Google Fonts for any per-section font family settings
         Object.entries(data).forEach(([key, value]) => {
-          if (key.startsWith('hp_') && key.endsWith('_font_family') && value) {
+          if (key.endsWith('_font_family') && value) {
             loadGoogleFont(value);
           }
         });
