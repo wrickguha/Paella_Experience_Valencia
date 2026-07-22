@@ -68,6 +68,52 @@
   font-family: "Great Vibes", cursive !important;
 }
 
+/*
+ * Per-Section Base Font Size Scaling
+ * Scales headings, body text, buttons, inputs, labels, and Tailwind text sizes
+ * proportionally based on the Section Base Font Size set in the Admin Panel.
+ */
+[style*="--section-font-scale"] h1,
+[style*="--section-font-scale"] h2,
+[style*="--section-font-scale"] h3,
+[style*="--section-font-scale"] h4,
+[style*="--section-font-scale"] h5,
+[style*="--section-font-scale"] h6,
+[style*="--section-font-scale"] p,
+[style*="--section-font-scale"] button,
+[style*="--section-font-scale"] input,
+[style*="--section-font-scale"] textarea,
+[style*="--section-font-scale"] select,
+[style*="--section-font-scale"] label,
+[style*="--section-font-scale"] li,
+[style*="--section-font-scale"] [class*="text-"] {
+  font-size: calc(1em * var(--section-font-scale, 1));
+}
+
+/* Prevent double-scaling on nested text children */
+[style*="--section-font-scale"] h1 *,
+[style*="--section-font-scale"] h2 *,
+[style*="--section-font-scale"] h3 *,
+[style*="--section-font-scale"] h4 *,
+[style*="--section-font-scale"] h5 *,
+[style*="--section-font-scale"] h6 *,
+[style*="--section-font-scale"] p *,
+[style*="--section-font-scale"] button *,
+[style*="--section-font-scale"] li * {
+  font-size: inherit;
+}
+
+/* Allow explicit size overrides on nested elements with text- classes */
+[style*="--section-font-scale"] h1 [class*="text-"],
+[style*="--section-font-scale"] h2 [class*="text-"],
+[style*="--section-font-scale"] h3 [class*="text-"],
+[style*="--section-font-scale"] h4 [class*="text-"],
+[style*="--section-font-scale"] p [class*="text-"],
+[style*="--section-font-scale"] button [class*="text-"],
+[style*="--section-font-scale"] li [class*="text-"] {
+  font-size: calc(1em * var(--section-font-scale, 1));
+}
+
 @layer components {
   .font-script {
     @apply font-script-family;

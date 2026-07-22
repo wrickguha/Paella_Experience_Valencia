@@ -101,7 +101,10 @@ export function useSectionStyle(sectionId: string, pagePrefix = 'hp'): CSSProper
     style['--site-font-family'] = fontStr;
   }
   if (fontSize && !isNaN(fontSize) && fontSize > 0) {
+    const scale = fontSize / 16;
     style['fontSize'] = `${fontSize}px`;
+    style['--section-font-size'] = `${fontSize}px`;
+    style['--section-font-scale'] = String(scale);
   }
 
   return style as CSSProperties;
