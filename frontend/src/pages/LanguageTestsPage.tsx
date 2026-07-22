@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
 import { joinLanguageSession, trackLead, fetchSettings } from '@/services/api';
 import { LevelTestCard } from '@/components/SpanishLevelTest';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 // ── Skill Level Badge ─────────────────────────────────────────────────────────
 const LEVEL_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
@@ -383,11 +384,16 @@ export default function LanguageTestsPage() {
       .catch(() => {});
   }, []);
 
+  const heroStyle = useSectionStyle('hero', 'langtest');
+  const infoStyle = useSectionStyle('info', 'langtest');
+  const cardsStyle = useSectionStyle('cards', 'langtest');
+  const ctaStyle = useSectionStyle('cta', 'langtest');
+
   return (
     <div className="bg-bg-main min-h-screen">
 
       {/* ── Hero ─────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-primary py-24 sm:py-32">
+      <section className="relative overflow-hidden bg-primary py-24 sm:py-32" style={heroStyle}>
         {/* Decorative blobs */}
         <div aria-hidden="true" className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-accent/10 blur-3xl" />
@@ -463,7 +469,7 @@ export default function LanguageTestsPage() {
       </section>
 
       {/* ── Info strip ────────────────────────────────────────────── */}
-      <section className="py-10 border-b border-neutral-sand/40">
+      <section className="py-10 border-b border-neutral-sand/40" style={infoStyle}>
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {[
@@ -488,7 +494,7 @@ export default function LanguageTestsPage() {
       </section>
 
       {/* ── Level Tests Section (20-30 Questions Real Tests) ────────── */}
-      <section id="tests" className="py-14 px-4 sm:px-6 lg:px-8 bg-neutral-cream/20">
+      <section id="tests" className="py-14 px-4 sm:px-6 lg:px-8 bg-neutral-cream/20" style={cardsStyle}>
         <div className="container-max mx-auto max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
             <LevelTestCard lang="es" settings={settings} />
@@ -498,7 +504,7 @@ export default function LanguageTestsPage() {
       </section>
 
       {/* ── CTA / Sign Up ─────────────────────────────────────────── */}
-      <section className="section-padding" ref={ctaRef.ref}>
+      <section className="section-padding" ref={ctaRef.ref} style={ctaStyle}>
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
