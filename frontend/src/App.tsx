@@ -2,6 +2,7 @@ import { lazy, Suspense, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { SettingsProvider } from '@/context/SettingsContext';
 import { fetchSettings } from '@/services/api';
 
 // System fonts that don't need a Google Fonts link
@@ -339,6 +340,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <SplashGate>
+        <SettingsProvider>
         <AuthProvider>
           <AuthGate>
           <Suspense fallback={<LoadingFallback />}>
@@ -366,6 +368,7 @@ export default function App() {
           </Suspense>
           </AuthGate>
         </AuthProvider>
+        </SettingsProvider>
       </SplashGate>
     </BrowserRouter>
   );

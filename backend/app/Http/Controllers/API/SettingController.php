@@ -15,7 +15,10 @@ class SettingController extends Controller
 
         $query = Setting::query();
         if ($group) {
-            $query->where('group', $group);
+            $query->where(function ($q) use ($group) {
+                $q->where('group', $group)
+                  ->orWhereNull('group');
+            });
         }
         $settings = $query->pluck('value', 'key');
 

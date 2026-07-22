@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
 import { motion } from 'framer-motion';
 import { fetchSettings } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 const iconMap: Record<string, string> = {
   conversations: '🗣',
@@ -15,6 +16,7 @@ const iconMap: Record<string, string> = {
 
 export default function ExperienceHighlights() {
   const { t, i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('highlights');
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -55,7 +57,7 @@ export default function ExperienceHighlights() {
   const languageSubtitle = settings[`highlights_languageSubtitle_${langSuffix}`] || t('highlights.languageSubtitle');
 
   return (
-    <SectionWrapper>
+    <SectionWrapper style={sectionStyle}>
       {/* ── Top Grid: Feature Cards ── */}
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">

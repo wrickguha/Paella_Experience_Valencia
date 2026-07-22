@@ -15,35 +15,8 @@ interface Setting {
 interface GroupConfig {
   label: string;
   icon: string;
-  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' | 'font-family' | 'font-size' }[];
+  fields: { key: string; label: string; type: 'text' | 'textarea' | 'number' | 'toggle' | 'email' | 'url' }[];
 }
-
-// Curated Google Fonts list
-const GOOGLE_FONTS = [
-  { label: 'Montserrat (Default)', value: 'Montserrat', category: 'Sans-serif' },
-  { label: 'Inter', value: 'Inter', category: 'Sans-serif' },
-  { label: 'Roboto', value: 'Roboto', category: 'Sans-serif' },
-  { label: 'Lato', value: 'Lato', category: 'Sans-serif' },
-  { label: 'Open Sans', value: 'Open Sans', category: 'Sans-serif' },
-  { label: 'Nunito', value: 'Nunito', category: 'Sans-serif' },
-  { label: 'Poppins', value: 'Poppins', category: 'Sans-serif' },
-  { label: 'Raleway', value: 'Raleway', category: 'Sans-serif' },
-  { label: 'Outfit', value: 'Outfit', category: 'Sans-serif' },
-  { label: 'DM Sans', value: 'DM Sans', category: 'Sans-serif' },
-  { label: 'Source Sans 3', value: 'Source Sans 3', category: 'Sans-serif' },
-  { label: 'Playfair Display', value: 'Playfair Display', category: 'Serif' },
-  { label: 'Merriweather', value: 'Merriweather', category: 'Serif' },
-  { label: 'Lora', value: 'Lora', category: 'Serif' },
-  { label: 'Cormorant Garamond', value: 'Cormorant Garamond', category: 'Serif' },
-  { label: 'EB Garamond', value: 'EB Garamond', category: 'Serif' },
-  { label: 'PT Serif', value: 'PT Serif', category: 'Serif' },
-  { label: 'Libre Baskerville', value: 'Libre Baskerville', category: 'Serif' },
-  { label: 'Georgia (system)', value: 'Georgia', category: 'System Serif' },
-  { label: 'Courier Prime', value: 'Courier Prime', category: 'Monospace' },
-];
-
-const FONT_SIZE_MIN = 12;
-const FONT_SIZE_MAX = 24;
 
 const GROUPS: GroupConfig[] = [
   {
@@ -74,14 +47,6 @@ const GROUPS: GroupConfig[] = [
       { key: 'social_facebook', label: 'Facebook URL', type: 'url' },
       { key: 'social_tiktok', label: 'TikTok URL', type: 'url' },
       { key: 'social_youtube', label: 'YouTube URL', type: 'url' },
-    ],
-  },
-  {
-    label: 'Typography',
-    icon: '🔤',
-    fields: [
-      { key: 'typography_font_family', label: 'Font Family', type: 'font-family' },
-      { key: 'typography_font_size', label: 'Base Font Size', type: 'font-size' },
     ],
   },
 ];
@@ -241,118 +206,6 @@ export default function SettingsPage() {
                           </ol>
                           <p className="text-blue-600 mt-1">The URL must start with: <code className="bg-blue-100 px-1 rounded">https://www.google.com/maps/embed?pb=</code></p>
                         </div>
-                      </div>
-                    );
-                  }
-
-                  // Font Family picker
-                  if (field.type === 'font-family') {
-                    const selectedFont = values[field.key] || 'Montserrat';
-                    const fontsByCategory = GOOGLE_FONTS.reduce<Record<string, typeof GOOGLE_FONTS>>((acc, f) => {
-                      acc[f.category] = acc[f.category] || [];
-                      acc[f.category].push(f);
-                      return acc;
-                    }, {});
-                    return (
-                      <div key={field.key} className="space-y-3">
-                        <label className="block text-sm font-medium text-neutral-dark">{field.label}</label>
-                        {/* Selector */}
-                        <select
-                          value={selectedFont}
-                          onChange={(e) => updateValue(field.key, e.target.value)}
-                          className="w-full px-4 py-2.5 rounded-xl border-2 border-neutral-200 bg-white text-sm text-neutral-dark transition-colors focus:outline-none focus:border-primary"
-                          style={{ fontFamily: selectedFont }}
-                        >
-                          {Object.entries(fontsByCategory).map(([cat, fonts]) => (
-                            <optgroup key={cat} label={cat}>
-                              {fonts.map(f => (
-                                <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                                  {f.label}
-                                </option>
-                              ))}
-                            </optgroup>
-                          ))}
-                        </select>
-                        {/* Live preview card */}
-                        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
-                          <p className="text-xs text-neutral-400 mb-3 uppercase tracking-wider font-medium">Live Preview</p>
-                          <p style={{ fontFamily: selectedFont, fontSize: 22, fontWeight: 700, lineHeight: 1.2, color: '#032451', marginBottom: 6 }}>
-                            SpeakEasy Valencia
-                          </p>
-                          <p style={{ fontFamily: selectedFont, fontSize: 15, color: '#4b5563', lineHeight: 1.6 }}>
-                            The quick brown fox jumps over the lazy dog. Descubre Valencia a través de la comida y la conversación.
-                          </p>
-                          <p style={{ fontFamily: selectedFont, fontSize: 13, color: '#9ca3af', marginTop: 8 }}>
-                            0123456789 — ABCDEFGHIJKLMNOPQRSTUVWXYZ — abcdefghijklmnopqrstuvwxyz
-                          </p>
-                        </div>
-                        <p className="text-xs text-neutral-400">💡 This font will be applied to all body text across the entire website.</p>
-                      </div>
-                    );
-                  }
-
-                  // Font Size slider
-                  if (field.type === 'font-size') {
-                    const rawSize = parseInt(values[field.key] || '16', 10);
-                    const size = Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, isNaN(rawSize) ? 16 : rawSize));
-                    const selectedFont = values['typography_font_family'] || 'Montserrat';
-                    const pct = ((size - FONT_SIZE_MIN) / (FONT_SIZE_MAX - FONT_SIZE_MIN)) * 100;
-                    return (
-                      <div key={field.key} className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <label className="text-sm font-medium text-neutral-dark">{field.label}</label>
-                          <span className="text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">{size}px</span>
-                        </div>
-                        {/* Slider */}
-                        <div className="relative">
-                          <input
-                            type="range"
-                            min={FONT_SIZE_MIN}
-                            max={FONT_SIZE_MAX}
-                            step={1}
-                            value={size}
-                            onChange={(e) => updateValue(field.key, e.target.value)}
-                            className="w-full h-2 rounded-full appearance-none cursor-pointer"
-                            style={{
-                              background: `linear-gradient(to right, var(--color-primary) ${pct}%, #e5e7eb ${pct}%)`,
-                            }}
-                          />
-                          <div className="flex justify-between text-xs text-neutral-400 mt-1">
-                            <span>{FONT_SIZE_MIN}px (Small)</span>
-                            <span>16px (Default)</span>
-                            <span>{FONT_SIZE_MAX}px (Large)</span>
-                          </div>
-                        </div>
-                        {/* Manual input */}
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-neutral-400">Or type a value:</span>
-                          <input
-                            type="number"
-                            min={FONT_SIZE_MIN}
-                            max={FONT_SIZE_MAX}
-                            value={size}
-                            onChange={(e) => {
-                              const v = Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, parseInt(e.target.value, 10) || FONT_SIZE_MIN));
-                              updateValue(field.key, String(v));
-                            }}
-                            className="w-20 px-3 py-1.5 rounded-lg border-2 border-neutral-200 text-sm text-center focus:outline-none focus:border-primary"
-                          />
-                          <span className="text-sm text-neutral-400">px</span>
-                        </div>
-                        {/* Live preview */}
-                        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-5">
-                          <p className="text-xs text-neutral-400 mb-3 uppercase tracking-wider font-medium">Live Preview</p>
-                          <p style={{ fontFamily: selectedFont, fontSize: size * 1.6, fontWeight: 700, lineHeight: 1.2, color: '#032451', marginBottom: 6 }}>
-                            Heading Text
-                          </p>
-                          <p style={{ fontFamily: selectedFont, fontSize: size, color: '#4b5563', lineHeight: 1.7 }}>
-                            This is how your body text will look on the website. A comfortable reading size improves the user experience.
-                          </p>
-                          <p style={{ fontFamily: selectedFont, fontSize: size * 0.85, color: '#9ca3af', marginTop: 8 }}>
-                            Small caption / label text
-                          </p>
-                        </div>
-                        <p className="text-xs text-neutral-400">💡 This base font size is applied to all paragraphs and body text site-wide.</p>
                       </div>
                     );
                   }

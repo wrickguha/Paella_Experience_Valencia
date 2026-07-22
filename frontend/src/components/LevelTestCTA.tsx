@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { FiAward, FiArrowRight } from 'react-icons/fi';
 import SectionWrapper from './SectionWrapper';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 export default function LevelTestCTA() {
   const { i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('level_test');
   const isEs = i18n.language.startsWith('es');
 
   const badgeText = isEs ? 'Evaluación de Nivel' : 'Level Assessment';
@@ -16,7 +18,7 @@ export default function LevelTestCTA() {
   const buttonText = isEs ? 'Ir al Test de Nivel' : 'Go to Level Test';
 
   return (
-    <SectionWrapper className="bg-neutral-cream/50 relative overflow-hidden py-16 sm:py-20 border-y border-neutral-cream">
+    <SectionWrapper className="bg-neutral-cream/50 relative overflow-hidden py-16 sm:py-20 border-y border-neutral-cream" style={sectionStyle}>
       {/* Subtle background decorative blurs */}
       <div className="absolute top-0 left-1/4 w-80 h-80 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 -z-10" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl translate-y-1/2 -z-10" />

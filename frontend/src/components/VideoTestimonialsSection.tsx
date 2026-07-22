@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { fetchSettings } from '@/services/api';
 import { Link } from 'react-router-dom';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 function getYouTubeEmbedUrl(urlOrId: string) {
   if (!urlOrId) return '';
@@ -94,6 +95,7 @@ function LazyVideo({ src, index }: { src: string; index: number }) {
 
 export default function VideoTestimonialsSection() {
   const { t, i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('testimonials');
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [videoList, setVideoList] = useState<string[]>(() => {
     try {
@@ -133,7 +135,7 @@ export default function VideoTestimonialsSection() {
   const seeMoreText = settings[`video_testimonials_seeMore_${langSuffix}`] || t('videoTestimonials.seeMore');
 
   return (
-    <SectionWrapper className="bg-white">
+    <SectionWrapper className="bg-white" style={sectionStyle}>
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {sectionTitle}

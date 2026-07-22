@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
 import { motion } from 'framer-motion';
 import { fetchSettings } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 const resolveImageUrl = (path: string) => {
   if (!path) return '';
@@ -27,6 +28,7 @@ interface CommunitySettings {
 
 export default function CommunitySection() {
   const { t, i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('community');
   const items = t('community.items', { returnObjects: true }) as Array<{
     title: string;
     description: string;
@@ -75,7 +77,7 @@ export default function CommunitySection() {
   const sectionSubtitle = settings[`community_subtitle_${langSuffix}`] || settings.community_subtitle || t('community.subtitle');
 
   return (
-    <SectionWrapper className="bg-white">
+    <SectionWrapper className="bg-white" style={sectionStyle}>
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {sectionTitle}

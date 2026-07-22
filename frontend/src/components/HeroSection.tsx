@@ -4,9 +4,11 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Button from "./ui/Button";
 import { fetchSettings } from "@/services/api";
+import { useSectionStyle } from "@/context/SettingsContext";
 
 export default function HeroSection() {
   const { t, i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('hero');
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [videoUrl, setVideoUrl] = useState(() => {
     return localStorage.getItem("hero_video") || "/video/hero-video.mp4";
@@ -53,7 +55,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center">
+    <section className="relative min-h-[90vh] flex items-center" style={sectionStyle}>
       {/* Video background */}
       <div className="absolute inset-0 overflow-hidden">
         <video

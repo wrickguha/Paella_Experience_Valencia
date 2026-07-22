@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
 import { useCalendarMonth } from '@/hooks/useCalendarMonth';
 import { fetchSettings, type CalendarEvent } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -120,6 +121,7 @@ function EventCard({ event, index }: EventCardProps) {
 
 export default function UpcomingEvents() {
   const { t, i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('events');
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -208,7 +210,7 @@ export default function UpcomingEvents() {
   const monthKey = `week-${todayStr}`;
 
   return (
-    <SectionWrapper className="bg-white">
+    <SectionWrapper className="bg-white" style={sectionStyle}>
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
         <div>

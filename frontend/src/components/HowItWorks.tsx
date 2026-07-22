@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SectionWrapper from './SectionWrapper';
 import { fetchSettings } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 const ICONS = [
   // Calendar icon
@@ -29,6 +30,7 @@ const ICONS = [
 
 export default function HowItWorks() {
   const { t, i18n } = useTranslation();
+  const sectionStyle = useSectionStyle('how_it_works');
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export default function HowItWorks() {
   const borderColors = ['border-primary/20', 'border-secondary/30', 'border-primary/20'];
 
   return (
-    <SectionWrapper className="bg-neutral-cream">
+    <SectionWrapper className="bg-neutral-cream" style={sectionStyle}>
       {/* Header */}
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">

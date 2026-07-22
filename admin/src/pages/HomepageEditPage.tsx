@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Globe, ChevronDown, Check, Video, Image, FileText, Calendar, Compass, Users } from 'lucide-react';
+import { Save, Globe, ChevronDown, Check, Video, FileText, Calendar, Compass, Users, Type } from 'lucide-react';
 import { settingsApi } from '@/services/api';
-import PageHeader, { Card, Button, Spinner } from '@/components/ui';
+import PageHeader, { Button, Spinner } from '@/components/ui';
 import { FormInput, FormTextarea, ImageUpload } from '@/components/FormFields';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,239 @@ interface SectionConfig {
   description: string;
 }
 
+// ─── Curated Google Fonts (same list as SettingsPage) ───────────────────────
+const GOOGLE_FONTS = [
+  { label: 'Inherit (Global Default)', value: '', category: 'Default' },
+  { label: 'Montserrat', value: 'Montserrat', category: 'Sans-serif' },
+  { label: 'Inter', value: 'Inter', category: 'Sans-serif' },
+  { label: 'Roboto', value: 'Roboto', category: 'Sans-serif' },
+  { label: 'Lato', value: 'Lato', category: 'Sans-serif' },
+  { label: 'Open Sans', value: 'Open Sans', category: 'Sans-serif' },
+  { label: 'Nunito', value: 'Nunito', category: 'Sans-serif' },
+  { label: 'Poppins', value: 'Poppins', category: 'Sans-serif' },
+  { label: 'Raleway', value: 'Raleway', category: 'Sans-serif' },
+  { label: 'Outfit', value: 'Outfit', category: 'Sans-serif' },
+  { label: 'DM Sans', value: 'DM Sans', category: 'Sans-serif' },
+  { label: 'Source Sans 3', value: 'Source Sans 3', category: 'Sans-serif' },
+  { label: 'Playfair Display', value: 'Playfair Display', category: 'Serif' },
+  { label: 'Merriweather', value: 'Merriweather', category: 'Serif' },
+  { label: 'Lora', value: 'Lora', category: 'Serif' },
+  { label: 'Cormorant Garamond', value: 'Cormorant Garamond', category: 'Serif' },
+  { label: 'EB Garamond', value: 'EB Garamond', category: 'Serif' },
+  { label: 'PT Serif', value: 'PT Serif', category: 'Serif' },
+  { label: 'Libre Baskerville', value: 'Libre Baskerville', category: 'Serif' },
+  { label: 'Georgia (system)', value: 'Georgia', category: 'System Serif' },
+  { label: 'Courier Prime', value: 'Courier Prime', category: 'Monospace' },
+];
+
+const FONT_SIZE_MIN = 12;
+const FONT_SIZE_MAX = 28;
+
+// ─── Per-section typography key helper ──────────────────────────────────────
+function sectionFontKey(sectionId: string) {
+  const id = sectionId.replace(/-/g, '_');
+  return {
+    family: `hp_${id}_font_family`,
+    size: `hp_${id}_font_size`,
+  };
+}
+
+// ─── SectionTypography component ────────────────────────────────────────────
+interface SectionTypographyProps {
+  sectionId: string;
+  values: Record<string, string>;
+  onUpdate: (key: string, value: string) => void;
+}
+
+function SectionTypography({ sectionId, values, onUpdate }: SectionTypographyProps) {
+  const [open, setOpen] = useState(false);
+  const keys = sectionFontKey(sectionId);
+
+  const selectedFont = values[keys.family] || '';
+  const previewFont = selectedFont || 'Montserrat';
+
+  const rawSize = parseInt(values[keys.size] || '0', 10);
+  const hasCustomSize = !isNaN(rawSize) && rawSize >= FONT_SIZE_MIN;
+  const size = hasCustomSize ? Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, rawSize)) : 16;
+  const pct = ((size - FONT_SIZE_MIN) / (FONT_SIZE_MAX - FONT_SIZE_MIN)) * 100;
+
+  const fontsByCategory = GOOGLE_FONTS.reduce<Record<string, typeof GOOGLE_FONTS>>((acc, f) => {
+    acc[f.category] = acc[f.category] || [];
+    acc[f.category].push(f);
+    return acc;
+  }, {});
+
+  return (
+    <div className="border border-dashed border-indigo-200 rounded-2xl overflow-hidden bg-indigo-50/30">
+      {/* Toggle header */}
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-indigo-50/60 transition-colors"
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <Type className="w-3.5 h-3.5" />
+          </div>
+          <div>
+            <span className="text-sm font-bold text-indigo-800">Section Typography</span>
+            <span className="text-xs text-indigo-400 ml-2">
+              {selectedFont ? selectedFont : 'Global default'}{' '}
+              {hasCustomSize ? `· ${size}px` : '· Auto size'}
+            </span>
+          </div>
+        </div>
+        <ChevronDown
+          className={cn(
+            'w-4 h-4 text-indigo-400 transition-transform duration-200',
+            open && 'rotate-180'
+          )}
+        />
+      </button>
+
+      {/* Expandable body */}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="typography-body"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-6 pt-1 space-y-6 border-t border-indigo-100">
+
+              {/* ── Font Family ─────────────────────── */}
+              <div className="space-y-2.5">
+                <label className="block text-sm font-semibold text-neutral-dark">
+                  Font Family
+                </label>
+                <select
+                  value={selectedFont}
+                  onChange={(e) => onUpdate(keys.family, e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border-2 border-neutral-200 bg-white text-sm text-neutral-dark transition-colors focus:outline-none focus:border-indigo-400"
+                  style={{ fontFamily: previewFont }}
+                >
+                  {Object.entries(fontsByCategory).map(([cat, fonts]) => (
+                    <optgroup key={cat} label={cat}>
+                      {fonts.map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value || 'inherit' }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+
+                {/* Live preview */}
+                <div className="rounded-xl border border-indigo-100 bg-white p-4">
+                  <p className="text-[10px] text-indigo-300 mb-2 uppercase tracking-widest font-medium">Live Preview</p>
+                  <p style={{ fontFamily: previewFont, fontSize: 20, fontWeight: 700, color: '#032451', lineHeight: 1.3, marginBottom: 4 }}>
+                    SpeakEasy Valencia
+                  </p>
+                  <p style={{ fontFamily: previewFont, fontSize: 13, color: '#4b5563', lineHeight: 1.65 }}>
+                    The quick brown fox jumps over the lazy dog. Descubre Valencia a través de la comida y la conversación.
+                  </p>
+                </div>
+                <p className="text-xs text-indigo-400">
+                  {selectedFont
+                    ? `✅ "${selectedFont}" will override the global font for this section only.`
+                    : '💡 Set to "Inherit" to use the global font family from Typography settings.'}
+                </p>
+              </div>
+
+              {/* ── Font Size ───────────────────────── */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold text-neutral-dark">Base Font Size</label>
+                  <div className="flex items-center gap-2">
+                    {hasCustomSize && (
+                      <button
+                        type="button"
+                        onClick={() => onUpdate(keys.size, '')}
+                        className="text-[10px] text-red-400 hover:text-red-600 underline font-medium"
+                      >
+                        Reset
+                      </button>
+                    )}
+                    <span className="text-sm font-bold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">
+                      {hasCustomSize ? `${size}px` : 'Auto'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Slider */}
+                <div className="relative">
+                  <input
+                    type="range"
+                    min={FONT_SIZE_MIN}
+                    max={FONT_SIZE_MAX}
+                    step={1}
+                    value={size}
+                    onChange={(e) => onUpdate(keys.size, e.target.value)}
+                    className="w-full h-2 rounded-full appearance-none cursor-pointer"
+                    style={{
+                      background: `linear-gradient(to right, #6366f1 ${pct}%, #e5e7eb ${pct}%)`,
+                    }}
+                  />
+                  <div className="flex justify-between text-xs text-neutral-400 mt-1">
+                    <span>{FONT_SIZE_MIN}px (Small)</span>
+                    <span>16px (Default)</span>
+                    <span>{FONT_SIZE_MAX}px (Large)</span>
+                  </div>
+                </div>
+
+                {/* Manual input */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-neutral-400">Or type a value:</span>
+                  <input
+                    type="number"
+                    min={FONT_SIZE_MIN}
+                    max={FONT_SIZE_MAX}
+                    value={hasCustomSize ? size : ''}
+                    placeholder="Auto"
+                    onChange={(e) => {
+                      const v = parseInt(e.target.value, 10);
+                      if (!e.target.value) {
+                        onUpdate(keys.size, '');
+                      } else {
+                        onUpdate(keys.size, String(Math.min(FONT_SIZE_MAX, Math.max(FONT_SIZE_MIN, isNaN(v) ? FONT_SIZE_MIN : v))));
+                      }
+                    }}
+                    className="w-20 px-3 py-1.5 rounded-lg border-2 border-neutral-200 text-sm text-center focus:outline-none focus:border-indigo-400"
+                  />
+                  <span className="text-sm text-neutral-400">px</span>
+                </div>
+
+                {/* Size live preview */}
+                <div className="rounded-xl border border-indigo-100 bg-white p-4">
+                  <p className="text-[10px] text-indigo-300 mb-2 uppercase tracking-widest font-medium">Size Preview</p>
+                  <p style={{ fontFamily: previewFont, fontSize: size * 1.6, fontWeight: 700, color: '#032451', lineHeight: 1.2, marginBottom: 4 }}>
+                    Heading Text
+                  </p>
+                  <p style={{ fontFamily: previewFont, fontSize: size, color: '#4b5563', lineHeight: 1.7 }}>
+                    This is how your section body text will look on the website.
+                  </p>
+                  <p style={{ fontFamily: previewFont, fontSize: size * 0.85, color: '#9ca3af', marginTop: 6 }}>
+                    Small caption / label text
+                  </p>
+                </div>
+                <p className="text-xs text-indigo-400">
+                  {hasCustomSize
+                    ? `✅ Custom ${size}px will override the global base font size for this section.`
+                    : '💡 Leave as "Auto" to use the global base font size from Typography settings.'}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 export default function HomepageEditPage() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -124,7 +357,7 @@ export default function HomepageEditPage() {
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       <PageHeader 
         title="Homepage Content Editor" 
-        description="Easily customize and change any static content, texts, images, and videos on the Homepage."
+        description="Easily customize and change any static content, texts, images, videos, and per-section typography on the Homepage."
       >
         <div className="flex gap-2">
           <Button onClick={handleSave} loading={saving} disabled={!hasChanges}>
@@ -308,6 +541,9 @@ export default function HomepageEditPage() {
                               onChange={(e) => updateValue(`hero_scroll_${editLang}`, e.target.value)}
                             />
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
@@ -411,6 +647,9 @@ export default function HomepageEditPage() {
                               ))}
                             </div>
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
@@ -471,6 +710,9 @@ export default function HomepageEditPage() {
                               })}
                             </div>
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
@@ -532,6 +774,9 @@ export default function HomepageEditPage() {
                               ))}
                             </div>
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
@@ -592,6 +837,9 @@ export default function HomepageEditPage() {
                               </div>
                             </div>
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
@@ -647,6 +895,9 @@ export default function HomepageEditPage() {
                               ))}
                             </div>
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
@@ -669,6 +920,9 @@ export default function HomepageEditPage() {
                               onChange={(e) => updateValue(`upcomingEvents_subtitle_${editLang}`, e.target.value)}
                             />
                           </div>
+
+                          {/* ── Section Typography ── */}
+                          <SectionTypography sectionId={section.id} values={values} onUpdate={updateValue} />
                         </div>
                       )}
 
