@@ -8,6 +8,7 @@ import Testimonials from '@/components/Testimonials';
 import GalleryGrid from '@/components/GalleryGrid';
 import { FiUsers, FiGlobe, FiMessageCircle, FiHeart, FiStar, FiZap } from 'react-icons/fi';
 import { fetchAbout, fetchSettings, type AboutSection, type AboutData } from '@/services/api';
+import { useSectionStyle } from '@/context/SettingsContext';
 
 const iconMap: Record<string, any> = {
   users: FiUsers,
@@ -51,8 +52,10 @@ function AboutHero({ settings, langSuffix }: { settings: Record<string, string>;
       .catch(() => {});
   }, []);
 
+  const heroStyle = useSectionStyle('hero', 'about');
+
   return (
-    <section className="relative min-h-[70vh] flex items-center">
+    <section className="relative min-h-[70vh] flex items-center" style={heroStyle}>
       <div className="absolute inset-0 overflow-hidden">
         <video
           key={videoUrl}
@@ -122,8 +125,10 @@ function OurStory({
     show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
+  const storyStyle = useSectionStyle('story', 'about');
+
   return (
-    <SectionWrapper>
+    <SectionWrapper style={storyStyle}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <motion.div
           variants={containerVariants}
@@ -210,8 +215,10 @@ function CommunityVision({ settings, langSuffix }: { settings: Record<string, st
     };
   });
 
+  const visionStyle = useSectionStyle('vision', 'about');
+
   return (
-    <SectionWrapper className="bg-neutral-cream">
+    <SectionWrapper className="bg-neutral-cream" style={visionStyle}>
       <div className="text-center mb-16">
         <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
           {subtitle}
@@ -276,8 +283,10 @@ function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string,
     };
   });
 
+  const languageStyle = useSectionStyle('language', 'about');
+
   return (
-    <SectionWrapper>
+    <SectionWrapper style={languageStyle}>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -356,8 +365,10 @@ function Differentiators({ settings, langSuffix }: { settings: Record<string, st
     };
   });
 
+  const diffStyle = useSectionStyle('different', 'about');
+
   return (
-    <SectionWrapper className="bg-neutral-cream/50">
+    <SectionWrapper className="bg-neutral-cream/50" style={diffStyle}>
       <div className="text-center mb-16">
         <span className="text-primary font-heading font-semibold text-sm uppercase tracking-widest mb-4 block">
           {subtitle}
@@ -405,8 +416,10 @@ function FinalAboutCTA({ settings, langSuffix }: { settings: Record<string, stri
   const primaryText = settings[`about_cta_primary_${langSuffix}`] || t('about.cta.primary');
   const secondaryText = settings[`about_cta_secondary_${langSuffix}`] || t('about.cta.secondary');
 
+  const ctaStyle = useSectionStyle('cta', 'about');
+
   return (
-    <section className="py-24 bg-neutral-cream">
+    <section className="py-24 bg-neutral-cream" style={ctaStyle}>
       <div className="container-max px-4">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
