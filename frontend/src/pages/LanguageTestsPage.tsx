@@ -436,7 +436,7 @@ export default function LanguageTestsPage() {
               {settings[`langtests_hero_subtitle_${lang}`] || (isEs ? 'Language Level Tests' : 'Pruebas de Nivel')}
             </p>
 
-            <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10">
+            <p className="text-white/70 text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-10 whitespace-pre-line">
               {settings[`langtests_hero_desc_${lang}`] || (isEs
                 ? 'Descubre tu nivel de español o inglés con nuestras pruebas diseñadas para encontrarte donde estás y llevarte más lejos.'
                 : 'Discover your Spanish or English level with our carefully designed tests — we meet you where you are and take you further.'

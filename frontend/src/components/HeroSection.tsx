@@ -88,7 +88,7 @@ export default function HeroSection() {
 
           <motion.p
             variants={itemVariants}
-            className="text-xl sm:text-2xl text-white/95 font-body font-medium mb-10 max-w-3xl leading-relaxed drop-shadow-md"
+            className="text-xl sm:text-2xl text-white/95 font-body font-medium mb-10 max-w-3xl leading-relaxed drop-shadow-md whitespace-pre-line"
           >
             {settings[`hero_subtitle_${i18n.language.startsWith("es") ? "es" : "en"}`] || t("hero.subtitle")}
           </motion.p>

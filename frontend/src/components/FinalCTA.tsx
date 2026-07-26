@@ -34,7 +34,7 @@ export default function FinalCTA() {
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
             {t('finalCta.title')}
           </h2>
-          <p className="text-lg text-white/80 font-body max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-white/80 font-body max-w-2xl mx-auto mb-10 whitespace-pre-line">
             {t('finalCta.subtitle')}
           </p>
           <Link

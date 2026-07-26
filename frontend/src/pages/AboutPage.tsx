@@ -78,7 +78,7 @@ function AboutHero({ settings, langSuffix }: { settings: Record<string, string>;
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
             {settings[`about_hero_title_${langSuffix}`] || t('about.hero.title')}
           </h1>
-          <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-white/90 font-body mb-10 max-w-2xl mx-auto whitespace-pre-line">
             {settings[`about_hero_subtitle_${langSuffix}`] || t('about.hero.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -226,7 +226,7 @@ function CommunityVision({ settings, langSuffix }: { settings: Record<string, st
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
           {title}
         </h2>
-        <p className="text-neutral-gray font-body text-lg max-w-2xl mx-auto">
+        <p className="text-neutral-gray font-body text-lg max-w-2xl mx-auto whitespace-pre-line">
           {content}
         </p>
       </div>
@@ -249,7 +249,7 @@ function CommunityVision({ settings, langSuffix }: { settings: Record<string, st
               <h3 className="font-display text-xl font-bold text-neutral-dark mb-3">
                 {item.title}
               </h3>
-              <p className="text-neutral-gray text-sm leading-relaxed">
+              <p className="text-neutral-gray text-sm leading-relaxed whitespace-pre-line">
                 {item.description}
               </p>
             </motion.div>
@@ -315,7 +315,7 @@ function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string,
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
             {title}
           </h2>
-          <p className="text-neutral-gray font-body text-lg leading-relaxed mb-10">
+          <p className="text-neutral-gray font-body text-lg leading-relaxed mb-10 whitespace-pre-line">
             {content}
           </p>
 
@@ -336,7 +336,7 @@ function LanguageAndCulture({ settings, langSuffix }: { settings: Record<string,
                   </div>
                   <div>
                     <h4 className="font-heading font-bold text-neutral-dark">{point.title}</h4>
-                    <p className="text-neutral-gray text-sm">{point.description}</p>
+                    <p className="text-neutral-gray text-sm whitespace-pre-line">{point.description}</p>
                   </div>
                 </motion.div>
               );
@@ -396,7 +396,7 @@ function Differentiators({ settings, langSuffix }: { settings: Record<string, st
               <h3 className="font-display text-xl font-bold text-neutral-dark mb-3">
                 {item.title}
               </h3>
-              <p className="text-neutral-gray text-sm leading-relaxed">
+              <p className="text-neutral-gray text-sm leading-relaxed whitespace-pre-line">
                 {item.description}
               </p>
             </motion.div>
@@ -437,7 +437,7 @@ function FinalAboutCTA({ settings, langSuffix }: { settings: Record<string, stri
             <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6">
               {title}
             </h2>
-            <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-body mb-12 leading-relaxed max-w-3xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl md:text-2xl text-white/90 font-body mb-12 leading-relaxed max-w-3xl mx-auto font-medium whitespace-pre-line">
               {description}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">

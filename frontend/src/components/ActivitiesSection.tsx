@@ -64,7 +64,7 @@ export default function ActivitiesSection() {
               <h3 className="font-heading font-semibold text-lg text-neutral-dark mb-3">
                 {item.title}
               </h3>
-              <p className="text-neutral-gray font-body text-sm leading-relaxed">
+              <p className="text-neutral-gray font-body text-sm leading-relaxed whitespace-pre-line">
                 {item.description}
               </p>
             </motion.div>

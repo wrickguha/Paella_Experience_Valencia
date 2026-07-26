@@ -293,7 +293,7 @@ export default function TestimonialsPage() {
             <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6">
               {heroTitle}
             </h1>
-            <p className="text-lg sm:text-xl text-gray-300 font-light max-w-2xl mx-auto leading-relaxed mb-8">
+            <p className="text-lg sm:text-xl text-gray-300 font-light max-w-2xl mx-auto leading-relaxed mb-8 whitespace-pre-line">
               {heroSubtitle}
             </p>
 
@@ -333,7 +333,7 @@ export default function TestimonialsPage() {
             <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
               {writtenTitle}
             </h2>
-            <p className="text-neutral-gray max-w-xl mx-auto text-sm sm:text-base">
+            <p className="text-neutral-gray max-w-xl mx-auto text-sm sm:text-base whitespace-pre-line">
               {writtenSubtitle}
             </p>
           </div>
@@ -416,7 +416,7 @@ export default function TestimonialsPage() {
                           </span>
                         </div>
 
-                        <p className="text-neutral-dark font-body text-sm leading-relaxed mb-6 italic text-neutral-800">
+                        <p className="text-neutral-dark font-body text-sm leading-relaxed mb-6 italic text-neutral-800 whitespace-pre-line">
                           "{item.review}"
                         </p>
                       </div>
@@ -498,7 +498,7 @@ export default function TestimonialsPage() {
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-primary mb-4">
                     Thank you!
                   </h3>
-                  <p className="text-neutral-gray font-body max-w-md mx-auto leading-relaxed">
+                  <p className="text-neutral-gray font-body max-w-md mx-auto leading-relaxed whitespace-pre-line">
                     {formSuccess}
                   </p>
                   <button
@@ -525,7 +525,7 @@ export default function TestimonialsPage() {
                     <h3 className="font-display text-2xl sm:text-3xl font-bold text-primary mb-2">
                       {formTitle}
                     </h3>
-                    <p className="text-neutral-gray text-sm sm:text-base font-light">
+                    <p className="text-neutral-gray text-sm sm:text-base font-light whitespace-pre-line">
                       {formSubtitle}
                     </p>
                   </div>

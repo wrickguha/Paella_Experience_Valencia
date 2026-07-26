@@ -43,7 +43,7 @@ export default function IntroSection() {
             {t("intro.title")}
           </h2>
           
-          <p className="text-xl sm:text-2xl lg:text-3xl text-neutral-gray font-body font-medium leading-relaxed max-w-3xl mx-auto">
+          <p className="text-xl sm:text-2xl lg:text-3xl text-neutral-gray font-body font-medium leading-relaxed max-w-3xl mx-auto whitespace-pre-line">
             {t("intro.subtitle")}
           </p>
         </motion.div>

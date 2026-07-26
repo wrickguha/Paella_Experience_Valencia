@@ -47,7 +47,7 @@ export default function ContactPage() {
           <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
             {t('contact.title')}
           </h1>
-          <p className="text-lg text-neutral-gray font-body">{t('contact.subtitle')}</p>
+          <p className="text-lg text-neutral-gray font-body whitespace-pre-line">{t('contact.subtitle')}</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto items-stretch">

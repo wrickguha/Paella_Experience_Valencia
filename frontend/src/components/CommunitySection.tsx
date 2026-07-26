@@ -82,7 +82,7 @@ export default function CommunitySection() {
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {sectionTitle}
         </h2>
-        <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
+        <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto whitespace-pre-line">
           {sectionSubtitle}
         </p>
       </div>
@@ -109,7 +109,7 @@ export default function CommunitySection() {
               <h3 className="font-heading font-semibold text-xl text-neutral-dark mb-3">
                 {cardTitles[index]}
               </h3>
-              <p className="text-neutral-gray font-body text-sm leading-relaxed">
+              <p className="text-neutral-gray font-body text-sm leading-relaxed whitespace-pre-line">
                 {cardDescs[index]}
               </p>
             </div>

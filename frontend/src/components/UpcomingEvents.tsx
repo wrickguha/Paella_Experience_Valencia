@@ -220,7 +220,7 @@ export default function UpcomingEvents() {
           <h2 className="font-display text-3xl sm:text-4xl font-bold text-neutral-dark mb-2">
             {sectionTitle}
           </h2>
-          <p className="text-neutral-gray font-body max-w-lg">
+          <p className="text-neutral-gray font-body max-w-lg whitespace-pre-line">
             {sectionSubtitle}
           </p>
         </div>

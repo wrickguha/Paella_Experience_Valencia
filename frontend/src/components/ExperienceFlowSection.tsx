@@ -41,7 +41,7 @@ export default function ExperienceFlowSection() {
                 <h3 className="font-heading font-bold text-2xl mb-3 text-accent">
                   {step.title}
                 </h3>
-                <p className="text-white/70 font-body text-lg leading-relaxed">
+                <p className="text-white/70 font-body text-lg leading-relaxed whitespace-pre-line">
                   {step.description}
                 </p>
               </div>

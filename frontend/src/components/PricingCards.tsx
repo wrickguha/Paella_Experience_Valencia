@@ -20,7 +20,7 @@ export default function PricingCards() {
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {t('pricing.title')}
         </h2>
-        <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
+        <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto whitespace-pre-line">
           {t('pricing.subtitle')}
         </p>
       </div>
@@ -50,7 +50,7 @@ export default function PricingCards() {
               <h3 className="font-heading font-semibold text-xl text-neutral-dark mb-2">
                 {pkg.name}
               </h3>
-              <p className="text-sm text-neutral-gray">{pkg.description}</p>
+              <p className="text-sm text-neutral-gray whitespace-pre-line">{pkg.description}</p>
             </div>
 
             <div className="text-center mb-6">

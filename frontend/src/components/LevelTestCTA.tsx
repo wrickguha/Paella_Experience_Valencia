@@ -53,7 +53,7 @@ export default function LevelTestCTA() {
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-neutral-gray font-body text-base sm:text-lg max-w-xl mx-auto leading-relaxed"
+          className="text-neutral-gray font-body text-base sm:text-lg max-w-xl mx-auto leading-relaxed whitespace-pre-line"
         >
           {descText}
         </motion.p>

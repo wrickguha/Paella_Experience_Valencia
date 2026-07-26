@@ -141,7 +141,7 @@ export default function VideoTestimonialsSection() {
           {sectionTitle}
         </h2>
         {sectionSubtitle && (
-          <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto whitespace-pre-line">
             {sectionSubtitle}
           </p>
         )}

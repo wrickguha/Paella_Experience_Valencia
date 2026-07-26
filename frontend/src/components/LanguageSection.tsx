@@ -23,7 +23,7 @@ export default function LanguageSection() {
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-6">
             {t('language.title')}
           </h2>
-          <p className="text-xl text-neutral-gray font-body mb-10 leading-relaxed">
+          <p className="text-xl text-neutral-gray font-body mb-10 leading-relaxed whitespace-pre-line">
             {t('language.subtitle')}
           </p>
 

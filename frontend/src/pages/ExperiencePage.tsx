@@ -355,10 +355,10 @@ function LocationsIntro({
             {title}
           </h2>
           <div className="space-y-6 max-w-3xl mx-auto">
-            <p className="text-xl sm:text-2xl text-neutral-dark font-body leading-relaxed font-medium">
+            <p className="text-xl sm:text-2xl text-neutral-dark font-body leading-relaxed font-medium whitespace-pre-line">
               {desc1}
             </p>
-            <p className="text-lg sm:text-xl text-neutral-gray font-body leading-relaxed">
+            <p className="text-lg sm:text-xl text-neutral-gray font-body leading-relaxed whitespace-pre-line">
               {desc2}
             </p>
           </div>
@@ -490,7 +490,7 @@ export default function ExperiencePage() {
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
                     {cityTitle}
                   </h3>
-                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm">
+                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm whitespace-pre-line">
                     {cityDesc}
                   </p>
                 </div>
@@ -523,7 +523,7 @@ export default function ExperiencePage() {
                   <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
                     {countryTitle}
                   </h3>
-                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm">
+                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm whitespace-pre-line">
                     {countryDesc}
                   </p>
                 </div>
@@ -576,7 +576,7 @@ export default function ExperiencePage() {
                       }
                     </h3>
                     {!selectedLocation && (
-                      <p className="text-neutral-gray text-xs font-body mt-0.5">
+                      <p className="text-neutral-gray text-xs font-body mt-0.5 whitespace-pre-line">
                         {activeCategory === 'city'
                           ? cityDesc
                           : countryDesc

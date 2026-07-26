@@ -25,7 +25,7 @@ export default function FAQSection() {
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {t('faq.title')}
         </h2>
-        <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto">
+        <p className="text-lg text-neutral-gray font-body max-w-2xl mx-auto whitespace-pre-line">
           {t('faq.subtitle')}
         </p>
       </div>
@@ -70,7 +70,7 @@ export default function FAQSection() {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <p className="px-6 pb-6 text-neutral-gray font-body text-sm leading-relaxed">
+                    <p className="px-6 pb-6 text-neutral-gray font-body text-sm leading-relaxed whitespace-pre-line">
                       {item.answer}
                     </p>
                   </motion.div>
