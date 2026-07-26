@@ -21,7 +21,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [filter, setFilter] = useState<LocationFilter>('all');
-  const [hasNavigatedBack, setHasNavigatedBack] = useState(false);
+  const [hasUserNavigated, setHasUserNavigated] = useState(false);
 
   const monthNames = t('booking.calendar.monthNames', { returnObjects: true }) as string[];
   const dayNames = t('booking.calendar.dayNames', { returnObjects: true }) as string[];
@@ -30,7 +30,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
 
   // Automatically advance to the next month if there are no upcoming events in the current month
   useEffect(() => {
-    if (loading || hasNavigatedBack) return;
+    if (loading || hasUserNavigated) return;
 
     const todayStr = today.toISOString().slice(0, 10);
     // Filter events to only future/today events if it's the current month, or all events if it's a future month
@@ -55,7 +55,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
         }
       }
     }
-  }, [allEvents, loading, viewYear, viewMonth, today, hasNavigatedBack]);
+  }, [allEvents, loading, viewYear, viewMonth, today, hasUserNavigated]);
 
   // Derive unique locations from events for filters and legend
   const locationMetadata = useMemo(() => {
@@ -139,7 +139,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
   }, [daysInMonth, firstDayOfWeek, eventsByDate, today, viewYear, viewMonth]);
 
   const prevMonth = useCallback(() => {
-    setHasNavigatedBack(true);
+    setHasUserNavigated(true);
     if (viewMonth === 0) {
       setViewYear((y) => y - 1);
       setViewMonth(11);
@@ -149,7 +149,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
   }, [viewMonth]);
 
   const nextMonth = useCallback(() => {
-    setHasNavigatedBack(false);
+    setHasUserNavigated(true);
     if (viewMonth === 11) {
       setViewYear((y) => y + 1);
       setViewMonth(0);
