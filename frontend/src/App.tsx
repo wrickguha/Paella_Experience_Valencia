@@ -63,7 +63,13 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage'));
 const LanguageTestsPage = lazy(() => import('@/pages/LanguageTestsPage'));
 
-function LoadingFallback({ tagline = 'Speak. Cook. Connect' }: { tagline?: string }) {
+function LoadingFallback({ 
+  taglineEn = 'Speak. Cook. Connect',
+  taglineEs = 'Habla. Cocina. Conecta',
+}: { 
+  taglineEn?: string;
+  taglineEs?: string;
+}) {
   return (
     <div
       style={{
@@ -162,26 +168,54 @@ function LoadingFallback({ tagline = 'Speak. Cook. Connect' }: { tagline?: strin
           color: '#f4a261',
           letterSpacing: '0.02em',
           lineHeight: 1,
-          marginBottom: 6,
+          marginBottom: 8,
           animation: 'fade-up 0.8s ease-out both',
           textShadow: '0 2px 20px rgba(244,162,97,0.4)',
         }}>
           SpeakEasy Valencia
         </div>
 
-        {/* Tagline */}
-        <p style={{
-          fontFamily: 'var(--site-font-family)',
-          fontSize: 13,
-          fontWeight: 500,
-          color: 'rgba(255,255,255,0.55)',
-          letterSpacing: '0.25em',
-          textTransform: 'uppercase',
-          marginBottom: 44,
+        {/* Dual Taglines (English & Spanish) */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 6,
+          marginBottom: 38,
           animation: 'fade-up 0.8s 0.2s ease-out both',
         }}>
-          {tagline}
-        </p>
+          <p style={{
+            fontFamily: 'var(--site-font-family)',
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.9)',
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}>
+            {taglineEn}
+          </p>
+
+          <div style={{
+            width: 32,
+            height: 1,
+            background: 'linear-gradient(90deg, transparent, rgba(244,162,97,0.6), transparent)',
+            margin: '2px 0',
+          }} />
+
+          <p style={{
+            fontFamily: 'var(--site-font-family)',
+            fontSize: 12,
+            fontWeight: 500,
+            color: '#f4a261',
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            margin: 0,
+            opacity: 0.95,
+          }}>
+            {taglineEs}
+          </p>
+        </div>
 
         {/* Progress bar */}
         <div style={{
@@ -268,14 +302,22 @@ const FADE_MS   = 500;  // fade-out duration in ms
  * This eliminates layout-shift glitches from the old approach.
  */
 function SplashGate({ children }: { children: React.ReactNode }) {
-  const [fading,  setFading]  = useState(false);
-  const [gone,    setGone]    = useState(false);
-  const [tagline, setTagline] = useState('Speak. Cook. Connect');
+  const [fading,    setFading]    = useState(false);
+  const [gone,      setGone]      = useState(false);
+  const [taglineEn, setTaglineEn] = useState('Speak. Cook. Connect');
+  const [taglineEs, setTaglineEs] = useState('Habla. Cocina. Conecta');
 
   useEffect(() => {
     fetchSettings('general')
       .then((s) => {
-        if (s.hero_tagline) setTagline(s.hero_tagline);
+        if (s.hero_tagline_en) {
+          setTaglineEn(s.hero_tagline_en);
+        } else if (s.hero_tagline) {
+          setTaglineEn(s.hero_tagline);
+        }
+        if (s.hero_tagline_es) {
+          setTaglineEs(s.hero_tagline_es);
+        }
       })
       .catch(() => {});
   }, []);
@@ -308,7 +350,7 @@ function SplashGate({ children }: { children: React.ReactNode }) {
             pointerEvents: fading ? 'none' : 'all',
           }}
         >
-          <LoadingFallback tagline={tagline} />
+          <LoadingFallback taglineEn={taglineEn} taglineEs={taglineEs} />
         </div>
       )}
     </>

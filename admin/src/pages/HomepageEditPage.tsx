@@ -507,18 +507,42 @@ export default function HomepageEditPage() {
                             </div>
                           </div>
 
-                          <FormInput
-                            label="Splash Screen Tagline"
-                            value={values.hero_tagline || ''}
-                            onChange={(e) => updateValue('hero_tagline', e.target.value)}
-                            placeholder="e.g. Speak. Cook. Connect"
-                          />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormInput
+                              label="Splash Screen Tagline (English)"
+                              value={values.hero_tagline_en || values.hero_tagline || ''}
+                              onChange={(e) => {
+                                updateValue('hero_tagline_en', e.target.value);
+                                updateValue('hero_tagline', e.target.value);
+                              }}
+                              placeholder="e.g. Speak. Cook. Connect"
+                            />
+                            <FormInput
+                              label="Splash Screen Tagline (Spanish)"
+                              value={values.hero_tagline_es || ''}
+                              onChange={(e) => updateValue('hero_tagline_es', e.target.value)}
+                              placeholder="e.g. Habla. Cocina. Conecta"
+                            />
+                          </div>
 
                           <div className="bg-gray-50/50 p-5 sm:p-6 rounded-2xl border border-gray-100 space-y-4">
                             <h4 className="text-sm font-bold text-primary flex items-center gap-1.5 mb-2">
                               <span>{editLang === 'en' ? '🇺🇸' : '🇪🇸'}</span>
                               Hero Content ({editLang.toUpperCase()})
                             </h4>
+                            <FormInput
+                              label={`Splash Screen Tagline (${editLang.toUpperCase()})`}
+                              value={editLang === 'en' ? (values.hero_tagline_en || values.hero_tagline || '') : (values.hero_tagline_es || '')}
+                              onChange={(e) => {
+                                if (editLang === 'en') {
+                                  updateValue('hero_tagline_en', e.target.value);
+                                  updateValue('hero_tagline', e.target.value);
+                                } else {
+                                  updateValue('hero_tagline_es', e.target.value);
+                                }
+                              }}
+                              placeholder={editLang === 'en' ? 'e.g. Speak. Cook. Connect' : 'e.g. Habla. Cocina. Conecta'}
+                            />
                             <FormInput
                               label="Hero Title"
                               value={values[`hero_title_${editLang}`] || ''}
