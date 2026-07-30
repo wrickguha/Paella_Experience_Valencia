@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import SectionWrapper from './SectionWrapper';
-import { fetchSettings } from '@/services/api';
+import { fetchSettings, joinLanguageSession, trackLead } from '@/services/api';
 
 type QuizState = 'intro' | 'quiz' | 'result';
 
@@ -18,6 +18,374 @@ export interface LevelTestCardProps {
   settings?: Record<string, string>;
 }
 
+// ── Modal Form before Quiz ──────────────────────────────────────────────────
+interface LevelTestFormModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  lang: 'es' | 'en';
+  settings?: Record<string, string>;
+}
+
+export function LevelTestFormModal({ isOpen, onClose, onSuccess, lang, settings = {} }: LevelTestFormModalProps) {
+  const { i18n } = useTranslation();
+  const isEs = i18n.language.startsWith('es');
+
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  // Audio state
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [audioPreviewUrl, setAudioPreviewUrl] = useState<string | null>(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [uploadMode, setUploadMode] = useState<'upload' | 'record' | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<any>(null);
+
+  const formatTime = (sec: number) => {
+    const mins = Math.floor(sec / 60);
+    const secs = sec % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  const startRecording = async () => {
+    setError('');
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks: Blob[] = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        const file = new File([blob], 'introduction.webm', { type: 'audio/webm' });
+        setAudioFile(file);
+        setAudioPreviewUrl(URL.createObjectURL(blob));
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+      timerRef.current = setInterval(() => {
+        setRecordingTime((t) => t + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Mic access error:', err);
+      setError(isEs ? 'No se pudo acceder al micrófono. Por favor, comprueba los permisos.' : 'Could not access microphone. Please check permissions.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 20 * 1024 * 1024) {
+        setError(isEs ? 'El archivo es demasiado grande (máx 20MB).' : 'File is too large (max 20MB).');
+        return;
+      }
+      setAudioFile(file);
+      setAudioPreviewUrl(URL.createObjectURL(file));
+      setError('');
+    }
+  };
+
+  const removeAudio = () => {
+    setAudioFile(null);
+    setAudioPreviewUrl(null);
+    setUploadMode(null);
+    setIsRecording(false);
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      setError(isEs ? 'Por favor introduce tu nombre.' : 'Please enter your name.');
+      return;
+    }
+    if (!email.trim()) {
+      setError(isEs ? 'Por favor introduce tu correo electrónico.' : 'Please enter your email address.');
+      return;
+    }
+    if (!audioFile) {
+      setError(isEs ? 'La introducción por voz es obligatoria.' : 'Voice introduction is mandatory.');
+      return;
+    }
+
+    setSubmitting(true);
+    setError('');
+    try {
+      await joinLanguageSession({
+        name: name.trim(),
+        email: email.trim(),
+        language_type: lang === 'es' ? 'spanish' : 'english',
+        audio: audioFile,
+      });
+      await trackLead({
+        source: 'language_join',
+        name: name.trim(),
+        email: email.trim(),
+        metadata: {
+          test_language: lang,
+          from: 'level-test-modal',
+          has_audio: true,
+        },
+      });
+      onSuccess();
+    } catch (err) {
+      console.error('Submission error:', err);
+      setError(isEs ? 'Error al enviar la información. Por favor, inténtalo de nuevo.' : 'Failed to send information. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          className="bg-white rounded-3xl shadow-2xl overflow-hidden w-full max-w-xl relative my-8 border border-neutral-sand/40 text-left"
+        >
+          {/* Header */}
+          <div className="bg-gradient-to-r from-primary to-primary-light px-8 py-8 text-center relative">
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors text-xl font-bold"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+            <span className="text-5xl mb-3 block">🎓</span>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              {settings[`langtests_cta_title_${isEs ? 'es' : 'en'}`] || (isEs ? '¿Quieres descubrir tu nivel?' : 'Want to discover your level?')}
+            </h2>
+            <p className="text-white/80 text-sm max-w-md mx-auto">
+              {settings[`langtests_cta_subtitle_${isEs ? 'es' : 'en'}`] || (isEs
+                ? 'Déjanos tus datos y te ayudamos a encontrar el programa perfecto para ti.'
+                : 'Leave your details and we\'ll help find the perfect programme for you.'
+              )}
+            </p>
+          </div>
+
+          {/* Body Form */}
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">
+                  {isEs ? 'Tu nombre' : 'Your name'} *
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={isEs ? 'Nombre completo' : 'Full name'}
+                  required
+                  className="input-base"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-primary mb-1.5">
+                  {isEs ? 'Correo electrónico' : 'Email address'} *
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  className="input-base"
+                />
+              </div>
+            </div>
+
+            {/* Mandatory Audio Introduction */}
+            <div className="border border-neutral-sand/60 rounded-2xl p-4 bg-gray-50/50">
+              <label className="block text-sm font-semibold text-primary mb-1.5 flex items-center gap-1">
+                <span>{isEs ? 'Añade tu introducción por voz' : 'Add your voice introduction'}</span>
+                <span className="text-red-500 font-bold">*</span>
+              </label>
+              <p className="text-xs text-neutral-gray mb-3.5 leading-relaxed">
+                {isEs
+                  ? 'Graba o sube una breve introducción hablando en el idioma que quieres practicar. Es obligatoria para comenzar la prueba.'
+                  : 'Record or upload a short voice introduction speaking the language you want to practice. Required to start the test.'}
+              </p>
+
+              {/* Action Buttons if no audio uploaded/recorded */}
+              {!audioPreviewUrl && !uploadMode && (
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setUploadMode('record')}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/20 bg-white text-primary hover:bg-primary/5 font-semibold text-sm transition-all shadow-sm"
+                  >
+                    <span>🎙️</span> {isEs ? 'Grabar voz directamente' : 'Record directly'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUploadMode('upload')}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-primary/20 bg-white text-primary hover:bg-primary/5 font-semibold text-sm transition-all shadow-sm"
+                  >
+                    <span>📤</span> {isEs ? 'Subir archivo de audio' : 'Upload audio file'}
+                  </button>
+                </div>
+              )}
+
+              {/* Record Mode */}
+              {uploadMode === 'record' && !audioPreviewUrl && (
+                <div className="flex flex-col items-center py-4 bg-white rounded-xl border border-neutral-sand/30 shadow-sm p-4">
+                  {isRecording ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping inline-block" />
+                        <span className="text-sm font-semibold text-red-600 tracking-wide font-mono">
+                          {isEs ? 'GRABANDO' : 'RECORDING'} ({formatTime(recordingTime)})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={stopRecording}
+                        className="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-full text-sm flex items-center gap-2 transition-all shadow-md"
+                      >
+                        ⏹️ {isEs ? 'Parar grabación' : 'Stop Recording'}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-3">
+                      <p className="text-xs text-neutral-gray">{isEs ? 'Pulsa el botón para iniciar tu micrófono' : 'Click the button to start your microphone'}</p>
+                      <div className="flex gap-2.5">
+                        <button
+                          type="button"
+                          onClick={startRecording}
+                          className="bg-primary hover:bg-primary-light text-white font-bold py-2.5 px-5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md"
+                        >
+                          🎙️ {isEs ? 'Iniciar Grabación' : 'Start Recording'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={removeAudio}
+                          className="border border-gray-200 text-neutral-gray font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-gray-50 transition-all"
+                        >
+                          {isEs ? 'Atrás' : 'Back'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Upload Mode */}
+              {uploadMode === 'upload' && !audioPreviewUrl && (
+                <div className="flex flex-col items-center py-4 bg-white rounded-xl border border-neutral-sand/30 shadow-sm p-4">
+                  <p className="text-xs text-neutral-gray mb-3">{isEs ? 'Selecciona un archivo MP3, WAV, M4A o OGG' : 'Select an MP3, WAV, M4A, or OGG file'}</p>
+                  <div className="flex gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="bg-primary hover:bg-primary-light text-white font-bold py-2.5 px-5 rounded-xl text-sm flex items-center gap-2 transition-all shadow-md"
+                    >
+                      📁 {isEs ? 'Seleccionar archivo' : 'Select File'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={removeAudio}
+                      className="border border-gray-200 text-neutral-gray font-bold py-2.5 px-4 rounded-xl text-sm hover:bg-gray-50 transition-all"
+                    >
+                      {isEs ? 'Atrás' : 'Back'}
+                    </button>
+                  </div>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="audio/mp3,audio/mpeg,audio/wav,audio/m4a,audio/ogg,audio/webm,.mp3,.wav,.m4a,.ogg"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </div>
+              )}
+
+              {/* Preview Audio */}
+              {audioPreviewUrl && (
+                <div className="bg-white rounded-xl border border-neutral-sand/30 shadow-sm p-3.5">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">🎵</span>
+                      <div>
+                        <p className="text-xs font-semibold text-primary">{isEs ? 'Introducción preparada' : 'Voice intro ready'}</p>
+                        <p className="text-[10px] text-neutral-gray truncate max-w-[180px]">
+                          {audioFile?.name || 'introduction.webm'}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={removeAudio}
+                      className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-xs font-semibold"
+                    >
+                      ❌ {isEs ? 'Eliminar' : 'Remove'}
+                    </button>
+                  </div>
+                  <audio controls src={audioPreviewUrl} className="w-full" style={{ height: 38 }} />
+                </div>
+              )}
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="btn-primary w-full shadow-md py-4 text-base font-bold flex items-center justify-center gap-2"
+            >
+              {submitting ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>{isEs ? 'Iniciando test...' : 'Starting quiz...'}</span>
+                </>
+              ) : (
+                <span>{isEs ? 'Quiero hacer mi prueba de nivel' : 'Start Level Quiz'}</span>
+              )}
+            </button>
+          </form>
+        </motion.div>
+      </div>
+    </AnimatePresence>
+  );
+}
+
 export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
   const { t, i18n } = useTranslation();
   const isSpanish = lang === 'es';
@@ -25,6 +393,7 @@ export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
   const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
 
   const [quizState, setQuizState] = useState<QuizState>('intro');
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [score, setScore] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -42,7 +411,12 @@ export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
   }
   const totalQuestions = questions ? questions.length : 0;
 
-  const handleStart = () => {
+  const handleStartQuizClick = () => {
+    setIsFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    setIsFormOpen(false);
     setQuizState('quiz');
     setCurrentQuestionIndex(0);
     setScore(0);
@@ -88,6 +462,15 @@ export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
 
   return (
     <div className="w-full min-h-[400px] flex items-stretch">
+      {/* Modal form triggered before starting quiz */}
+      <LevelTestFormModal
+        isOpen={isFormOpen}
+        onClose={() => setIsFormOpen(false)}
+        onSuccess={handleFormSuccess}
+        lang={lang}
+        settings={settings}
+      />
+
       <AnimatePresence mode="wait">
         {/* INTRO STATE */}
         {quizState === 'intro' && (
@@ -111,7 +494,7 @@ export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
             </div>
             <div>
               <button
-                onClick={handleStart}
+                onClick={handleStartQuizClick}
                 className="bg-primary hover:bg-primary-hover text-white font-heading font-semibold text-lg px-8 py-4 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-md"
               >
                 {settings[`${i18nKeyPrefix}_startBtn_${langSuffix}`] || t(`${i18nKeyPrefix}.startBtn`)}
@@ -212,7 +595,7 @@ export function LevelTestCard({ lang, settings = {} }: LevelTestCardProps) {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
-                onClick={handleStart}
+                onClick={handleStartQuizClick}
                 className="px-6 py-3 rounded-xl font-heading font-semibold text-neutral-dark hover:bg-neutral-cream transition-colors"
               >
                 {t(`${i18nKeyPrefix}.retakeBtn`)}
@@ -253,3 +636,4 @@ export default function SpanishLevelTest() {
     </SectionWrapper>
   );
 }
+
