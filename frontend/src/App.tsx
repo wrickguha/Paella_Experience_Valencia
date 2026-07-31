@@ -154,7 +154,7 @@ function LoadingFallback({
           position: 'relative',
         }}>
           <img
-            src="/speakeasylogo.jpeg"
+            src="/speakeasylogo1.jpeg"
             alt="SpeakEasy Valencia Logo"
             style={{
               width: '100%',
