@@ -13,7 +13,7 @@ export default function Footer() {
   useEffect(() => {
     fetchSettings()
       .then(setSettings)
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
@@ -50,7 +50,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
-              <img src="/speakeasylogo.jpeg" alt="SpeakEasy Valencia Logo" className="w-16 h-16 object-cover rounded-xl" />
+              <img src="/speakeasylogo.jpeg" alt="SpeakEasy Valencia Logo" className="w-20 h-20 object-cover rounded-xl" />
               <span className="font-script text-3xl font-bold">SpeakEasy Valencia</span>
             </div>
             <p className="text-gray-400 text-sm leading-relaxed">
