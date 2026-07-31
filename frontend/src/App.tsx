@@ -33,7 +33,7 @@ async function loadTypographySettings() {
   try {
     const settings = await fetchSettings('typography');
     const fontFamily = settings.typography_font_family || 'Montserrat';
-    const fontSize   = parseInt(settings.typography_font_size || '16', 10) || 16;
+    const fontSize = parseInt(settings.typography_font_size || '16', 10) || 16;
     loadGoogleFont(fontFamily);
     applyTypography(fontFamily, fontSize);
   } catch {
@@ -63,10 +63,10 @@ const TermsOfServicePage = lazy(() => import('@/pages/TermsOfServicePage'));
 const CookiePolicyPage = lazy(() => import('@/pages/CookiePolicyPage'));
 const LanguageTestsPage = lazy(() => import('@/pages/LanguageTestsPage'));
 
-function LoadingFallback({ 
+function LoadingFallback({
   taglineEn = 'Speak. Cook. Connect',
   taglineEs = 'Habla. Cocina. Conecta',
-}: { 
+}: {
   taglineEn?: string;
   taglineEs?: string;
 }) {
@@ -116,14 +116,14 @@ function LoadingFallback({
 
       {/* Floating food particles */}
       {[
-        { emoji: '🥘', x: '12%', y: '20%', delay: '0s',   dur: '6s',  size: 28 },
-        { emoji: '🍷', x: '82%', y: '15%', delay: '1.2s', dur: '7s',  size: 24 },
-        { emoji: '🫒', x: '70%', y: '75%', delay: '0.6s', dur: '8s',  size: 20 },
-        { emoji: '🌿', x: '18%', y: '72%', delay: '2s',   dur: '9s',  size: 22 },
-        { emoji: '🧅', x: '88%', y: '48%', delay: '1.8s', dur: '6.5s',size: 18 },
-        { emoji: '🥄', x: '6%',  y: '50%', delay: '0.4s', dur: '7.5s',size: 20 },
-        { emoji: '🌶️', x: '55%', y: '8%',  delay: '1.5s', dur: '8.5s',size: 22 },
-        { emoji: '🧆', x: '38%', y: '85%', delay: '0.9s', dur: '7s',  size: 20 },
+        { emoji: '🥘', x: '12%', y: '20%', delay: '0s', dur: '6s', size: 28 },
+        { emoji: '🍷', x: '82%', y: '15%', delay: '1.2s', dur: '7s', size: 24 },
+        { emoji: '🫒', x: '70%', y: '75%', delay: '0.6s', dur: '8s', size: 20 },
+        { emoji: '🌿', x: '18%', y: '72%', delay: '2s', dur: '9s', size: 22 },
+        { emoji: '🧅', x: '88%', y: '48%', delay: '1.8s', dur: '6.5s', size: 18 },
+        { emoji: '🥄', x: '6%', y: '50%', delay: '0.4s', dur: '7.5s', size: 20 },
+        { emoji: '🌶️', x: '55%', y: '8%', delay: '1.5s', dur: '8.5s', size: 22 },
+        { emoji: '🧆', x: '38%', y: '85%', delay: '0.9s', dur: '7s', size: 20 },
       ].map((p, i) => (
         <div
           key={i}
@@ -147,22 +147,24 @@ function LoadingFallback({
 
         {/* Logo plate */}
         <div style={{
-          width: 90, height: 90,
-          borderRadius: '50%',
-          background: 'rgba(255,255,255,0.07)',
-          backdropFilter: 'blur(8px)',
-          border: '1.5px solid rgba(244,162,97,0.35)',
+          width: 160, height: 160,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 28,
-          boxShadow: '0 0 40px rgba(244,162,97,0.25), inset 0 0 20px rgba(255,255,255,0.04)',
-          animation: 'logo-pulse 3s ease-in-out infinite',
+          marginBottom: 24,
           overflow: 'hidden',
-          padding: 4,
+          position: 'relative',
         }}>
           <img
             src="/speakeasylogo.jpeg"
             alt="SpeakEasy Valencia Logo"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              transform: 'translate(-2.2%, 3.1%) scale(1.5)',
+              transformOrigin: 'center center',
+              borderRadius: '50%',
+              display: 'block',
+            }}
           />
         </div>
 
@@ -299,7 +301,7 @@ function LoadingFallback({
 
 
 const SPLASH_MS = 3000; // minimum splash display time in ms
-const FADE_MS   = 500;  // fade-out duration in ms
+const FADE_MS = 500;  // fade-out duration in ms
 
 /**
  * Renders children immediately (painted behind the overlay),
@@ -307,8 +309,8 @@ const FADE_MS   = 500;  // fade-out duration in ms
  * This eliminates layout-shift glitches from the old approach.
  */
 function SplashGate({ children }: { children: React.ReactNode }) {
-  const [fading,    setFading]    = useState(false);
-  const [gone,      setGone]      = useState(false);
+  const [fading, setFading] = useState(false);
+  const [gone, setGone] = useState(false);
   const [taglineEn, setTaglineEn] = useState('Speak. Cook. Connect');
   const [taglineEs, setTaglineEs] = useState('Habla. Cocina. Conecta');
 
@@ -324,14 +326,14 @@ function SplashGate({ children }: { children: React.ReactNode }) {
           setTaglineEs(s.hero_tagline_es);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
     // After minimum display time → start fade-out
     const fadeTimer = setTimeout(() => setFading(true), SPLASH_MS);
     // After fade completes → remove overlay entirely
-    const goneTimer = setTimeout(() => setGone(true),  SPLASH_MS + FADE_MS);
+    const goneTimer = setTimeout(() => setGone(true), SPLASH_MS + FADE_MS);
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(goneTimer);
@@ -388,33 +390,33 @@ export default function App() {
     <BrowserRouter>
       <SplashGate>
         <SettingsProvider>
-        <AuthProvider>
-          <AuthGate>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/experience" element={<ExperiencePage />} />
-                <Route path="/booking" element={<BookingPage />} />
-                <Route path="/payment" element={<PaymentPage />} />
-                <Route path="/payment/success" element={<PaymentReturnPage />} />
-                <Route path="/payment/stripe/success" element={<StripeReturnPage />} />
-                <Route path="/payment/cancel" element={<PaymentCancelPage />} />
-                <Route path="/contact" element={<ContactPage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/testimonials" element={<TestimonialsPage />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-                <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-                <Route path="/cookie-policy" element={<CookiePolicyPage />} />
-                <Route path="/language-tests" element={<LanguageTestsPage />} />
-                <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
-                <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
-                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-              </Route>
-            </Routes>
-          </Suspense>
-          </AuthGate>
-        </AuthProvider>
+          <AuthProvider>
+            <AuthGate>
+              <Suspense fallback={<LoadingFallback />}>
+                <Routes>
+                  <Route element={<MainLayout />}>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/experience" element={<ExperiencePage />} />
+                    <Route path="/booking" element={<BookingPage />} />
+                    <Route path="/payment" element={<PaymentPage />} />
+                    <Route path="/payment/success" element={<PaymentReturnPage />} />
+                    <Route path="/payment/stripe/success" element={<StripeReturnPage />} />
+                    <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/testimonials" element={<TestimonialsPage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                    <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+                    <Route path="/language-tests" element={<LanguageTestsPage />} />
+                    <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+                    <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                  </Route>
+                </Routes>
+              </Suspense>
+            </AuthGate>
+          </AuthProvider>
         </SettingsProvider>
       </SplashGate>
     </BrowserRouter>
