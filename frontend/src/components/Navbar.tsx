@@ -67,7 +67,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 shrink-0 mr-6">
-            <img src="/speakeasylogo.jpeg" alt="SpeakEasy Valencia Logo" className="w-12 h-12 object-cover rounded-xl" />
+            <img src="/speakeasylogo.jpeg" alt="SpeakEasy Valencia Logo" className="w-16 h-16 object-cover rounded-xl" />
             <span className="font-script text-2xl font-bold text-white tracking-wide">
               SpeakEasy Valencia
             </span>
