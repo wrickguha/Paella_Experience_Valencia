@@ -156,9 +156,14 @@ function LoadingFallback({
           marginBottom: 28,
           boxShadow: '0 0 40px rgba(244,162,97,0.25), inset 0 0 20px rgba(255,255,255,0.04)',
           animation: 'logo-pulse 3s ease-in-out infinite',
+          overflow: 'hidden',
+          padding: 4,
         }}>
-          {/* Paella pan icon */}
-          <span style={{ fontSize: 42, lineHeight: 1, animation: 'icon-spin 12s linear infinite' }}>🥘</span>
+          <img
+            src="/speakeasylogo.jpeg"
+            alt="SpeakEasy Valencia Logo"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          />
         </div>
 
         {/* Brand name */}
