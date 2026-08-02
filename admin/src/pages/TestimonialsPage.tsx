@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Pencil, Trash2, Star, MessageSquareQuote } from 'lucide-react';
+import { Plus, Pencil, Trash2, Star, MessageSquareQuote, Check } from 'lucide-react';
 import { testimonialsApi } from '@/services/api';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
 import DataTable, { Pagination } from '@/components/DataTable';
@@ -49,6 +49,13 @@ export default function TestimonialsPage() {
 
   const openCreate = () => { setEditing({ ...EMPTY }); setModalOpen(true); };
   const openEdit = (t: Testimonial) => { setEditing(t); setModalOpen(true); };
+
+  const handleApprove = async (t: Testimonial) => {
+    try {
+      await testimonialsApi.update(t.id, { ...t, is_active: true });
+      fetch();
+    } catch { /* empty */ }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -111,20 +118,33 @@ export default function TestimonialsPage() {
       key: 'review_en',
       header: 'Review',
       render: (r: Testimonial) => (
-        <p className="text-sm text-neutral-gray max-w-xs truncate">{r.review_en}</p>
+        <p className="text-sm text-neutral-gray max-w-xs truncate">{r.review_en || r.review_es}</p>
       ),
     },
     {
       key: 'is_active',
       header: 'Status',
-      render: (r: Testimonial) => <Badge variant={r.is_active ? 'success' : 'default'}>{r.is_active ? 'Active' : 'Hidden'}</Badge>,
+      render: (r: Testimonial) => (
+        <Badge variant={r.is_active ? 'success' : 'warning'}>
+          {r.is_active ? 'Active' : 'Pending Approval'}
+        </Badge>
+      ),
     },
     {
       key: 'actions',
       header: '',
-      className: 'w-24',
+      className: 'w-36',
       render: (r: Testimonial) => (
-        <div className="flex gap-1">
+        <div className="flex items-center gap-1.5">
+          {!r.is_active && (
+            <button
+              onClick={() => handleApprove(r)}
+              title="Approve & Publish to Website"
+              className="px-2 py-1 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-1 transition-colors"
+            >
+              <Check className="w-3.5 h-3.5" /> Approve
+            </button>
+          )}
           <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-gray-100 text-neutral-gray hover:text-primary"><Pencil className="w-4 h-4" /></button>
           <button onClick={() => setDeleteTarget(r)} className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-gray hover:text-danger"><Trash2 className="w-4 h-4" /></button>
         </div>

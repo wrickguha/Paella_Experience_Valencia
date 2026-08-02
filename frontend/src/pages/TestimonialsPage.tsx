@@ -219,26 +219,16 @@ export default function TestimonialsPage() {
     setSubmitting(true);
     
     try {
-      const newReview = await submitTestimonial({
+      await submitTestimonial({
         name: formName,
         location: formLocation || 'Valencia, ES',
         review: formReview,
         rating: formRating,
       });
       setSubmitted(true);
-      setTestimonials((prev) => [newReview, ...prev]);
     } catch (err) {
       console.error('Failed to submit testimonial to server:', err);
-      const fallbackReview: Testimonial = {
-        id: Date.now(),
-        name: formName,
-        location: formLocation || 'Valencia, ES',
-        review: formReview,
-        rating: formRating,
-        avatar: null,
-      };
       setSubmitted(true);
-      setTestimonials((prev) => [fallbackReview, ...prev]);
     } finally {
       setSubmitting(false);
     }

@@ -10,7 +10,7 @@ class TestimonialController extends Controller
 {
     public function index()
     {
-        return Testimonial::orderBy('sort_order')->paginate(15);
+        return Testimonial::orderBy('id', 'desc')->paginate(15);
     }
 
     public function store(Request $request)

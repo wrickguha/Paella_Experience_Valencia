@@ -48,7 +48,7 @@ class TestimonialController extends Controller
             'review_en' => $validated['review'],
             'review_es' => $validated['review'],
             'rating' => (int) $validated['rating'],
-            'is_active' => true,
+            'is_active' => false,
             'sort_order' => $minOrder - 1,
         ]);
 
