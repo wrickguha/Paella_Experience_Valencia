@@ -22,6 +22,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [filter, setFilter] = useState<LocationFilter>('all');
   const [hasUserNavigated, setHasUserNavigated] = useState(false);
+  const [hasAutoSearched, setHasAutoSearched] = useState(false);
 
   const monthNames = t('booking.calendar.monthNames', { returnObjects: true }) as string[];
   const dayNames = t('booking.calendar.dayNames', { returnObjects: true }) as string[];
@@ -30,7 +31,7 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
 
   // Automatically advance to the next month if there are no upcoming events in the current month
   useEffect(() => {
-    if (loading || hasUserNavigated) return;
+    if (loading || hasUserNavigated || hasAutoSearched) return;
 
     const todayStr = today.toISOString().slice(0, 10);
     // Filter events to only future/today events if it's the current month, or all events if it's a future month
@@ -41,21 +42,29 @@ export default function AvailabilityCalendar({ onSelectDate, selectedDate }: Pro
       return true;
     });
 
-    if (!hasUpcomingEvents) {
-      // Limit automatic search to 12 months ahead to avoid infinite loops
-      const maxSearchDate = new Date(today.getFullYear(), today.getMonth() + 12, 1);
-      const currentViewDate = new Date(viewYear, viewMonth, 1);
-      
-      if (currentViewDate < maxSearchDate) {
-        if (viewMonth === 11) {
-          setViewYear((y) => y + 1);
-          setViewMonth(0);
-        } else {
-          setViewMonth((m) => m + 1);
-        }
-      }
+    if (hasUpcomingEvents) {
+      setHasAutoSearched(true);
+      return;
     }
-  }, [allEvents, loading, viewYear, viewMonth, today, hasUserNavigated]);
+
+    // Limit automatic search to 2 months ahead (e.g. current month + 2) to avoid jumping to future years when no events exist
+    const maxSearchDate = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+    const currentViewDate = new Date(viewYear, viewMonth, 1);
+
+    if (currentViewDate < maxSearchDate) {
+      if (viewMonth === 11) {
+        setViewYear((y) => y + 1);
+        setViewMonth(0);
+      } else {
+        setViewMonth((m) => m + 1);
+      }
+    } else {
+      // Reached max search limit without finding events - reset to current month/year and mark complete
+      setViewYear(today.getFullYear());
+      setViewMonth(today.getMonth());
+      setHasAutoSearched(true);
+    }
+  }, [allEvents, loading, viewYear, viewMonth, today, hasUserNavigated, hasAutoSearched]);
 
   // Derive unique locations from events for filters and legend
   const locationMetadata = useMemo(() => {
