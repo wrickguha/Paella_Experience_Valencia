@@ -202,6 +202,18 @@ export async function fetchTestimonials(lang = 'en'): Promise<Testimonial[]> {
   return res.data.data as Testimonial[];
 }
 
+export interface SubmitTestimonialPayload {
+  name: string;
+  location?: string;
+  review: string;
+  rating: number;
+}
+
+export async function submitTestimonial(data: SubmitTestimonialPayload): Promise<Testimonial> {
+  const res = await apiClient.post('/testimonials', data);
+  return res.data.data as Testimonial;
+}
+
 // ── FAQ API ───────────────────────────────────────────────────────
 export interface FaqItem {
   id: number;

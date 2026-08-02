@@ -54,6 +54,7 @@ Route::get('/availability', [CalendarController::class, 'availability']);
 
 Route::get('/gallery', [GalleryController::class, 'index']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
+Route::post('/testimonials', [TestimonialController::class, 'store']);
 Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/about', [AboutController::class, 'index']);

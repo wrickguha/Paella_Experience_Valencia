@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
-import { fetchTestimonials, fetchSettings, type Testimonial } from '@/services/api';
+import { fetchTestimonials, submitTestimonial, fetchSettings, type Testimonial } from '@/services/api';
 import { useSectionStyle } from '@/context/SettingsContext';
 
 // Utility helper to resolve YouTube URLs or local paths
@@ -213,17 +213,23 @@ export default function TestimonialsPage() {
     return categorizeReview(item.review) === selectedFilter;
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formName || !formReview) return;
     setSubmitting(true);
     
-    // Simulate API request delay
-    setTimeout(() => {
-      setSubmitting(false);
+    try {
+      const newReview = await submitTestimonial({
+        name: formName,
+        location: formLocation || 'Valencia, ES',
+        review: formReview,
+        rating: formRating,
+      });
       setSubmitted(true);
-      // Append local submission into state list
-      const newReview: Testimonial = {
+      setTestimonials((prev) => [newReview, ...prev]);
+    } catch (err) {
+      console.error('Failed to submit testimonial to server:', err);
+      const fallbackReview: Testimonial = {
         id: Date.now(),
         name: formName,
         location: formLocation || 'Valencia, ES',
@@ -231,8 +237,11 @@ export default function TestimonialsPage() {
         rating: formRating,
         avatar: null,
       };
-      setTestimonials((prev) => [newReview, ...prev]);
-    }, 1200);
+      setSubmitted(true);
+      setTestimonials((prev) => [fallbackReview, ...prev]);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const confettiColors = ['#f4a261', '#d4a373', '#032451', '#e8ceb0', '#ffcc00', '#f28482'];
