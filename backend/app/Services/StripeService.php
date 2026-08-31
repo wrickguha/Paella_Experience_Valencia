@@ -32,9 +32,12 @@ class StripeService
 
     public function createCheckoutSession(Booking $booking): array
     {
-        if (empty(config('services.stripe.secret')) || config('services.stripe.secret') === 'sk_live_REPLACE_ME') {
+        $secretKey = config('services.stripe.secret', '');
+        if (empty($secretKey) || $secretKey === 'sk_live_REPLACE_ME') {
             throw new \RuntimeException('Stripe credentials not configured.');
         }
+
+        Stripe::setApiKey($secretKey);
 
         // Prevent duplicate sessions for the same booking
         $existingPayment = Payment::where('booking_id', $booking->id)
@@ -57,12 +60,12 @@ class StripeService
             }
         }
 
-        $amount    = (int) round($booking->total_price * 100); // Stripe uses smallest currency unit (cents)
-        $appUrl    = config('app.frontend_url') ?: config('app.url');
+        $amount = (int) round($booking->total_price * 100); // Stripe uses smallest currency unit (cents)
+        $appUrl = rtrim(config('app.frontend_url') ?: config('app.url'), '/');
 
         $experienceTitle = $booking->experience?->title_en ?? 'Paella Experience Valencia';
 
-        $session = Session::create([
+        $sessionParams = [
             'mode'        => 'payment',
             'line_items'  => [
                 [
@@ -77,26 +80,31 @@ class StripeService
                     'quantity'   => 1,
                 ],
             ],
-            'customer_email'   => $booking->email,
             'success_url'      => "{$appUrl}/payment/stripe/success?session_id={CHECKOUT_SESSION_ID}&ref={$booking->reference}",
             'cancel_url'       => "{$appUrl}/payment/cancel?ref={$booking->reference}",
             'metadata'         => [
-                'booking_id'        => $booking->id,
-                'booking_reference' => $booking->reference,
+                'booking_id'        => (string) $booking->id,
+                'booking_reference' => (string) $booking->reference,
             ],
             'payment_intent_data' => [
                 'description' => "Booking {$booking->reference} – Paella Experience Valencia",
             ],
-        ]);
+        ];
+
+        if (!empty($booking->email)) {
+            $sessionParams['customer_email'] = $booking->email;
+        }
+
+        $session = Session::create($sessionParams);
 
         // Persist payment record
         Payment::create([
-            'booking_id'       => $booking->id,
-            'payment_method'   => 'stripe',
+            'booking_id'        => $booking->id,
+            'payment_method'    => 'stripe',
             'stripe_session_id' => $session->id,
-            'amount'           => $booking->total_price,
-            'status'           => 'created',
-            'response_json'    => $session->toArray(),
+            'amount'            => $booking->total_price,
+            'status'            => 'created',
+            'response_json'     => $session->toArray(),
         ]);
 
         return [
@@ -134,6 +142,7 @@ class StripeService
             }
 
             // Retrieve the session from Stripe to verify payment
+            Stripe::setApiKey(config('services.stripe.secret', ''));
             $session = Session::retrieve([
                 'id'     => $sessionId,
                 'expand' => ['payment_intent'],

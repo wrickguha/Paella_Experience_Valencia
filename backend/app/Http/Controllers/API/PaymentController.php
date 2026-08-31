@@ -228,11 +228,15 @@ class PaymentController extends Controller
                 ],
             ]);
         } catch (\Throwable $e) {
-            Log::error('Create Stripe session failed', ['error' => $e->getMessage()]);
+            Log::error('Create Stripe session failed', [
+                'booking_id' => $booking->id,
+                'error'      => $e->getMessage(),
+                'trace'      => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create Stripe payment session.',
+                'message' => config('app.debug') ? $e->getMessage() : 'Failed to create Stripe payment session.',
             ], 500);
         }
     }
