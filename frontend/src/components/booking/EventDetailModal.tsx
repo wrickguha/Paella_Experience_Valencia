@@ -283,7 +283,7 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
                         </div>
                       </div>
 
-                      {/* Spots left urgency */}
+                      {/* Spots left urgency 
                       <div className={`text-xs font-medium mb-4 ${
                         event.spotsLeft <= 4 ? 'text-red-500' : 'text-neutral-gray'
                       }`}>
@@ -292,6 +292,9 @@ export default function EventDetailModal({ events, date, isOpen, onClose, onBook
                           : t('booking.eventCard.spotsLeft', { count: event.spotsLeft })
                         }
                       </div>
+                      */}
+
+
 
                       {/* Book Now CTA */}
                       <motion.button

@@ -100,9 +100,10 @@ function EventCard({ event, index }: EventCardProps) {
             {t('upcomingEvents.open')}
           </span>
           <div className="flex items-center gap-3">
-            <span className={`text-xs font-heading font-semibold ${urgencyClass(event.spotsLeft)}`}>
+          {/*}  <span className={`text-xs font-heading font-semibold ${urgencyClass(event.spotsLeft)}`}>
               <span className="font-bold">{event.spotsLeft}</span> {t('upcomingEvents.slotsLeft')}
             </span>
+          */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
