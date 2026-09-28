@@ -92,6 +92,9 @@ export default function ExperienceHighlights() {
       </div>
 
       {/* ── Bottom Section: Language Text ── */}
+
+        {/*}
+
       <div className="max-w-3xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -114,7 +117,7 @@ export default function ExperienceHighlights() {
             ))}
           </div>
 
-          {/* Decorative accent */}
+          // Decorative accent 
           <div className="mt-10 flex items-center gap-3 justify-center">
             <div className="h-1 w-12 bg-primary rounded-full" />
             <div className="h-1 w-6 bg-accent rounded-full" />
@@ -122,6 +125,10 @@ export default function ExperienceHighlights() {
           </div>
         </motion.div>
       </div>
+
+*/}
+
+      
     </SectionWrapper>
   );
 }

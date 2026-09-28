@@ -6,6 +6,7 @@ import { useScrollToTop } from '@/hooks/useScrollReveal';
 import { fetchSettings } from '@/services/api';
 import { LevelTestCard } from '@/components/SpanishLevelTest';
 import { useSectionStyle } from '@/context/SettingsContext';
+import LevelTestCTA from '@/components/LevelTestCTA';
 
 // ── Main Page ──────────────────────────────────────────────────────────────────
 export default function LanguageTestsPage() {
@@ -26,9 +27,13 @@ export default function LanguageTestsPage() {
 
   const infoStyle = useSectionStyle('info', 'langtest');
   const cardsStyle = useSectionStyle('cards', 'langtest');
+  
 
   return (
+
     <div className="bg-bg-main min-h-screen pt-8 sm:pt-12">
+
+      <LevelTestCTA />
 
       {/* ── Info strip ────────────────────────────────────────────── */}
       <section className="py-8 border-b border-neutral-sand/40" style={infoStyle}>
