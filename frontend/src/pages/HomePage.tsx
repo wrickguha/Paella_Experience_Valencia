@@ -13,7 +13,6 @@ import VideoTestimonialsSection from "@/components/VideoTestimonialsSection";
 import ActivitiesSection from "@/components/ActivitiesSection";
 import LevelTestCTA from "@/components/LevelTestCTA";
 
-import CommunityCTA from "@/components/CommunityCTA";
 import FancyButton from "@/components/ui/FancyButton";
 
 export default function HomePage() {
@@ -29,7 +28,6 @@ export default function HomePage() {
       {/* <LevelTestCTA /> */} 
       <HowItWorks />
       <UpcomingEvents />
-      <CommunityCTA />
     </>
   );
 }

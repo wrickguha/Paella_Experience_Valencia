@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import StickyMobileCTA from '@/components/StickyMobileCTA';
 import CookieConsent from '@/components/CookieConsent';
 import MeetupWidget from '@/components/MeetupWidget';
+import CommunityCTA from '@/components/CommunityCTA';
 
 export default function MainLayout() {
   return (
@@ -15,6 +16,7 @@ export default function MainLayout() {
       <Footer />
       <StickyMobileCTA />
       <MeetupWidget />
+      <CommunityCTA />
       <CookieConsent />
     </div>
   );
