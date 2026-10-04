@@ -56,6 +56,7 @@ export default function Navbar() {
     { to: "/experience", label: t("nav.experience") },
     { to: "/language-tests", label: t("nav.languageTests") },
     { to: "/testimonials", label: t("nav.testimonials") },
+    { to: "/blog", label: t("nav.blog") },
     { to: "/about", label: t("nav.about") },
   ];
 

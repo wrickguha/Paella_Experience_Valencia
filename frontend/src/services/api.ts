@@ -473,7 +473,7 @@ export async function joinLanguageSession(data: {
 
 // ── Lead Tracking API ──────────────────────────────────────────────
 export async function trackLead(data: {
-  source: 'whatsapp' | 'community_cta' | 'community_join' | 'language_join' | 'contact';
+  source: 'whatsapp' | 'community_cta' | 'community_join' | 'language_join' | 'contact' | 'blog_newsletter';
   name?: string;
   email?: string;
   phone?: string;
@@ -482,4 +482,102 @@ export async function trackLead(data: {
   await apiClient.post('/leads', data);
 }
 
+// ── Blog API ──────────────────────────────────────────────────────
+export interface BlogPost {
+  id: number;
+  title: string;
+  title_en: string;
+  title_es?: string;
+  slug: string;
+  excerpt: string;
+  excerpt_en?: string;
+  excerpt_es?: string;
+  content: string;
+  featured_image: string | null;
+  author_name: string;
+  author_avatar: string | null;
+  author_role: string;
+  reading_time: string;
+  is_featured: boolean;
+  published_at: string | null;
+  views_count: number;
+  category: { id: number; name: string; slug: string } | null;
+}
+
+export interface BlogCategory {
+  id: number;
+  name: string;
+  name_en: string;
+  name_es?: string;
+  slug: string;
+  description: string | null;
+  posts_count: number;
+}
+
+export interface BlogListResponse {
+  featured: BlogPost | null;
+  posts: BlogPost[];
+  pagination: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+  };
+}
+
+export async function fetchBlogPosts(params?: {
+  category?: string;
+  search?: string;
+  lang?: string;
+  page?: number;
+  per_page?: number;
+}): Promise<BlogListResponse> {
+  const res = await apiClient.get('/blog', { params });
+  const data = res.data.data;
+  return {
+    featured: data.featured
+      ? { ...data.featured, featured_image: getFullImageUrl(data.featured.featured_image) }
+      : null,
+    posts: (data.posts || []).map((p: BlogPost) => ({
+      ...p,
+      featured_image: getFullImageUrl(p.featured_image),
+      author_avatar: getFullImageUrl(p.author_avatar),
+    })),
+    pagination: data.pagination,
+  };
+}
+
+export async function fetchBlogCategories(lang = 'en'): Promise<BlogCategory[]> {
+  const res = await apiClient.get('/blog/categories', { params: { lang } });
+  return res.data.data as BlogCategory[];
+}
+
+export async function fetchBlogPostBySlug(slug: string, lang = 'en'): Promise<{
+  post: BlogPost;
+  related: BlogPost[];
+}> {
+  const res = await apiClient.get(`/blog/${slug}`, { params: { lang } });
+  const data = res.data.data;
+  return {
+    post: {
+      ...data.post,
+      featured_image: getFullImageUrl(data.post.featured_image),
+      author_avatar: getFullImageUrl(data.post.author_avatar),
+    },
+    related: (data.related || []).map((p: BlogPost) => ({
+      ...p,
+      featured_image: getFullImageUrl(p.featured_image),
+      author_avatar: getFullImageUrl(p.author_avatar),
+    })),
+  };
+}
+
+export async function subscribeNewsletter(email: string): Promise<void> {
+  await apiClient.post('/leads', {
+    source: 'blog_newsletter',
+    email,
+  });
+}
+
 export default apiClient;
+

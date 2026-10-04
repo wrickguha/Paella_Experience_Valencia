@@ -68,6 +68,7 @@ export default function Footer() {
                 { to: '/', label: t('nav.home') },
                 { to: '/experience', label: t('nav.experience') },
                 { to: '/language-tests', label: t('nav.languageTests') },
+                { to: '/blog', label: t('nav.blog') },
                 { to: '/booking', label: t('nav.booking') },
                 { to: '/contact', label: t('nav.contact') },
               ].map((link) => (

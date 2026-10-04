@@ -17,6 +17,7 @@ import {
   Star,
   Info,
   GraduationCap,
+  Newspaper,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +29,7 @@ const MAIN_NAV_ITEMS = [
   { to: '/admin/payments', icon: CreditCard, label: 'Payments' },
   { to: '/admin/gallery', icon: Image, label: 'Gallery' },
   { to: '/admin/testimonials', icon: Star, label: 'Testimonials' },
+  { to: '/admin/blog', icon: Newspaper, label: 'Blog & Articles' },
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
   { to: '/admin/coupons', icon: Percent, label: 'Coupons' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },

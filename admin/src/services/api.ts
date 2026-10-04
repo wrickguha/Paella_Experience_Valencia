@@ -183,3 +183,25 @@ export const leadsApi = {
   stats: () => api.get('/admin/leads/stats'),
 };
 
+// ── Blog Posts ──
+export const blogPostsApi = {
+  list: (params?: Record<string, string | number>) => api.get('/admin/blog/posts', { params }),
+  get: (id: number) => api.get(`/admin/blog/posts/${id}`),
+  create: (data: FormData) =>
+    api.post('/admin/blog/posts', data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id: number, data: FormData) =>
+    api.post(`/admin/blog/posts/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  delete: (id: number) => api.delete(`/admin/blog/posts/${id}`),
+  togglePublish: (id: number) => api.put(`/admin/blog/posts/${id}/publish`),
+  toggleFeatured: (id: number) => api.put(`/admin/blog/posts/${id}/feature`),
+};
+
+// ── Blog Categories ──
+export const blogCategoriesApi = {
+  list: () => api.get('/admin/blog/categories'),
+  create: (data: object) => api.post('/admin/blog/categories', data),
+  update: (id: number, data: object) => api.put(`/admin/blog/categories/${id}`, data),
+  delete: (id: number) => api.delete(`/admin/blog/categories/${id}`),
+};
+
+

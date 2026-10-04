@@ -35,6 +35,9 @@ use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageCo
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\LanguageSessionController as AdminLanguageSessionController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
+use App\Http\Controllers\API\BlogController;
+use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
+use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -59,6 +62,11 @@ Route::get('/faqs', [FaqController::class, 'index']);
 Route::get('/settings', [SettingController::class, 'index']);
 Route::get('/about', [AboutController::class, 'index']);
 Route::post('/contact', [ContactController::class, 'store']);
+
+// Blog (Public)
+Route::get('/blog', [BlogController::class, 'index']);
+Route::get('/blog/categories', [BlogController::class, 'categories']);
+Route::get('/blog/{slug}', [BlogController::class, 'show']);
 
 // Community, Language, Activities & Leads
 Route::get('/activities', [ActivityController::class, 'index']);
@@ -240,4 +248,19 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Leads
     Route::get('/leads', [AdminLeadController::class, 'index']);
     Route::get('/leads/stats', [AdminLeadController::class, 'stats']);
+
+    // Blog Posts
+    Route::get('/blog/posts', [AdminBlogPostController::class, 'index']);
+    Route::get('/blog/posts/{id}', [AdminBlogPostController::class, 'show']);
+    Route::post('/blog/posts', [AdminBlogPostController::class, 'store']);
+    Route::post('/blog/posts/{id}', [AdminBlogPostController::class, 'update']);
+    Route::delete('/blog/posts/{id}', [AdminBlogPostController::class, 'destroy']);
+    Route::put('/blog/posts/{id}/publish', [AdminBlogPostController::class, 'togglePublish']);
+    Route::put('/blog/posts/{id}/feature', [AdminBlogPostController::class, 'toggleFeatured']);
+
+    // Blog Categories
+    Route::get('/blog/categories', [AdminBlogCategoryController::class, 'index']);
+    Route::post('/blog/categories', [AdminBlogCategoryController::class, 'store']);
+    Route::put('/blog/categories/{id}', [AdminBlogCategoryController::class, 'update']);
+    Route::delete('/blog/categories/{id}', [AdminBlogCategoryController::class, 'destroy']);
 });

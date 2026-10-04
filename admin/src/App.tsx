@@ -13,6 +13,7 @@ const BookingsPage = lazy(() => import('@/pages/BookingsPage'));
 const PaymentsPage = lazy(() => import('@/pages/PaymentsPage'));
 const GalleryPage = lazy(() => import('@/pages/GalleryPage'));
 const TestimonialsPage = lazy(() => import('@/pages/TestimonialsPage'));
+const BlogPage = lazy(() => import('@/pages/BlogPage'));
 const FaqsPage = lazy(() => import('@/pages/FaqsPage'));
 const MessagesPage = lazy(() => import('@/pages/MessagesPage'));
 const CouponsPage = lazy(() => import('@/pages/CouponsPage'));
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="payments" element={<PaymentsPage />} />
           <Route path="gallery" element={<GalleryPage />} />
           <Route path="testimonials" element={<TestimonialsPage />} />
+          <Route path="blog" element={<BlogPage />} />
           <Route path="faqs" element={<FaqsPage />} />
           <Route path="about" element={<Navigate to="/admin/settings" replace />} />
           <Route path="activities" element={<ActivitiesPage />} />
