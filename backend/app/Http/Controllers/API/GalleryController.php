@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
+use App\Models\GalleryCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -23,12 +24,14 @@ class GalleryController extends Controller
     public function index(Request $request): JsonResponse
     {
         $lang = $request->query('lang', 'en');
-        $type = $request->query('type'); // homepage, experience, location
+        $query = Gallery::active()->with('category')->orderBy('sort_order');
 
-        $query = Gallery::active()->orderBy('sort_order');
-
-        if ($type) {
-            $query->ofType($type);
+        if ($request->filled('category')) {
+            $query->whereHas('category', fn ($categoryQuery) => $categoryQuery
+                ->where('slug', $request->query('category'))
+                ->where('is_active', true));
+        } elseif ($request->filled('type')) {
+            $query->ofType($request->query('type'));
         }
 
         $images = $query->get()->map(fn ($img) => [
@@ -36,11 +39,35 @@ class GalleryController extends Controller
             'image' => $this->imageUrl($img->image),
             'alt' => $lang === 'es' ? ($img->alt_es ?? $img->alt_en) : $img->alt_en,
             'type' => $img->type,
+            'category_id' => $img->category_id,
+            'category_slug' => $img->category?->slug,
+            'category_name' => $img->category?->getName($lang),
         ]);
 
         return response()->json([
             'success' => true,
             'data' => $images,
+        ]);
+    }
+
+    public function categories(Request $request): JsonResponse
+    {
+        $lang = $request->query('lang', 'en');
+
+        $categories = GalleryCategory::active()
+            ->withCount(['images' => fn ($query) => $query->active()])
+            ->orderBy('sort_order')
+            ->get()
+            ->map(fn ($category) => [
+                'id' => $category->id,
+                'slug' => $category->slug,
+                'name' => $category->getName($lang),
+                'image_count' => $category->images_count,
+            ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
         ]);
     }
 }

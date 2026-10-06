@@ -56,6 +56,7 @@ Route::get('/calendar', [CalendarController::class, 'index']);
 Route::get('/availability', [CalendarController::class, 'availability']);
 
 Route::get('/gallery', [GalleryController::class, 'index']);
+Route::get('/gallery/categories', [GalleryController::class, 'categories']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
 Route::post('/testimonials', [TestimonialController::class, 'store']);
 Route::get('/faqs', [FaqController::class, 'index']);
@@ -186,6 +187,10 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     // Gallery
     Route::get('/gallery', [AdminGalleryController::class, 'index']);
     Route::post('/gallery', [AdminGalleryController::class, 'store']);
+    Route::get('/gallery/categories', [AdminGalleryController::class, 'categories']);
+    Route::post('/gallery/categories', [AdminGalleryController::class, 'storeCategory']);
+    Route::put('/gallery/categories/{id}', [AdminGalleryController::class, 'updateCategory']);
+    Route::delete('/gallery/categories/{id}', [AdminGalleryController::class, 'destroyCategory']);
     Route::post('/gallery/{id}', [AdminGalleryController::class, 'update']);
     Route::delete('/gallery/{id}', [AdminGalleryController::class, 'destroy']);
     Route::post('/gallery/reorder', [AdminGalleryController::class, 'reorder']);

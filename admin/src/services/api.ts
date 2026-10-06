@@ -101,6 +101,10 @@ export const galleryApi = {
   update: (id: number, data: FormData) => api.post(`/admin/gallery/${id}`, data, { headers: { 'Content-Type': 'multipart/form-data' } }),
   delete: (id: number) => api.delete(`/admin/gallery/${id}`),
   reorder: (ids: number[]) => api.post('/admin/gallery/reorder', { ids }),
+  categories: () => api.get('/admin/gallery/categories'),
+  createCategory: (data: object) => api.post('/admin/gallery/categories', data),
+  updateCategory: (id: number, data: object) => api.put(`/admin/gallery/categories/${id}`, data),
+  deleteCategory: (id: number) => api.delete(`/admin/gallery/categories/${id}`),
 };
 
 // ── Testimonials ──
@@ -203,5 +207,4 @@ export const blogCategoriesApi = {
   update: (id: number, data: object) => api.put(`/admin/blog/categories/${id}`, data),
   delete: (id: number) => api.delete(`/admin/blog/categories/${id}`),
 };
-
 

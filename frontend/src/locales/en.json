@@ -73,7 +73,8 @@
   },
   "gallery": {
     "title": "Moments shared around the table.",
-    "subtitle": "Moments from our unforgettable experiences"
+    "subtitle": "Moments from our unforgettable experiences",
+    "allCategories": "All moments"
   },
   "upcomingEvents": {
     "title": "Upcoming Events",

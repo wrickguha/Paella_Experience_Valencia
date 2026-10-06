@@ -228,15 +228,47 @@ export async function fetchFaqs(lang = 'en'): Promise<FaqItem[]> {
 
 // ── Gallery API ────────────────────────────────────────────────────
 export interface GalleryImage {
+  id: number;
   src: string;
   alt: string;
+  categoryId: number | null;
+  categorySlug: string | null;
+  categoryName: string;
 }
 
-export async function fetchGallery(type = 'homepage', lang = 'en'): Promise<GalleryImage[]> {
-  const res = await apiClient.get('/gallery', { params: { type, lang } });
-  return (res.data.data as { image: string; alt: string }[]).map((img) => ({
+export interface GalleryCategory {
+  id: number;
+  slug: string;
+  name: string;
+  imageCount: number;
+}
+
+export async function fetchGallery(category?: string, lang = 'en'): Promise<GalleryImage[]> {
+  const res = await apiClient.get('/gallery', { params: { ...(category ? { category } : {}), lang } });
+  return (res.data.data as {
+    id: number;
+    image: string;
+    alt: string;
+    category_id: number | null;
+    category_slug: string | null;
+    category_name: string | null;
+  }[]).map((img) => ({
+    id: img.id,
     src: img.image,
     alt: img.alt,
+    categoryId: img.category_id,
+    categorySlug: img.category_slug,
+    categoryName: img.category_name || '',
+  }));
+}
+
+export async function fetchGalleryCategories(lang = 'en'): Promise<GalleryCategory[]> {
+  const res = await apiClient.get('/gallery/categories', { params: { lang } });
+  return (res.data.data as { id: number; slug: string; name: string; image_count: number }[]).map((category) => ({
+    id: category.id,
+    slug: category.slug,
+    name: category.name,
+    imageCount: category.image_count,
   }));
 }
 
@@ -580,4 +612,3 @@ export async function subscribeNewsletter(email: string): Promise<void> {
 }
 
 export default apiClient;
-

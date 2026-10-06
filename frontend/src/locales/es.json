@@ -61,7 +61,8 @@
   },
   "gallery": {
     "title": "Un Adelanto de lo que Te Espera",
-    "subtitle": "Momentos de nuestras experiencias inolvidables"
+    "subtitle": "Momentos de nuestras experiencias inolvidables",
+    "allCategories": "Todos los momentos"
   },
   "upcomingEvents": {
     "title": "Próximos Eventos",

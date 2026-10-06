@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Gallery;
+use App\Models\GalleryCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
 class GalleryController extends Controller
@@ -22,10 +24,10 @@ class GalleryController extends Controller
 
     public function index(Request $request)
     {
-        $query = Gallery::orderBy('sort_order');
+        $query = Gallery::with('category')->orderBy('sort_order');
 
-        if ($request->filled('type')) {
-            $query->where('type', $request->type);
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
         }
 
         $images = $query->get()->map(fn ($g) => [
@@ -34,6 +36,9 @@ class GalleryController extends Controller
             'alt_en' => $g->alt_en,
             'alt_es' => $g->alt_es,
             'type' => $g->type,
+            'category_id' => $g->category_id,
+            'category_name_en' => $g->category?->name_en,
+            'category_name_es' => $g->category?->name_es,
             'sort_order' => $g->sort_order,
             'is_active' => $g->is_active,
         ]);
@@ -47,7 +52,8 @@ class GalleryController extends Controller
             'image' => 'required|image|max:5120',
             'alt_en' => 'nullable|string|max:255',
             'alt_es' => 'nullable|string|max:255',
-            'type' => 'nullable|in:homepage,experience,location',
+            'category_id' => 'required|exists:gallery_categories,id',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $path = $request->file('image')->store('gallery', 'public');
@@ -56,8 +62,9 @@ class GalleryController extends Controller
             'image' => $path,
             'alt_en' => $data['alt_en'] ?? '',
             'alt_es' => $data['alt_es'] ?? '',
-            'type' => $data['type'] ?? 'homepage',
-            'sort_order' => Gallery::max('sort_order') + 1,
+            'type' => 'homepage',
+            'category_id' => $data['category_id'],
+            'sort_order' => $data['sort_order'] ?? ((int) Gallery::max('sort_order') + 1),
             'is_active' => true,
         ]);
 
@@ -71,7 +78,9 @@ class GalleryController extends Controller
         $data = $request->validate([
             'alt_en' => 'nullable|string|max:255',
             'alt_es' => 'nullable|string|max:255',
-            'type' => 'nullable|in:homepage,experience,location',
+            'category_id' => 'required|exists:gallery_categories,id',
+            'sort_order' => 'nullable|integer|min:0',
+            'is_active' => 'required|boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -106,5 +115,71 @@ class GalleryController extends Controller
         }
 
         return response()->json(['message' => 'Reordered']);
+    }
+
+    public function categories()
+    {
+        $categories = GalleryCategory::withCount('images')
+            ->orderBy('sort_order')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
+        ]);
+    }
+
+    public function storeCategory(Request $request)
+    {
+        $data = $request->validate([
+            'name_en' => 'required|string|max:255',
+            'name_es' => 'nullable|string|max:255',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $baseSlug = Str::slug($data['name_en']);
+        $slug = $baseSlug;
+        $suffix = 1;
+        while (GalleryCategory::where('slug', $slug)->exists()) {
+            $slug = "{$baseSlug}-{$suffix}";
+            $suffix++;
+        }
+
+        $category = GalleryCategory::create([
+            ...$data,
+            'slug' => $slug,
+            'sort_order' => $data['sort_order'] ?? ((int) GalleryCategory::max('sort_order') + 1),
+            'is_active' => true,
+        ]);
+
+        return response()->json(['success' => true, 'data' => $category], 201);
+    }
+
+    public function updateCategory(Request $request, $id)
+    {
+        $category = GalleryCategory::findOrFail($id);
+        $data = $request->validate([
+            'name_en' => 'required|string|max:255',
+            'name_es' => 'nullable|string|max:255',
+            'sort_order' => 'required|integer|min:0',
+        ]);
+
+        $category->update($data);
+
+        return response()->json(['success' => true, 'data' => $category]);
+    }
+
+    public function destroyCategory($id)
+    {
+        $category = GalleryCategory::findOrFail($id);
+        if ($category->images()->exists()) {
+            return response()->json([
+                'message' => 'Move or delete this category’s images before deleting the category.',
+            ], 422);
+        }
+
+        $category->delete();
+
+        return response()->json(['success' => true, 'message' => 'Category deleted.']);
     }
 }

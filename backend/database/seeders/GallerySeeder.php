@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Gallery;
+use App\Models\GalleryCategory;
 use Illuminate\Database\Seeder;
 
 class GallerySeeder extends Seeder
@@ -11,6 +12,20 @@ class GallerySeeder extends Seeder
     {
         Gallery::truncate();
 
+        $categoryIds = [];
+        foreach ([
+            ['Paella & Food', 'Paella y cocina', 'paella-and-food'],
+            ['People & Moments', 'Personas y momentos', 'people-and-moments'],
+            ['Places & Atmosphere', 'Lugares y ambiente', 'places-and-atmosphere'],
+            ['The Experience', 'La experiencia', 'the-experience'],
+        ] as $sortOrder => [$nameEn, $nameEs, $slug]) {
+            $category = GalleryCategory::firstOrCreate(
+                ['slug' => $slug],
+                ['name_en' => $nameEn, 'name_es' => $nameEs, 'sort_order' => $sortOrder, 'is_active' => true],
+            );
+            $categoryIds[$slug] = $category->id;
+        }
+
         $images = [
             // Homepage gallery — real event photos
             [
@@ -18,6 +33,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Chef Gene presenting the paella at Casa Magnolia',
                 'alt_es' => 'Chef Gene presentando la paella en Casa Magnolia',
                 'type' => 'homepage',
+                'category_id' => $categoryIds['paella-and-food'],
                 'sort_order' => 0,
                 'is_active' => true,
             ],
@@ -26,6 +42,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Traditional Paella Valenciana freshly cooked',
                 'alt_es' => 'Paella Valenciana tradicional recién cocinada',
                 'type' => 'homepage',
+                'category_id' => $categoryIds['paella-and-food'],
                 'sort_order' => 1,
                 'is_active' => true,
             ],
@@ -34,6 +51,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Guests sharing stories and laughter after the meal',
                 'alt_es' => 'Invitados compartiendo historias y risas tras la comida',
                 'type' => 'homepage',
+                'category_id' => $categoryIds['people-and-moments'],
                 'sort_order' => 2,
                 'is_active' => true,
             ],
@@ -42,6 +60,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'The perfect socarrat — crispy caramelised rice base',
                 'alt_es' => 'El socarrat perfecto — base de arroz crujiente caramelizado',
                 'type' => 'homepage',
+                'category_id' => $categoryIds['paella-and-food'],
                 'sort_order' => 3,
                 'is_active' => true,
             ],
@@ -50,6 +69,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'The Speakeasy Experience — underground dining atmosphere',
                 'alt_es' => 'La Experiencia Speakeasy — ambiente de comedor underground',
                 'type' => 'homepage',
+                'category_id' => $categoryIds['the-experience'],
                 'sort_order' => 4,
                 'is_active' => true,
             ],
@@ -58,6 +78,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Paella sizzling over the open flame at Casa Magnolia',
                 'alt_es' => 'Paella chisporroteando al fuego abierto en Casa Magnolia',
                 'type' => 'homepage',
+                'category_id' => $categoryIds['paella-and-food'],
                 'sort_order' => 5,
                 'is_active' => true,
             ],
@@ -67,6 +88,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Guests enjoying the Speakeasy paella experience',
                 'alt_es' => 'Invitados disfrutando de la experiencia paella Speakeasy',
                 'type' => 'experience',
+                'category_id' => $categoryIds['people-and-moments'],
                 'sort_order' => 0,
                 'is_active' => true,
             ],
@@ -75,6 +97,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'The unique atmosphere of the Speakeasy venue',
                 'alt_es' => 'La atmósfera única del local Speakeasy',
                 'type' => 'experience',
+                'category_id' => $categoryIds['places-and-atmosphere'],
                 'sort_order' => 1,
                 'is_active' => true,
             ],
@@ -83,6 +106,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Speakeasy — intimate gathering around the paella',
                 'alt_es' => 'Speakeasy — reunión íntima alrededor de la paella',
                 'type' => 'experience',
+                'category_id' => $categoryIds['people-and-moments'],
                 'sort_order' => 2,
                 'is_active' => true,
             ],
@@ -91,6 +115,7 @@ class GallerySeeder extends Seeder
                 'alt_en' => 'Magical evening at the Speakeasy paella experience',
                 'alt_es' => 'Noche mágica en la experiencia paella Speakeasy',
                 'type' => 'experience',
+                'category_id' => $categoryIds['the-experience'],
                 'sort_order' => 3,
                 'is_active' => true,
             ],

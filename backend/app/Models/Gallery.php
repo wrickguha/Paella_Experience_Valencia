@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Gallery extends Model
 {
@@ -14,6 +15,7 @@ class Gallery extends Model
         'alt_en',
         'alt_es',
         'type',
+        'category_id',
         'reference_id',
         'sort_order',
         'is_active',
@@ -31,5 +33,10 @@ class Gallery extends Model
     public function scopeOfType($query, string $type)
     {
         return $query->where('type', $type);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(GalleryCategory::class, 'category_id');
     }
 }
