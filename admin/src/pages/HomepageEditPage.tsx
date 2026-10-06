@@ -320,12 +320,15 @@ export default function HomepageEditPage() {
       const cleanValues = { ...values };
       
       // Clean up local blob URLs for images & videos
-      const mediaKeys = [
-        'hero_video', 
-        'community_image_1', 
-        'community_image_2', 
-        'community_image_3'
-      ];
+      const mediaKeys: string[] = ['hero_video'];
+      [1, 2, 3].forEach(cardNum => {
+        // Legacy single-image key
+        mediaKeys.push(`community_image_${cardNum}`);
+        // New multi-image keys
+        [1, 2, 3, 4, 5].forEach(imgIdx => {
+          mediaKeys.push(`community_image_${cardNum}_${imgIdx}`);
+        });
+      });
       mediaKeys.forEach(k => {
         if (cleanValues[k] && cleanValues[k].startsWith('blob:')) {
           delete cleanValues[k];
@@ -689,35 +692,54 @@ export default function HomepageEditPage() {
 
                           <div className="border-t border-gray-100 pt-6">
                             <h4 className="font-bold text-neutral-dark text-base mb-4">Community Cards (3 cards)</h4>
+                            <p className="text-xs text-neutral-gray mb-4">Each card supports up to 5 images. The frontend will randomly show a different image on every page refresh.</p>
                             <div className="space-y-6">
                               {[1, 2, 3].map((num) => {
-                                const imagePreview = values[`community_image_${num}`]
-                                  ? (values[`community_image_${num}`].startsWith('blob:') || values[`community_image_${num}`].startsWith('http') || values[`community_image_${num}`].startsWith('/')
-                                    ? values[`community_image_${num}`]
-                                    : `/storage/${values[`community_image_${num}`]}`)
-                                  : '';
+                                // Collect existing image previews for this card (up to 5 slots)
+                                const getPreview = (key: string) => {
+                                  const v = values[key];
+                                  if (!v) return '';
+                                  return v.startsWith('blob:') || v.startsWith('http') || v.startsWith('/') ? v : `/storage/${v}`;
+                                };
                                 return (
-                                  <div key={num} className="bg-gray-50/50 p-5 rounded-xl border border-gray-200/50 flex flex-col md:flex-row gap-6">
-                                    <div className="w-full md:w-1/4">
-                                      <ImageUpload
-                                        label={`Card Image ${num}`}
-                                        preview={imagePreview}
-                                        onChange={(file) => updateFile(`community_image_${num}`, file)}
-                                      />
-                                    </div>
-                                    <div className="flex-1 space-y-3">
-                                      <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Card {num} Content ({editLang.toUpperCase()})</h5>
-                                      <FormInput
-                                        label="Card Title"
-                                        value={values[`community_card${num}_title_${editLang}`] || ''}
-                                        onChange={(e) => updateValue(`community_card${num}_title_${editLang}`, e.target.value)}
-                                      />
-                                      <FormTextarea
-                                        label="Card Description"
-                                        value={values[`community_card${num}_desc_${editLang}`] || ''}
-                                        onChange={(e) => updateValue(`community_card${num}_desc_${editLang}`, e.target.value)}
-                                        rows={3}
-                                      />
+                                  <div key={num} className="bg-gray-50/50 p-5 rounded-xl border border-gray-200/50 space-y-5">
+                                    <div className="flex flex-col md:flex-row gap-6">
+                                      {/* Images column */}
+                                      <div className="w-full md:w-5/12 space-y-3">
+                                        <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Card {num} Images (up to 5)</h5>
+                                        <div className="grid grid-cols-2 gap-3">
+                                          {[1, 2, 3, 4, 5].map((imgIdx) => {
+                                            // Use old key for slot 1 to stay backward-compatible
+                                            const imageKey = imgIdx === 1 ? `community_image_${num}` : `community_image_${num}_${imgIdx}`;
+                                            const preview = getPreview(imageKey);
+                                            return (
+                                              <div key={imgIdx} className="relative">
+                                                <p className="text-[10px] font-bold text-neutral-gray uppercase mb-1">Image {imgIdx}{imgIdx === 1 ? ' (default)' : ''}</p>
+                                                <ImageUpload
+                                                  label=""
+                                                  preview={preview}
+                                                  onChange={(file) => updateFile(imageKey, file)}
+                                                />
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                      {/* Text column */}
+                                      <div className="flex-1 space-y-3">
+                                        <h5 className="text-xs font-bold text-neutral-gray uppercase tracking-wider">Card {num} Content ({editLang.toUpperCase()})</h5>
+                                        <FormInput
+                                          label="Card Title"
+                                          value={values[`community_card${num}_title_${editLang}`] || ''}
+                                          onChange={(e) => updateValue(`community_card${num}_title_${editLang}`, e.target.value)}
+                                        />
+                                        <FormTextarea
+                                          label="Card Description"
+                                          value={values[`community_card${num}_desc_${editLang}`] || ''}
+                                          onChange={(e) => updateValue(`community_card${num}_desc_${editLang}`, e.target.value)}
+                                          rows={3}
+                                        />
+                                      </div>
                                     </div>
                                   </div>
                                 );

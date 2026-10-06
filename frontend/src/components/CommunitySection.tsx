@@ -12,18 +12,34 @@ const resolveImageUrl = (path: string) => {
     : `/storage/${path}`;
 };
 
-interface CommunitySettings {
-  community_title?: string;
-  community_subtitle?: string;
-  community_card1_title?: string;
-  community_card1_desc?: string;
-  community_card2_title?: string;
-  community_card2_desc?: string;
-  community_card3_title?: string;
-  community_card3_desc?: string;
-  community_image_1?: string;
-  community_image_2?: string;
-  community_image_3?: string;
+// Collect all uploaded images for a given card (1-based card number).
+// Slot 1 uses the legacy key `community_image_<n>`;
+// Slots 2-5 use `community_image_<n>_<slot>`.
+function buildImagePool(
+  cardNum: number,
+  settings: Record<string, string>,
+  fallback: string
+): string[] {
+  const pool: string[] = [];
+
+  const primary = settings[`community_image_${cardNum}`];
+  if (primary) pool.push(resolveImageUrl(primary));
+
+  for (let slot = 2; slot <= 5; slot++) {
+    const extra = settings[`community_image_${cardNum}_${slot}`];
+    if (extra) pool.push(resolveImageUrl(extra));
+  }
+
+  if (pool.length === 0 && fallback) pool.push(fallback);
+  return pool;
+}
+
+// Pick a purely random image from the pool every time it's called.
+// No caching — so every page refresh gives a new result.
+function pickRandom(pool: string[]): string {
+  if (pool.length === 0) return '';
+  if (pool.length === 1) return pool[0];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 export default function CommunitySection() {
@@ -67,14 +83,37 @@ export default function CommunitySection() {
     settings[`community_card3_desc_${langSuffix}`] || settings.community_card3_desc || (items[2]?.description ?? ''),
   ];
 
-  const cardImages = [
-    settings.community_image_1 ? resolveImageUrl(settings.community_image_1) : (items[0]?.image ?? ''),
-    settings.community_image_2 ? resolveImageUrl(settings.community_image_2) : (items[1]?.image ?? ''),
-    settings.community_image_3 ? resolveImageUrl(settings.community_image_3) : (items[2]?.image ?? ''),
-  ];
+  // Pick random images immediately on mount (covers initial render after refresh).
+  const [cardImages, setCardImages] = useState<string[]>(() => {
+    // Settings may already be in localStorage from previous visit — use them now
+    let cached: Record<string, string> = {};
+    try {
+      const raw = localStorage.getItem('community_settings');
+      if (raw) cached = JSON.parse(raw);
+    } catch { /* ignore */ }
 
-  const sectionTitle = settings[`community_title_${langSuffix}`] || settings.community_title || t('community.title');
-  const sectionSubtitle = settings[`community_subtitle_${langSuffix}`] || settings.community_subtitle || t('community.subtitle');
+    return [1, 2, 3].map((cardNum, idx) =>
+      pickRandom(buildImagePool(cardNum, cached, items[idx]?.image ?? ''))
+    );
+  });
+
+  // Re-roll random picks once the fresh API response arrives.
+  useEffect(() => {
+    const pools = [1, 2, 3].map((cardNum, idx) =>
+      buildImagePool(cardNum, settings, items[idx]?.image ?? '')
+    );
+    setCardImages(pools.map((pool) => pickRandom(pool)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
+  const sectionTitle =
+    settings[`community_title_${langSuffix}`] ||
+    settings.community_title ||
+    t('community.title');
+  const sectionSubtitle =
+    settings[`community_subtitle_${langSuffix}`] ||
+    settings.community_subtitle ||
+    t('community.subtitle');
 
   return (
     <SectionWrapper className="bg-white" style={sectionStyle}>
