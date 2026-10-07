@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Globe, ChevronDown, Check, Video, FileText, Calendar, Compass, Users, Type } from 'lucide-react';
+import { Save, Globe, ChevronDown, Check, Video, FileText, Calendar, Compass, Users, Type, Plus } from 'lucide-react';
 import { settingsApi } from '@/services/api';
 import PageHeader, { Button, Spinner } from '@/components/ui';
 import { FormInput, FormTextarea, ImageUpload } from '@/components/FormFields';
@@ -267,7 +267,7 @@ export default function HomepageEditPage() {
     { id: 'hero', label: 'Hero Section', icon: <Compass className="w-5 h-5" />, description: 'Edit tagline, background video, titles and call-to-actions.' },
     { id: 'highlights', label: 'Experience Highlights', icon: <Compass className="w-5 h-5" />, description: 'Modify the grid of 6 core values, bottom details, and snake experience timeline.' },
     { id: 'community', label: 'Community Section', icon: <Users className="w-5 h-5" />, description: 'Control the "Meet the Community" section heading and three image cards.' },
-    { id: 'testimonials', label: 'Video Testimonials', icon: <Video className="w-5 h-5" />, description: 'Edit section texts and link the three YouTube customer video links.' },
+    { id: 'testimonials', label: 'Video Testimonials', icon: <Video className="w-5 h-5" />, description: 'Edit section texts and manage the YouTube customer video links.' },
     { id: 'level-test', label: 'Spanish Level Test', icon: <FileText className="w-5 h-5" />, description: 'Customize introductory texts and buttons for Spanish and English quizzes.' },
     { id: 'how-it-works', label: 'How It Works', icon: <Compass className="w-5 h-5" />, description: 'Edit page subtitles, step badges and the scheduling link button labels.' },
     { id: 'events', label: 'Upcoming Events', icon: <Calendar className="w-5 h-5" />, description: 'Modify the header content above the events grid.' },
@@ -312,6 +312,14 @@ export default function HomepageEditPage() {
     }
     setFiles(nextFiles);
   };
+
+  const videoCount = Math.max(
+    3,
+    ...Object.keys(values).map((key) => {
+      const match = key.match(/^testimonial_video_(\d+)$/);
+      return match ? Number(match[1]) : 0;
+    }),
+  );
 
   const handleSave = async () => {
     setSaving(true);
@@ -778,9 +786,20 @@ export default function HomepageEditPage() {
                           </div>
 
                           <div className="border-t border-gray-100 pt-6">
-                            <h4 className="font-bold text-neutral-dark text-base mb-4">YouTube Video links</h4>
+                            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                              <h4 className="font-bold text-neutral-dark text-base">YouTube Video links</h4>
+                              <Button
+                                type="button"
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => updateValue(`testimonial_video_${videoCount + 1}`, '')}
+                              >
+                                <Plus className="h-4 w-4" />
+                                Add video
+                              </Button>
+                            </div>
                             <div className="space-y-4">
-                              {[1, 2, 3].map((num) => (
+                              {Array.from({ length: videoCount }, (_, index) => index + 1).map((num) => (
                                 <div key={num} className="bg-gray-50/50 p-4 rounded-xl border border-gray-200/50 flex flex-col md:flex-row gap-4 items-center">
                                   <div className="flex-1 w-full">
                                     <FormInput

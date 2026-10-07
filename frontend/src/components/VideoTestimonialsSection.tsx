@@ -1,10 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from './SectionWrapper';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import { fetchSettings } from '@/services/api';
 import { Link } from 'react-router-dom';
 import { useSectionStyle } from '@/context/SettingsContext';
+
+const DEFAULT_VIDEOS = [
+  '/video/testimonials1.mp4',
+  '/video/testimonials2.mp4',
+  '/video/testimonials3.mp4',
+];
 
 function getYouTubeEmbedUrl(urlOrId: string) {
   if (!urlOrId) return '';
@@ -24,6 +30,36 @@ function getYouTubeEmbedUrl(urlOrId: string) {
     }
   }
   return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0` : urlOrId;
+}
+
+function getYouTubeThumbnail(urlOrId: string) {
+  const videoId = getYouTubeEmbedUrl(urlOrId).match(/youtube\.com\/embed\/([^?]+)/)?.[1];
+  return videoId ? `https://img.youtube.com/vi/${videoId}/mqdefault.jpg` : '';
+}
+
+function VideoPreview({
+  src,
+  index,
+  onClick,
+}: {
+  src: string;
+  index: number;
+  onClick: () => void;
+}) {
+  const thumbnail = getYouTubeThumbnail(src);
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Show video ${index + 1}`}
+      className="group relative h-full w-[clamp(2.5rem,9vw,7.5rem)] shrink-0 overflow-hidden rounded-2xl bg-primary-dark bg-cover bg-center text-white shadow-lg transition duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:rounded-[1.75rem]"
+      style={thumbnail ? { backgroundImage: `url("${thumbnail}")` } : undefined}
+    >
+      <span className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/45 to-black/75" />
+      
+    </button>
+  );
 }
 
 function LazyVideo({ src, index }: { src: string; index: number }) {
@@ -56,7 +92,7 @@ function LazyVideo({ src, index }: { src: string; index: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.2, duration: 0.6 }}
-      className="rounded-[2rem] overflow-hidden shadow-elevated bg-neutral-cream aspect-[9/16] relative group"
+      className="rounded-[2rem] overflow-hidden shadow-elevated bg-neutral-cream aspect-square relative group"
     >
       {inView ? (
         isYouTube ? (
@@ -97,37 +133,35 @@ export default function VideoTestimonialsSection() {
   const { t, i18n } = useTranslation();
   const sectionStyle = useSectionStyle('testimonials');
   const [settings, setSettings] = useState<Record<string, string>>({});
-  const [videoList, setVideoList] = useState<string[]>(() => {
-    try {
-      const cached = localStorage.getItem('testimonial_videos');
-      return cached ? JSON.parse(cached) : [
-        '/video/testimonials1.mp4',
-        '/video/testimonials2.mp4',
-        '/video/testimonials3.mp4',
-      ];
-    } catch {
-      return [
-        '/video/testimonials1.mp4',
-        '/video/testimonials2.mp4',
-        '/video/testimonials3.mp4',
-      ];
-    }
-  });
+  const [videoList, setVideoList] = useState<string[]>(DEFAULT_VIDEOS);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(1);
 
   useEffect(() => {
     fetchSettings('general')
       .then((s) => {
         setSettings(s);
-        const fetchedVideos = [
-          s.testimonial_video_1 || '/video/testimonials1.mp4',
-          s.testimonial_video_2 || '/video/testimonials2.mp4',
-          s.testimonial_video_3 || '/video/testimonials3.mp4',
-        ];
-        setVideoList(fetchedVideos);
-        localStorage.setItem('testimonial_videos', JSON.stringify(fetchedVideos));
+        const videoKeys = Object.keys(s)
+          .map((key) => {
+            const match = key.match(/^testimonial_video_(\d+)$/);
+            return match ? Number(match[1]) : null;
+          })
+          .filter((index): index is number => index !== null)
+          .sort((a, b) => a - b);
+        const fetchedVideos = videoKeys
+          .map((index) => s[`testimonial_video_${index}`]?.trim())
+          .filter((url): url is string => Boolean(url));
+        const videos = fetchedVideos.length > 0 ? fetchedVideos : DEFAULT_VIDEOS;
+        setVideoList(videos);
+        setCurrentIndex(0);
       })
       .catch(() => {});
   }, []);
+
+  const showVideo = (index: number) => {
+    setSlideDirection(index > currentIndex ? 1 : -1);
+    setCurrentIndex((index + videoList.length) % videoList.length);
+  };
 
   const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
   const sectionTitle = settings[`video_testimonials_title_${langSuffix}`] || t('videoTestimonials.title');
@@ -135,7 +169,7 @@ export default function VideoTestimonialsSection() {
   const seeMoreText = settings[`video_testimonials_seeMore_${langSuffix}`] || t('videoTestimonials.seeMore');
 
   return (
-    <SectionWrapper className="bg-white" style={sectionStyle}>
+    <SectionWrapper className="bg-[#f1fafb]" style={sectionStyle}>
       <div className="text-center mb-16">
         <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-neutral-dark mb-4">
           {sectionTitle}
@@ -147,11 +181,94 @@ export default function VideoTestimonialsSection() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-        {videoList.map((src, index) => (
-          <LazyVideo key={index} src={src} index={index} />
-        ))}
+      <div className="relative mx-auto max-w-6xl px-1 sm:px-8">
+        <div className="flex h-[min(78vw,34rem)] items-stretch justify-center gap-2 overflow-hidden sm:gap-4">
+          {videoList.length > 1 && [-2, -1].map((offset) => {
+            if (Math.abs(offset) >= videoList.length) return null;
+            const index = (currentIndex + offset + videoList.length) % videoList.length;
+            return (
+              <VideoPreview
+                key={`preview-${offset}-${index}`}
+                src={videoList[index]}
+                index={index}
+                onClick={() => showVideo(index)}
+              />
+            );
+          })}
+
+          <div className="relative h-full aspect-square shrink-0 overflow-hidden rounded-2xl shadow-[0_24px_70px_rgba(3,36,81,0.2)] sm:rounded-[1.75rem]">
+            <AnimatePresence mode="wait" initial={false} custom={slideDirection}>
+              <motion.div
+                key={`${currentIndex}-${videoList[currentIndex]}`}
+                custom={slideDirection}
+                initial={{ opacity: 0, x: slideDirection * 48 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: slideDirection * -48 }}
+                transition={{ duration: 0.24, ease: 'easeOut' }}
+                className="h-full w-full"
+              >
+                <LazyVideo src={videoList[currentIndex]} index={currentIndex} />
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {videoList.length > 1 && [1, 2].map((offset) => {
+            if (offset >= videoList.length) return null;
+            const index = (currentIndex + offset) % videoList.length;
+            return (
+              <VideoPreview
+                key={`preview-${offset}-${index}`}
+                src={videoList[index]}
+                index={index}
+                onClick={() => showVideo(index)}
+              />
+            );
+          })}
+        </div>
+
+        {videoList.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => showVideo(currentIndex - 1)}
+              aria-label={t('common.previous', { defaultValue: 'Previous video' })}
+              className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-[0_8px_25px_rgba(3,36,81,0.14)] transition hover:scale-105 hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:left-2 sm:h-14 sm:w-14"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => showVideo(currentIndex + 1)}
+              aria-label={t('common.next', { defaultValue: 'Next video' })}
+              className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-[0_8px_25px_rgba(3,36,81,0.14)] transition hover:scale-105 hover:bg-primary hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:right-2 sm:h-14 sm:w-14"
+            >
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="m9 18 6-6-6-6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </>
+        )}
       </div>
+
+      {videoList.length > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-2.5" aria-label="Choose a video">
+          {videoList.map((_, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => showVideo(index)}
+              aria-label={`Show video ${index + 1}`}
+              aria-current={index === currentIndex ? 'true' : undefined}
+              className={`h-2.5 rounded-full transition-all ${
+                index === currentIndex ? 'w-7 bg-primary' : 'w-2.5 bg-primary/20 hover:bg-primary/40'
+              }`}
+            />
+          ))}
+          <span className="sr-only">{currentIndex + 1} of {videoList.length}</span>
+        </div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 15 }}
