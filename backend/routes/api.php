@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BookingController;
 use App\Http\Controllers\API\CalendarController;
 use App\Http\Controllers\API\ExperienceController;
+use App\Http\Controllers\API\ExperienceCategoryController as APIExperienceCategoryController;
 use App\Http\Controllers\API\FaqController;
 use App\Http\Controllers\API\GalleryController;
 use App\Http\Controllers\API\LocationController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\API\TestimonialController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\ExperienceController as AdminExperienceController;
+use App\Http\Controllers\Admin\ExperienceCategoryController as AdminExperienceCategoryController;
 use App\Http\Controllers\Admin\LocationController as AdminLocationController;
 use App\Http\Controllers\Admin\CalendarController as AdminCalendarController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
@@ -48,6 +50,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/experiences', [ExperienceController::class, 'index']);
 Route::get('/experiences/{id}', [ExperienceController::class, 'show']);
+Route::get('/experience-categories', [APIExperienceCategoryController::class, 'index']);
 
 Route::get('/locations', [LocationController::class, 'index']);
 Route::get('/locations/{id}', [LocationController::class, 'show']);
@@ -162,6 +165,12 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::post('/locations', [AdminLocationController::class, 'store']);
     Route::match(['post', 'put'], '/locations/{id}', [AdminLocationController::class, 'update']);
     Route::delete('/locations/{id}', [AdminLocationController::class, 'destroy']);
+
+    // Experience categories
+    Route::get('/experience-categories', [AdminExperienceCategoryController::class, 'index']);
+    Route::post('/experience-categories', [AdminExperienceCategoryController::class, 'store']);
+    Route::put('/experience-categories/{id}', [AdminExperienceCategoryController::class, 'update']);
+    Route::delete('/experience-categories/{id}', [AdminExperienceCategoryController::class, 'destroy']);
 
     // Calendar
     Route::get('/calendar/month', [AdminCalendarController::class, 'month']);

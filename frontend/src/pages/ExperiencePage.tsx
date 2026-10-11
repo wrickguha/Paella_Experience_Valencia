@@ -3,7 +3,14 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop, useScrollReveal } from '@/hooks/useScrollReveal';
-import { fetchLocations, fetchSettings, type FrontendLocation, type LocationSchedule } from '@/services/api';
+import {
+  fetchExperienceCategories,
+  fetchLocations,
+  fetchSettings,
+  type FrontendExperienceCategory,
+  type FrontendLocation,
+  type LocationSchedule,
+} from '@/services/api';
 import { useSectionStyle } from '@/context/SettingsContext';
 
 
@@ -173,10 +180,8 @@ function ModalLocationDetails({
             </span>
           )}
           {location.category && (
-            <span className={`absolute top-3 right-3 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full z-10 ${
-              location.category === 'countryside' ? 'bg-emerald-600' : 'bg-slate-700'
-            }`}>
-              {location.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+            <span className="absolute top-3 right-3 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full z-10 bg-slate-700">
+              {location.category_name || location.category}
             </span>
           )}
           {/* Dots indicator */}
@@ -374,9 +379,10 @@ export default function ExperiencePage() {
   useScrollToTop();
 
   const [locations, setLocations] = useState<FrontendLocation[]>([]);
+  const [categories, setCategories] = useState<FrontendExperienceCategory[]>([]);
   const [locLoading, setLocLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<'city' | 'countryside' | null>(null);
+  const [activeCategory, setActiveCategory] = useState<FrontendExperienceCategory | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<FrontendLocation | null>(null);
   const [settings, setSettings] = useState<Record<string, string>>({});
 
@@ -388,10 +394,6 @@ export default function ExperiencePage() {
 
   const langSuffix = i18n.language.startsWith('es') ? 'es' : 'en';
 
-  const cityTitle = settings[`experience_city_title_${langSuffix}`] || t('experience.categories.city.title', 'City Experiences');
-  const cityDesc = settings[`experience_city_desc_${langSuffix}`] || t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life');
-  const countryTitle = settings[`experience_country_title_${langSuffix}`] || t('experience.categories.countryside.title', 'Countryside Experiences');
-  const countryDesc = settings[`experience_country_desc_${langSuffix}`] || t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves');
   const backBtnText = settings[`experience_back_btn_${langSuffix}`] || t('experience.back', 'Back');
 
   const resolveImageUrl = (path: string) => {
@@ -411,11 +413,40 @@ export default function ExperiencePage() {
     : "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?q=80&w=800&auto=format&fit=crop";
   const countryIcon = settings.experience_country_icon || '🌿';
 
+  const getCategoryTitle = (category: FrontendExperienceCategory) => {
+    if (category.slug === 'city') {
+      return settings[`experience_city_title_${langSuffix}`] || t('experience.categories.city.title', 'City Experiences');
+    }
+    if (category.slug === 'countryside') {
+      return settings[`experience_country_title_${langSuffix}`] || t('experience.categories.countryside.title', 'Countryside Experiences');
+    }
+    return category.name;
+  };
+
+  const getCategoryDescription = (category: FrontendExperienceCategory) => {
+    if (category.slug === 'city') {
+      return settings[`experience_city_desc_${langSuffix}`] || t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life');
+    }
+    if (category.slug === 'countryside') {
+      return settings[`experience_country_desc_${langSuffix}`] || t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves');
+    }
+    return '';
+  };
+
   useEffect(() => {
     setLocLoading(true);
-    fetchLocations(i18n.language)
-      .then(setLocations)
-      .catch(() => setLocations([]))
+    Promise.all([
+      fetchLocations(i18n.language),
+      fetchExperienceCategories(i18n.language),
+    ])
+      .then(([fetchedLocations, fetchedCategories]) => {
+        setLocations(fetchedLocations);
+        setCategories(fetchedCategories);
+      })
+      .catch(() => {
+        setLocations([]);
+        setCategories([]);
+      })
       .finally(() => setLocLoading(false));
   }, [i18n.language]);
 
@@ -431,12 +462,8 @@ export default function ExperiencePage() {
     };
   }, [isModalOpen]);
 
-  const getCountForCategory = (cat: 'city' | 'countryside') => {
-    return locations.filter((loc) => (loc.category || 'city') === cat).length;
-  };
-
-  const handleOpenCategory = (cat: 'city' | 'countryside') => {
-    setActiveCategory(cat);
+  const handleOpenCategory = (category: FrontendExperienceCategory) => {
+    setActiveCategory(category);
     setIsModalOpen(true);
     setSelectedLocation(null);
   };
@@ -448,7 +475,7 @@ export default function ExperiencePage() {
   };
 
   const filteredLocations = locations.filter(
-    (loc) => (loc.category || 'city') === activeCategory
+    (loc) => loc.category_id === activeCategory?.id
   );
 
   const categoriesStyle = useSectionStyle('categories', 'exp');
@@ -463,72 +490,56 @@ export default function ExperiencePage() {
       {/* Category Selection Cards */}
       <section className="pb-24 bg-white" style={categoriesStyle}>
         <div className="container-max px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* City Card */}
-            <motion.div
-              whileHover={{ y: -8, scale: 1.01 }}
-              transition={{ duration: 0.4 }}
-              onClick={() => handleOpenCategory('city')}
-              className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
-            >
-              <img
-                src={cityImage}
-                alt="City Experiences"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-955/90 via-slate-900/40 to-transparent bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
-              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
-                  {cityIcon}
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] font-bold text-primary bg-white/95 border border-primary/20 uppercase tracking-widest px-2.5 py-1 rounded-md backdrop-blur-sm">
-                      {getCountForCategory('city')} {getCountForCategory('city') === 1 ? 'Location' : 'Locations'}
-                    </span>
-                  </div>
-                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
-                    {cityTitle}
-                  </h3>
-                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm whitespace-pre-line">
-                    {cityDesc}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {categories.map((category) => {
+              const categoryLocations = locations.filter((location) => location.category_id === category.id);
+              const firstLocation = categoryLocations[0];
+              const categoryImage = category.slug === 'city'
+                ? cityImage
+                : category.slug === 'countryside'
+                  ? countryImage
+                  : firstLocation?.hero_image || firstLocation?.image || cityImage;
+              const categoryIcon = category.slug === 'city' ? cityIcon : category.slug === 'countryside' ? countryIcon : '📍';
+              const categoryTitle = getCategoryTitle(category);
+              const categoryDescription = getCategoryDescription(category);
 
-            {/* Countryside Card */}
-            <motion.div
-              whileHover={{ y: -8, scale: 1.01 }}
-              transition={{ duration: 0.4 }}
-              onClick={() => handleOpenCategory('countryside')}
-              className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
-            >
-              <img
-                src={countryImage}
-                alt="Countryside Experiences"
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-955/40 to-transparent bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-transparent" />
-              <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
-                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
-                  {countryIcon}
-                </div>
-                <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] font-bold text-emerald-600 bg-white/95 border border-emerald-100 uppercase tracking-widest px-2.5 py-1 rounded-md backdrop-blur-sm">
-                      {getCountForCategory('countryside')} {getCountForCategory('countryside') === 1 ? 'Location' : 'Locations'}
-                    </span>
+              return (
+                <motion.div
+                  key={category.id}
+                  whileHover={{ y: -8, scale: 1.01 }}
+                  transition={{ duration: 0.4 }}
+                  onClick={() => handleOpenCategory(category)}
+                  className="relative aspect-[4/3] rounded-3xl overflow-hidden cursor-pointer shadow-elevated group"
+                >
+                  <img
+                    src={categoryImage}
+                    alt={categoryTitle}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent" />
+                  <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between">
+                    <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
+                      {categoryIcon}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className="text-[10px] font-bold text-primary bg-white/95 border border-primary/20 uppercase tracking-widest px-2.5 py-1 rounded-md backdrop-blur-sm">
+                          {categoryLocations.length} {categoryLocations.length === 1 ? 'Location' : 'Locations'}
+                        </span>
+                      </div>
+                      <h3 className="font-display text-2xl sm:text-3xl font-bold text-white">
+                        {categoryTitle}
+                      </h3>
+                      {categoryDescription && (
+                        <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm whitespace-pre-line">
+                          {categoryDescription}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2">
-                    {countryTitle}
-                  </h3>
-                  <p className="text-white/80 font-body text-xs sm:text-sm leading-relaxed max-w-sm whitespace-pre-line">
-                    {countryDesc}
-                  </p>
-                </div>
-              </div>
-            </motion.div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -570,17 +581,12 @@ export default function ExperiencePage() {
                     <h3 className="font-display font-bold text-neutral-dark text-lg md:text-xl leading-tight">
                       {selectedLocation
                         ? selectedLocation.name
-                        : activeCategory === 'city'
-                          ? cityTitle
-                          : countryTitle
+                        : getCategoryTitle(activeCategory)
                       }
                     </h3>
-                    {!selectedLocation && (
+                    {!selectedLocation && getCategoryDescription(activeCategory) && (
                       <p className="text-neutral-gray text-xs font-body mt-0.5 whitespace-pre-line">
-                        {activeCategory === 'city'
-                          ? cityDesc
-                          : countryDesc
-                        }
+                        {getCategoryDescription(activeCategory)}
                       </p>
                     )}
                   </div>
@@ -641,9 +647,9 @@ export default function ExperiencePage() {
                                       alt={loc.name}
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
-                                    {loc.category && (
+                                    {loc.category_name && (
                                       <span className="absolute top-3 left-3 text-white text-[9px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-md bg-black/50 backdrop-blur-sm">
-                                        {loc.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+                                        {loc.category_name}
                                       </span>
                                     )}
                                   </div>

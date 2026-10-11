@@ -16,7 +16,7 @@ class LocationController extends Controller
 
         $locations = Cache::remember("locations_{$lang}", 3600, function () use ($lang) {
             return Location::query()
-                ->with(['schedules', 'experiences.features', 'images'])
+                ->with(['schedules', 'experiences.features', 'images', 'experienceCategory'])
                 ->get()
                 ->map(fn (Location $loc): array => $this->formatLocation($loc, $lang));
         });
@@ -31,7 +31,7 @@ class LocationController extends Controller
     {
         $lang = $request->query('lang', 'en');
 
-        $location = Location::with(['schedules', 'experiences.features'])->findOrFail($id);
+        $location = Location::with(['schedules', 'experiences.features', 'experienceCategory'])->findOrFail($id);
 
         return response()->json([
             'success' => true,
@@ -69,7 +69,9 @@ class LocationController extends Controller
             'hero_image' => $this->imageUrl($firstExp?->hero_image ?? $loc->image),
             'gallery' => $loc->images->map(fn ($img) => $this->imageUrl($img->image))->values()->toArray(),
             'availability_type' => $loc->availability_type,
-            'category' => $loc->category ?? 'city',
+            'category' => $loc->experienceCategory?->slug ?? $loc->category ?? 'city',
+            'category_id' => $loc->category_id,
+            'category_name' => $loc->experienceCategory?->getName($lang) ?? ucfirst($loc->category ?? 'city'),
             'price' => $firstExp
                 ? (float) $firstExp->price
                 : null,

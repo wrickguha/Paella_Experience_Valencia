@@ -168,12 +168,28 @@ export interface FrontendLocation {
   hero_image: string | null;
   gallery: string[];
   availability_type: string;
-  category: 'city' | 'countryside';
+  category: string;
+  category_id: number | null;
+  category_name: string;
   price: number | null;
   features: string[];
   schedules: LocationSchedule[];
   is_active?: boolean;
   experience_is_active?: boolean;
+}
+
+export interface FrontendExperienceCategory {
+  id: number;
+  slug: string;
+  name: string;
+  name_en: string;
+  name_es: string | null;
+  sort_order: number;
+}
+
+export async function fetchExperienceCategories(lang = 'en'): Promise<FrontendExperienceCategory[]> {
+  const res = await apiClient.get('/experience-categories', { params: { lang } });
+  return res.data.data as FrontendExperienceCategory[];
 }
 
 export async function fetchLocations(lang = 'en'): Promise<FrontendLocation[]> {

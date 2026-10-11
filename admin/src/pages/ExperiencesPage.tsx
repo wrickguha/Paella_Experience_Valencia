@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, UtensilsCrossed, MapPin } from 'lucide-react';
+import { Plus, Pencil, Trash2, UtensilsCrossed, MapPin, Tags } from 'lucide-react';
 import { experiencesApi, locationsApi } from '@/services/api';
 import { formatCurrency } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
@@ -375,6 +375,7 @@ export default function ExperiencesPage() {
 
   const createExperienceFn = useRef<() => void>(() => {});
   const createLocationFn = useRef<() => void>(() => {});
+  const manageCategoriesFn = useRef<() => void>(() => {});
 
   const handleCreate = () => {
     if (activeTab === 'experiences') {
@@ -394,6 +395,11 @@ export default function ExperiencesPage() {
             : 'Manage your event locations and scheduling'
         }
       >
+        {activeTab === 'locations' && (
+          <Button variant="secondary" onClick={() => manageCategoriesFn.current()}>
+            <Tags className="w-4 h-4" /> Manage Categories
+          </Button>
+        )}
         <Button onClick={handleCreate} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />{' '}
           {activeTab === 'experiences' ? 'Add Experience' : 'Add Location'}
@@ -439,6 +445,9 @@ export default function ExperiencesPage() {
             isTab={true}
             onRegisterCreate={(cb) => {
               createLocationFn.current = cb;
+            }}
+            onRegisterManageCategories={(cb) => {
+              manageCategoriesFn.current = cb;
             }}
           />
         )}

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Location extends Model
 {
@@ -20,6 +21,7 @@ class Location extends Model
         'image',
         'availability_type',
         'category',
+        'category_id',
         'is_active',
     ];
 
@@ -30,6 +32,11 @@ class Location extends Model
     public function experiences(): HasMany
     {
         return $this->hasMany(Experience::class);
+    }
+
+    public function experienceCategory(): BelongsTo
+    {
+        return $this->belongsTo(ExperienceCategory::class, 'category_id');
     }
 
     public function schedules(): HasMany

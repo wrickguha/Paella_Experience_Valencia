@@ -58,6 +58,14 @@ export const locationsApi = {
   all: () => api.get('/admin/locations/all'),
 };
 
+// ── Experience Categories ──
+export const experienceCategoriesApi = {
+  list: () => api.get('/admin/experience-categories'),
+  create: (data: object) => api.post('/admin/experience-categories', data),
+  update: (id: number, data: object) => api.put(`/admin/experience-categories/${id}`, data),
+  delete: (id: number) => api.delete(`/admin/experience-categories/${id}`),
+};
+
 // ── Calendar / Availability ──
 export const calendarApi = {
   month: (year: number, month: number, locationId?: number) =>
@@ -207,4 +215,3 @@ export const blogCategoriesApi = {
   update: (id: number, data: object) => api.put(`/admin/blog/categories/${id}`, data),
   delete: (id: number) => api.delete(`/admin/blog/categories/${id}`),
 };
-

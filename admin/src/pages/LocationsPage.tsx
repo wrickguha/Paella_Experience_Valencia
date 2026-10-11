@@ -1,8 +1,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
-import { Plus, Pencil, Trash2, MapPin, Clock, X, Star, ImagePlus, CalendarDays } from 'lucide-react';
-import { locationsApi } from '@/services/api';
+import { Plus, Pencil, Trash2, MapPin, Clock, X, Star, ImagePlus, CalendarDays, Tags } from 'lucide-react';
+import { experienceCategoriesApi, locationsApi } from '@/services/api';
 import { formatCurrency } from '@/lib/utils';
 import PageHeader, { Card, Button, Badge, Spinner, EmptyState } from '@/components/ui';
 import DataTable, { Pagination } from '@/components/DataTable';
@@ -49,7 +49,9 @@ interface Location {
   maps_link?: string;
   image: string;
   availability_type: string;
-  category: 'city' | 'countryside';
+  category_id: number;
+  category_name_en: string;
+  category_name_es?: string | null;
   is_active: boolean;
   schedules?: ScheduleEntry[];
   // Experience fields
@@ -62,9 +64,23 @@ interface Location {
   gallery?: GalleryImage[];
 }
 
+interface ExperienceCategory {
+  id: number;
+  name_en: string;
+  name_es?: string | null;
+  sort_order: number;
+  locations_count?: number;
+}
+
+interface CategoryForm {
+  name_en: string;
+  name_es: string;
+  sort_order: string;
+}
+
 const EMPTY: Partial<Location> = {
   name_en: '', name_es: '', description_en: '', description_es: '',
-  address: '', maps_link: '', availability_type: 'weekly', category: 'city', is_active: true, schedules: [],
+  address: '', maps_link: '', availability_type: 'weekly', is_active: true, schedules: [],
   subtitle_en: '', subtitle_es: '', price: null, duration: '', features: [],
 };
 
@@ -74,9 +90,10 @@ const EMPTY_CUSTOM_DATE: CustomDateEntry = { date: '', start_time: '11:00', end_
 interface LocationsPageProps {
   isTab?: boolean;
   onRegisterCreate?: (cb: () => void) => void;
+  onRegisterManageCategories?: (cb: () => void) => void;
 }
 
-export default function LocationsPage({ isTab = false, onRegisterCreate }: LocationsPageProps) {
+export default function LocationsPage({ isTab = false, onRegisterCreate, onRegisterManageCategories }: LocationsPageProps) {
   const [data, setData] = useState<Location[]>([]);
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -91,6 +108,14 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<{ id?: number; url: string; isNew?: boolean }[]>([]);
   const [removeGalleryIds, setRemoveGalleryIds] = useState<number[]>([]);
+  const [categories, setCategories] = useState<ExperienceCategory[]>([]);
+  const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<ExperienceCategory | null>(null);
+  const [categoryForm, setCategoryForm] = useState<CategoryForm>({ name_en: '', name_es: '', sort_order: '0' });
+  const [savingCategory, setSavingCategory] = useState(false);
+  const [deleteCategoryTarget, setDeleteCategoryTarget] = useState<ExperienceCategory | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState(false);
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -103,6 +128,17 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
   }, [page]);
 
   useEffect(() => { fetch(); }, [fetch]);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await experienceCategoriesApi.list();
+      setCategories(res.data.data || []);
+    } catch {
+      toast.error('Failed to load experience categories.');
+    }
+  }, []);
+
+  useEffect(() => { fetchCategories(); }, [fetchCategories]);
 
   const openCreate = () => {
     setEditing({ ...EMPTY, schedules: [], features: [] });
@@ -119,6 +155,12 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
       onRegisterCreate(openCreate);
     }
   }, [onRegisterCreate]);
+
+  const openCategories = () => setCategoriesModalOpen(true);
+
+  useEffect(() => {
+    onRegisterManageCategories?.(openCategories);
+  }, [onRegisterManageCategories]);
 
   const openEdit = (loc: Location) => {
     const allSchedules = loc.schedules || [];
@@ -158,7 +200,7 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
       fd.append('description_es', editing.description_es || '');
       fd.append('maps_link', editing.maps_link || '');
       fd.append('availability_type', editing.availability_type || 'weekly');
-      fd.append('category', editing.category || 'city');
+      fd.append('category_id', String(editing.category_id ?? ''));
       fd.append('is_active', editing.is_active ? '1' : '0');
       // Combine weekly and custom date schedules into one array
       const schedulesData =
@@ -182,7 +224,7 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
         toast.success('Location created successfully!');
       }
       setModalOpen(false);
-      fetch();
+      await Promise.all([fetch(), fetchCategories()]);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save location';
       toast.error(msg);
@@ -197,12 +239,68 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
       await locationsApi.delete(deleteTarget.id);
       setDeleteTarget(null);
       toast.success('Location deleted successfully!');
-      fetch();
+      await Promise.all([fetch(), fetchCategories()]);
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to delete location';
       toast.error(msg);
     }
     setDeleting(false);
+  };
+
+  const openCategoryForm = (category?: ExperienceCategory) => {
+    setEditingCategory(category ?? null);
+    setCategoryForm({
+      name_en: category?.name_en ?? '',
+      name_es: category?.name_es ?? '',
+      sort_order: String(category?.sort_order ?? categories.length),
+    });
+    setCategoryModalOpen(true);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!categoryForm.name_en.trim()) {
+      toast.error('English category name is required.');
+      return;
+    }
+
+    setSavingCategory(true);
+    try {
+      const payload = {
+        name_en: categoryForm.name_en.trim(),
+        name_es: categoryForm.name_es.trim(),
+        sort_order: Number(categoryForm.sort_order),
+      };
+      if (editingCategory) {
+        await experienceCategoriesApi.update(editingCategory.id, payload);
+        toast.success('Experience category updated.');
+      } else {
+        await experienceCategoriesApi.create(payload);
+        toast.success('Experience category created.');
+      }
+      setCategoryModalOpen(false);
+      await Promise.all([fetchCategories(), fetch()]);
+    } catch (error: unknown) {
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(message || 'Failed to save experience category.');
+    } finally {
+      setSavingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async () => {
+    if (!deleteCategoryTarget) return;
+    setDeletingCategory(true);
+    try {
+      await experienceCategoriesApi.delete(deleteCategoryTarget.id);
+      toast.success('Experience category deleted.');
+      setDeleteCategoryTarget(null);
+      await fetchCategories();
+    } catch (error: unknown) {
+      const message = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      toast.error(message || 'Failed to delete experience category.');
+    } finally {
+      setDeletingCategory(false);
+    }
   };
 
   const columns = [
@@ -233,8 +331,8 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
       key: 'category',
       header: 'Category',
       render: (r: Location) => (
-        <Badge variant={r.category === 'countryside' ? 'success' : 'info'}>
-          {r.category === 'countryside' ? '🌿 Countryside' : '🏙️ City'}
+        <Badge variant="info">
+          {r.category_name_en || 'Uncategorized'}
         </Badge>
       ),
     },
@@ -282,6 +380,7 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
     <div>
       {!isTab && (
         <PageHeader title="Locations" description="Manage your event locations">
+          <Button variant="secondary" onClick={openCategories}><Tags className="w-4 h-4" /> Manage Categories</Button>
           <Button onClick={openCreate}><Plus className="w-4 h-4" /> Add Location</Button>
         </PageHeader>
       )}
@@ -320,11 +419,14 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
           />
           <FormSelect
             label="Category"
-            value={editing.category || 'city'}
-            onChange={(e) => setEditing({ ...editing, category: e.target.value as 'city' | 'countryside' })}
+            value={editing.category_id ? String(editing.category_id) : ''}
+            onChange={(e) => setEditing({ ...editing, category_id: Number(e.target.value) || undefined })}
             options={[
-              { value: 'city', label: '🏙️ City' },
-              { value: 'countryside', label: '🌿 Countryside' },
+              { value: '', label: categories.length ? 'Select a category' : 'Create a category first' },
+              ...categories.map((category) => ({
+                value: String(category.id),
+                label: category.name_en,
+              })),
             ]}
           />
           <div className="flex items-end">
@@ -661,6 +763,83 @@ export default function LocationsPage({ isTab = false, onRegisterCreate }: Locat
         title="Delete Location"
         message={`Delete "${deleteTarget?.name_en}"? All associated schedules and slots will be removed.`}
         loading={deleting}
+      />
+
+      <Modal open={categoriesModalOpen} onClose={() => setCategoriesModalOpen(false)} title="Manage Experience Categories" size="lg">
+        <div className="mb-4 flex items-start justify-between gap-3">
+          <p className="text-sm text-neutral-gray">Create categories and assign them to locations.</p>
+          <Button onClick={() => openCategoryForm()}><Plus className="w-4 h-4" /> Add Category</Button>
+        </div>
+        <div className="divide-y divide-gray-100">
+          {categories.map((category) => (
+            <div key={category.id} className="flex items-center justify-between gap-3 py-3">
+              <div>
+                <p className="font-medium text-neutral-dark">{category.name_en}</p>
+                <p className="text-xs text-neutral-gray">
+                  {category.name_es || 'No Spanish name'} · {category.locations_count ?? 0} locations
+                </p>
+              </div>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => openCategoryForm(category)}
+                  aria-label={`Edit ${category.name_en}`}
+                  className="rounded-md p-2 text-neutral-gray hover:bg-gray-100 hover:text-primary"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteCategoryTarget(category)}
+                  disabled={(category.locations_count ?? 0) > 0}
+                  title={(category.locations_count ?? 0) > 0 ? 'Reassign its locations first' : 'Delete category'}
+                  aria-label={`Delete ${category.name_en}`}
+                  className="rounded-md p-2 text-neutral-gray hover:bg-red-50 hover:text-danger disabled:cursor-not-allowed disabled:opacity-30"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+          {categories.length === 0 && (
+            <p className="py-6 text-center text-sm text-neutral-gray">No categories yet. Add one to get started.</p>
+          )}
+        </div>
+      </Modal>
+
+      <Modal
+        open={categoryModalOpen}
+        onClose={() => setCategoryModalOpen(false)}
+        title={editingCategory ? 'Edit Experience Category' : 'New Experience Category'}
+        size="md"
+      >
+        <div className="space-y-4">
+          <FormInput
+            label="Name (EN)"
+            value={categoryForm.name_en}
+            onChange={(e) => setCategoryForm({ ...categoryForm, name_en: e.target.value })}
+          />
+          <FormInput
+            label="Name (ES)"
+            value={categoryForm.name_es}
+            onChange={(e) => setCategoryForm({ ...categoryForm, name_es: e.target.value })}
+          />
+          <div className="flex justify-end gap-3">
+            <Button variant="secondary" onClick={() => setCategoryModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveCategory} loading={savingCategory}>
+              {editingCategory ? 'Save Changes' : 'Create Category'}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={!!deleteCategoryTarget}
+        onClose={() => setDeleteCategoryTarget(null)}
+        onConfirm={handleDeleteCategory}
+        title="Delete Experience Category"
+        message={`Are you sure you want to delete "${deleteCategoryTarget?.name_en}"? Reassign any locations before deleting it.`}
+        loading={deletingCategory}
       />
     </div>
   );

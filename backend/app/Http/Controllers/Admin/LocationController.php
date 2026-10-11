@@ -54,7 +54,7 @@ class LocationController extends Controller
 
     public function index()
     {
-        return Location::with(['schedules', 'experiences.features', 'images'])
+        return Location::with(['schedules', 'experiences.features', 'images', 'experienceCategory'])
             ->orderBy('name_en')
             ->paginate(15)
             ->through(fn ($l) => array_merge([
@@ -67,7 +67,9 @@ class LocationController extends Controller
                 'maps_link' => $l->maps_link,
                 'image' => $this->imageUrl($l->image),
                 'availability_type' => $l->availability_type,
-                'category' => $l->category ?? 'city',
+                'category_id' => $l->category_id,
+                'category_name_en' => $l->experienceCategory?->name_en,
+                'category_name_es' => $l->experienceCategory?->name_es,
                 'is_active' => $l->is_active,
                 'gallery' => $this->galleryData($l),
                 'schedules' => $l->schedules->map(fn ($s) => [
@@ -91,7 +93,7 @@ class LocationController extends Controller
 
     public function show($id)
     {
-        $l = Location::with(['schedules', 'experiences.features', 'images'])->findOrFail($id);
+        $l = Location::with(['schedules', 'experiences.features', 'images', 'experienceCategory'])->findOrFail($id);
 
         return response()->json(array_merge([
             'id' => $l->id,
@@ -103,7 +105,9 @@ class LocationController extends Controller
             'maps_link' => $l->maps_link,
             'image' => $this->imageUrl($l->image),
             'availability_type' => $l->availability_type,
-            'category' => $l->category ?? 'city',
+            'category_id' => $l->category_id,
+            'category_name_en' => $l->experienceCategory?->name_en,
+            'category_name_es' => $l->experienceCategory?->name_es,
             'is_active' => $l->is_active,
             'gallery' => $this->galleryData($l),
             'schedules' => $l->schedules->map(fn ($s) => [
@@ -128,7 +132,7 @@ class LocationController extends Controller
             'address' => 'nullable|string|max:500',
             'maps_link' => 'nullable|string|max:1000',
             'availability_type' => 'nullable|in:weekly,custom',
-            'category' => 'nullable|in:city,countryside',
+            'category_id' => 'required|exists:experience_categories,id',
             'is_active' => 'nullable',
         ]);
 
@@ -138,7 +142,6 @@ class LocationController extends Controller
         $data['description_es'] = $data['description_es'] ?? '';
         $data['address'] = $data['address'] ?? '';
         $data['maps_link'] = $data['maps_link'] ?? null;
-        $data['category'] = $data['category'] ?? 'city';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('locations', 'public');
@@ -166,7 +169,7 @@ class LocationController extends Controller
             'address' => 'nullable|string|max:500',
             'maps_link' => 'nullable|string|max:1000',
             'availability_type' => 'nullable|in:weekly,custom',
-            'category' => 'nullable|in:city,countryside',
+            'category_id' => 'required|exists:experience_categories,id',
             'is_active' => 'nullable',
         ]);
 
@@ -176,7 +179,6 @@ class LocationController extends Controller
         $data['description_es'] = $data['description_es'] ?? '';
         $data['address'] = $data['address'] ?? '';
         $data['maps_link'] = $data['maps_link'] ?? null;
-        $data['category'] = $data['category'] ?? 'city';
 
         if ($request->hasFile('image')) {
             if ($location->image) {
