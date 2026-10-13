@@ -4,8 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 import { fetchTestimonials, submitTestimonial, fetchSettings, type Testimonial } from '@/services/api';
 import { useSectionStyle } from '@/context/SettingsContext';
+import VideoTestimonialsSection from "@/components/VideoTestimonialsSection";
 
 // Utility helper to resolve YouTube URLs or local paths
+
+
 function getYouTubeEmbedUrl(urlOrId: string) {
   if (!urlOrId) return '';
   if (urlOrId.includes('youtube.com/embed/')) return urlOrId;
@@ -51,6 +54,8 @@ function PremiumLazyVideo({ src, index }: { src: string; index: number }) {
   const isYouTube = src.includes('youtube.com') || src.includes('youtu.be') || src.length === 11;
   const embedUrl = isYouTube ? getYouTubeEmbedUrl(src) : src;
 
+
+  
   return (
     <motion.div
       ref={ref}
@@ -308,22 +313,8 @@ export default function TestimonialsPage() {
       </section>
 
       {/* 2. VIDEO STORIES SECTION */}
-      {videoList.length > 0 && (
-        <section className="py-16 sm:py-24 container-max px-4 sm:px-6 lg:px-8" style={videosStyle}>
-          <div className="text-center mb-12">
-            <h2 className="font-display text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2">
-              {videoTitle}
-            </h2>
-            <div className="h-1 w-16 bg-accent rounded mx-auto" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-            {videoList.map((src, idx) => (
-              <PremiumLazyVideo key={idx} src={src} index={idx} />
-            ))}
-          </div>
-        </section>
-      )}
+      <VideoTestimonialsSection />
+      
 
       {/* 3. WRITTEN REVIEWS SECTION */}
       <section className="py-16 bg-white/40 border-y border-neutral-beige/40" style={headersStyle}>
