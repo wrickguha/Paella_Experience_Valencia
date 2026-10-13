@@ -76,6 +76,7 @@ export function useSectionStyle(sectionId: string, pagePrefix = 'hp'): CSSProper
   if (!fontFamily) {
     fontFamily =
       settings[`${pagePrefix}_${normalizedId}_font_family`] ||
+      settings[`blog_${normalizedId}_font_family`] ||
       settings[`langtest_${normalizedId}_font_family`] ||
       settings[`about_${normalizedId}_font_family`] ||
       settings[`testim_${normalizedId}_font_family`] ||
@@ -85,6 +86,7 @@ export function useSectionStyle(sectionId: string, pagePrefix = 'hp'): CSSProper
   if (!rawSize) {
     rawSize =
       settings[`${pagePrefix}_${normalizedId}_font_size`] ||
+      settings[`blog_${normalizedId}_font_size`] ||
       settings[`langtest_${normalizedId}_font_size`] ||
       settings[`about_${normalizedId}_font_size`] ||
       settings[`testim_${normalizedId}_font_size`] ||

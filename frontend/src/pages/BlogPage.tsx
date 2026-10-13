@@ -18,9 +18,11 @@ import {
   fetchBlogPosts,
   fetchBlogCategories,
   subscribeNewsletter,
+  fetchSettings,
   type BlogPost,
   type BlogCategory,
 } from '@/services/api';
+import { useSettings, useSectionStyle } from '@/context/SettingsContext';
 import SectionWrapper from '@/components/SectionWrapper';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 
@@ -28,6 +30,58 @@ export default function BlogPage() {
   useScrollToTop();
   const { i18n } = useTranslation();
   const lang = i18n.language.startsWith('es') ? 'es' : 'en';
+
+  const { settings: globalSettings } = useSettings();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, [lang]);
+
+  const activeSettings = useMemo(() => ({
+    ...globalSettings,
+    ...settings,
+  }), [globalSettings, settings]);
+
+  const heroStyle = useSectionStyle('hero', 'blog');
+  const categoriesStyle = useSectionStyle('categories', 'blog');
+  const featuredStyle = useSectionStyle('featured', 'blog');
+  const gridStyle = useSectionStyle('grid', 'blog');
+  const newsletterStyle = useSectionStyle('newsletter', 'blog');
+
+  // Dynamic content variables with fallbacks
+  const heroBadge = activeSettings[`blog_hero_badge_${lang}`] || (lang === 'es' ? 'El Cuaderno de Valencia' : 'The Valencia Journal & Stories');
+  const heroTitle = activeSettings[`blog_hero_title_${lang}`] || (lang === 'es' ? 'Historias Alrededor del Fuego: Paella, Cultura e Idiomas' : 'Stories from the Table: Paella, Culture & Language');
+  const heroSubtitle = activeSettings[`blog_hero_subtitle_${lang}`] || (lang === 'es' ? 'Recetas tradicionales, secretos del socarrat, guías locales de Valencia y consejos para dominar el español disfrutando de la buena mesa.' : 'Authentic Valencian recipes, the secrets of crispy socarrat, neighborhood discoveries, and insights on mastering conversational Spanish around the table.');
+  const searchPlaceholder = activeSettings[`blog_search_placeholder_${lang}`] || (lang === 'es' ? 'Buscar artículos por ingrediente, receta o tema...' : 'Search articles, recipes, culture, socarrat...');
+  const searchBtnText = activeSettings[`blog_search_btn_${lang}`] || (lang === 'es' ? 'Buscar' : 'Search');
+
+  const filterAllLabel = activeSettings[`blog_filter_all_label_${lang}`] || (lang === 'es' ? 'Todos los Artículos' : 'All Articles');
+
+  const featuredBadge = activeSettings[`blog_featured_badge_${lang}`] || (lang === 'es' ? 'Artículo Destacado' : 'Featured Story');
+  const featuredCta = activeSettings[`blog_featured_cta_${lang}`] || (lang === 'es' ? 'Leer historia' : 'Read Story');
+
+  const articlesTitle = activeSettings[`blog_articles_title_${lang}`] || (lang === 'es' ? 'Últimos Artículos' : 'Latest Articles');
+  const articlesSubtitle = activeSettings[`blog_articles_subtitle_${lang}`] || (lang === 'es' ? 'Explora nuestras crónicas gastronómicas y lecciones culturales' : 'Explore culinary guides, local stories, and language lessons');
+  const cardReadMore = activeSettings[`blog_card_read_more_${lang}`] || (lang === 'es' ? 'Leer' : 'Read');
+  const articlesCounter = activeSettings[`blog_articles_counter_${lang}`] || (lang === 'es' ? 'artículos' : 'articles');
+
+  const searchResultsLabel = activeSettings[`blog_search_results_label_${lang}`] || (lang === 'es' ? 'Resultados para la búsqueda:' : 'Search results for:');
+  const clearSearchLabel = activeSettings[`blog_clear_search_label_${lang}`] || (lang === 'es' ? 'Limpiar filtro' : 'Clear search');
+
+  const emptyTitle = activeSettings[`blog_empty_title_${lang}`] || (lang === 'es' ? 'No se encontraron artículos' : 'No articles found');
+  const emptySubtitle = activeSettings[`blog_empty_subtitle_${lang}`] || (lang === 'es' ? 'Prueba con otra palabra de búsqueda o selecciona otra categoría.' : 'Try searching for different keywords or explore other categories.');
+  const emptyBtn = activeSettings[`blog_empty_btn_${lang}`] || (lang === 'es' ? 'Ver todos los artículos' : 'View all articles');
+
+  const newsletterTitle = activeSettings[`blog_newsletter_title_${lang}`] || (lang === 'es' ? 'Únete a la Comunidad SpeakEasy Valencia' : 'Join the SpeakEasy Valencia Table');
+  const newsletterSubtitle = activeSettings[`blog_newsletter_subtitle_${lang}`] || (lang === 'es' ? 'Recibe historias exclusivas, recetas de nuestra abuela valenciana, guías gastronómicas y vocabulario conversacional directo en tu correo.' : 'Get our seasonal recipes, secret paella techniques, cultural stories, and conversational Spanish tips delivered straight to your inbox.');
+  const newsletterPlaceholder = activeSettings[`blog_newsletter_placeholder_${lang}`] || (lang === 'es' ? 'Tu correo electrónico...' : 'Enter your email...');
+  const newsletterBtn = activeSettings[`blog_newsletter_btn_${lang}`] || (lang === 'es' ? 'Suscribirme' : 'Subscribe');
+  const newsletterSubscribing = activeSettings[`blog_newsletter_subscribing_${lang}`] || (lang === 'es' ? 'Suscribiendo...' : 'Joining...');
+  const newsletterSuccess = activeSettings[`blog_newsletter_success_${lang}`] || (lang === 'es' ? '¡Gracias por unirte! Te hemos enviado una confirmación.' : 'Welcome to the table! Check your inbox for our special welcome guide.');
+  const newsletterDisclaimer = activeSettings[`blog_newsletter_disclaimer_${lang}`] || (lang === 'es' ? 'Cero spam. Solo auténtica pasión gastronómica y lingüística. Date de baja cuando quieras.' : 'Zero spam. Only authentic culinary & language stories. Unsubscribe anytime.');
 
   const [searchParams, setSearchParams] = useSearchParams();
   const currentCategory = searchParams.get('category') || 'all';
@@ -125,7 +179,7 @@ export default function BlogPage() {
   return (
     <div className="bg-bg-main min-h-screen">
       {/* ── 1. Hero Section ────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-primary text-white pt-24 pb-20 sm:pt-28 sm:pb-24">
+      <section className="relative overflow-hidden bg-primary text-white pt-24 pb-20 sm:pt-28 sm:pb-24" style={heroStyle}>
         {/* Decorative background glows */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-accent/20 blur-3xl animate-pulse" />
@@ -142,7 +196,7 @@ export default function BlogPage() {
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-accent text-xs font-semibold uppercase tracking-widest mb-6"
           >
             <FiStar className="w-3.5 h-3.5 text-accent" />
-            {lang === 'es' ? 'El Cuaderno de Valencia' : 'The Valencia Journal & Stories'}
+            {heroBadge}
           </motion.div>
 
           {/* Heading */}
@@ -150,11 +204,9 @@ export default function BlogPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-6"
+            className="text-4xl sm:text-5xl lg:text-6xl font-display font-bold text-white leading-tight mb-6 whitespace-pre-line"
           >
-            {lang === 'es'
-              ? 'Historias Alrededor del Fuego: Paella, Cultura e Idiomas'
-              : 'Stories from the Table: Paella, Culture & Language'}
+            {heroTitle}
           </motion.h1>
 
           {/* Subtitle */}
@@ -162,11 +214,9 @@ export default function BlogPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-lg sm:text-xl text-gray-200 font-body max-w-2xl mx-auto mb-10 leading-relaxed"
+            className="text-lg sm:text-xl text-gray-200 font-body max-w-2xl mx-auto mb-10 leading-relaxed whitespace-pre-line"
           >
-            {lang === 'es'
-              ? 'Recetas tradicionales, secretos del socarrat, guías locales de Valencia y consejos para dominar el español disfrutando de la buena mesa.'
-              : 'Authentic Valencian recipes, the secrets of crispy socarrat, neighborhood discoveries, and insights on mastering conversational Spanish around the table.'}
+            {heroSubtitle}
           </motion.p>
 
           {/* Search bar */}
@@ -183,11 +233,7 @@ export default function BlogPage() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={
-                  lang === 'es'
-                    ? 'Buscar artículos por ingrediente, receta o tema...'
-                    : 'Search articles, recipes, culture, socarrat...'
-                }
+                placeholder={searchPlaceholder}
                 className="w-full pl-12 pr-24 py-4 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-gray-300 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white/20 transition-all shadow-lg"
               />
               {searchTerm && (
@@ -203,7 +249,7 @@ export default function BlogPage() {
                 type="submit"
                 className="absolute right-2 px-5 py-2.5 rounded-full bg-accent hover:bg-accent-alt text-white text-sm font-semibold transition-all shadow-md active:scale-95"
               >
-                {lang === 'es' ? 'Buscar' : 'Search'}
+                {searchBtnText}
               </button>
             </div>
           </motion.form>
@@ -211,7 +257,7 @@ export default function BlogPage() {
       </section>
 
       {/* ── 2. Category Filter Pills ────────────────────────────────── */}
-      <section className="sticky top-20 z-30 bg-bg-main/90 backdrop-blur-md border-b border-neutral-sand/60 py-4 shadow-sm">
+      <section className="sticky top-20 z-30 bg-bg-main/90 backdrop-blur-md border-b border-neutral-sand/60 py-4 shadow-sm" style={categoriesStyle}>
         <div className="container-max px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
             <button
@@ -222,7 +268,7 @@ export default function BlogPage() {
                   : 'bg-white text-neutral-dark hover:bg-neutral-beige/60 border border-gray-200'
               }`}
             >
-              <span>{lang === 'es' ? 'Todos los Artículos' : 'All Articles'}</span>
+              <span>{filterAllLabel}</span>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full font-bold ${
                   currentCategory === 'all' ? 'bg-white/20 text-white' : 'bg-gray-100 text-neutral-gray'
@@ -264,7 +310,7 @@ export default function BlogPage() {
         {activeSearch && (
           <div className="mb-8 flex items-center justify-between bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
             <p className="text-sm text-neutral-dark">
-              {lang === 'es' ? 'Resultados para la búsqueda:' : 'Search results for:'}{' '}
+              {searchResultsLabel}{' '}
               <span className="font-bold text-primary font-mono">"{activeSearch}"</span>
             </p>
             <button
@@ -272,14 +318,14 @@ export default function BlogPage() {
               className="text-xs font-semibold text-accent hover:underline flex items-center gap-1"
             >
               <FiX className="w-3.5 h-3.5" />
-              {lang === 'es' ? 'Limpiar filtro' : 'Clear search'}
+              {clearSearchLabel}
             </button>
           </div>
         )}
 
         {/* ── 3. Featured Article (Hero Card) ─────────────────────── */}
         {featuredPost && currentCategory === 'all' && !activeSearch && !loading && (
-          <div className="mb-16">
+          <div className="mb-16" style={featuredStyle}>
             <motion.div
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
@@ -288,7 +334,7 @@ export default function BlogPage() {
               <div className="flex items-center gap-2 mb-4">
                 <span className="w-2.5 h-2.5 rounded-full bg-accent animate-ping" />
                 <span className="text-xs font-bold uppercase tracking-wider text-accent font-modern">
-                  {lang === 'es' ? 'Artículo Destacado' : 'Featured Story'}
+                  {featuredBadge}
                 </span>
               </div>
 
@@ -366,7 +412,7 @@ export default function BlogPage() {
                       </div>
 
                       <span className="inline-flex items-center gap-1 text-sm font-bold text-accent group-hover:translate-x-1 transition-transform duration-300">
-                        <span>{lang === 'es' ? 'Leer historia' : 'Read Story'}</span>
+                        <span>{featuredCta}</span>
                         <FiArrowRight className="w-4 h-4" />
                       </span>
                     </div>
@@ -378,24 +424,20 @@ export default function BlogPage() {
         )}
 
         {/* ── 4. Latest Articles Grid ───────────────────────────────── */}
-        <div>
+        <div style={gridStyle}>
           <div className="flex items-center justify-between mb-8">
             <div>
               <h2 className="text-2xl sm:text-3xl font-display font-bold text-primary">
                 {currentCategory === 'all'
-                  ? lang === 'es'
-                    ? 'Últimos Artículos'
-                    : 'Latest Articles'
-                  : categories.find((c) => c.slug === currentCategory)?.name || 'Articles'}
+                  ? articlesTitle
+                  : categories.find((c) => c.slug === currentCategory)?.name || articlesTitle}
               </h2>
               <p className="text-sm text-neutral-gray mt-1">
-                {lang === 'es'
-                  ? 'Explora nuestras crónicas gastronómicas y lecciones culturales'
-                  : 'Explore culinary guides, local stories, and language lessons'}
+                {articlesSubtitle}
               </p>
             </div>
             <span className="text-xs font-semibold text-neutral-gray bg-white px-3 py-1.5 rounded-full border border-gray-200">
-              {displayedPosts.length} {lang === 'es' ? 'artículos' : 'articles'}
+              {displayedPosts.length} {articlesCounter}
             </span>
           </div>
 
@@ -419,12 +461,10 @@ export default function BlogPage() {
                 <FiBookOpen className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold font-display text-primary mb-2">
-                {lang === 'es' ? 'No se encontraron artículos' : 'No articles found'}
+                {emptyTitle}
               </h3>
               <p className="text-sm text-neutral-gray mb-6">
-                {lang === 'es'
-                  ? 'Prueba con otra palabra de búsqueda o selecciona otra categoría.'
-                  : 'Try searching for different keywords or explore other categories.'}
+                {emptySubtitle}
               </p>
               <button
                 onClick={() => {
@@ -433,7 +473,7 @@ export default function BlogPage() {
                 }}
                 className="btn-primary !px-6 !py-3 !text-sm"
               >
-                {lang === 'es' ? 'Ver todos los artículos' : 'View all articles'}
+                {emptyBtn}
               </button>
             </div>
           ) : (
@@ -508,7 +548,7 @@ export default function BlogPage() {
                         to={`/blog/${post.slug}`}
                         className="inline-flex items-center gap-1 text-xs font-bold text-accent group-hover:translate-x-1 transition-transform"
                       >
-                        <span>{lang === 'es' ? 'Leer' : 'Read'}</span>
+                        <span>{cardReadMore}</span>
                         <FiArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -521,7 +561,7 @@ export default function BlogPage() {
       </main>
 
       {/* ── 5. Newsletter / CTA Section ────────────────────────────── */}
-      <section className="bg-primary text-white py-20 relative overflow-hidden mt-16">
+      <section className="bg-primary text-white py-20 relative overflow-hidden mt-16" style={newsletterStyle}>
         <div className="absolute inset-0 pointer-events-none opacity-20">
           <div className="absolute -top-40 right-0 w-96 h-96 rounded-full bg-accent blur-3xl" />
           <div className="absolute -bottom-40 left-0 w-96 h-96 rounded-full bg-primary-light blur-3xl" />
@@ -532,26 +572,18 @@ export default function BlogPage() {
             <FiMail className="w-7 h-7" />
           </div>
 
-          <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-4">
-            {lang === 'es'
-              ? 'Únete a la Comunidad SpeakEasy Valencia'
-              : 'Join the SpeakEasy Valencia Table'}
+          <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-4 whitespace-pre-line">
+            {newsletterTitle}
           </h2>
 
-          <p className="text-base sm:text-lg text-gray-300 font-body mb-8 leading-relaxed">
-            {lang === 'es'
-              ? 'Recibe historias exclusivas, recetas de nuestra abuela valenciana, guías gastronómicas y vocabulario conversacional directo en tu correo.'
-              : 'Get our seasonal recipes, secret paella techniques, cultural stories, and conversational Spanish tips delivered straight to your inbox.'}
+          <p className="text-base sm:text-lg text-gray-300 font-body mb-8 leading-relaxed whitespace-pre-line">
+            {newsletterSubtitle}
           </p>
 
           {subscribed ? (
             <div className="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400 text-emerald-200 px-6 py-4 rounded-2xl text-sm font-semibold">
               <FiCheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
-              <span>
-                {lang === 'es'
-                  ? '¡Gracias por unirte! Te hemos enviado una confirmación.'
-                  : 'Welcome to the table! Check your inbox for our special welcome guide.'}
-              </span>
+              <span>{newsletterSuccess}</span>
             </div>
           ) : (
             <form onSubmit={handleNewsletterSubmit} className="max-w-md mx-auto">
@@ -560,7 +592,7 @@ export default function BlogPage() {
                   type="email"
                   value={newsletterEmail}
                   onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder={lang === 'es' ? 'Tu correo electrónico...' : 'Enter your email...'}
+                  placeholder={newsletterPlaceholder}
                   required
                   className="flex-1 px-5 py-4 rounded-xl bg-white text-neutral-dark placeholder-gray-400 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
                 />
@@ -569,20 +601,12 @@ export default function BlogPage() {
                   disabled={subscribing}
                   className="btn-primary !px-7 !py-4 !text-sm whitespace-nowrap"
                 >
-                  {subscribing
-                    ? lang === 'es'
-                      ? 'Suscribiendo...'
-                      : 'Joining...'
-                    : lang === 'es'
-                    ? 'Suscribirme'
-                    : 'Subscribe'}
+                  {subscribing ? newsletterSubscribing : newsletterBtn}
                 </button>
               </div>
               {subscribeError && <p className="text-xs text-red-300 mt-2">{subscribeError}</p>}
               <p className="text-xs text-gray-400 mt-3">
-                {lang === 'es'
-                  ? 'Cero spam. Solo auténtica pasión gastronómica y lingüística. Date de baja cuando quieras.'
-                  : 'Zero spam. Only authentic culinary & language stories. Unsubscribe anytime.'}
+                {newsletterDisclaimer}
               </p>
             </form>
           )}

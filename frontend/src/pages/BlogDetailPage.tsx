@@ -14,7 +14,8 @@ import {
   FiBookOpen,
 } from 'react-icons/fi';
 import { FaTwitter, FaFacebookF, FaWhatsapp } from 'react-icons/fa';
-import { fetchBlogPostBySlug, type BlogPost } from '@/services/api';
+import { fetchBlogPostBySlug, fetchSettings, type BlogPost } from '@/services/api';
+import { useSettings } from '@/context/SettingsContext';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 
 export default function BlogDetailPage() {
@@ -22,6 +23,17 @@ export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const { i18n } = useTranslation();
   const lang = i18n.language.startsWith('es') ? 'es' : 'en';
+
+  const { settings: globalSettings } = useSettings();
+  const [settings, setSettings] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    fetchSettings('general')
+      .then(setSettings)
+      .catch(() => {});
+  }, [lang]);
+
+  const activeSettings = { ...globalSettings, ...settings };
 
   const [post, setPost] = useState<BlogPost | null>(null);
   const [related, setRelated] = useState<BlogPost[]>([]);
@@ -480,27 +492,27 @@ export default function BlogDetailPage() {
         <div className="mt-16 bg-gradient-to-r from-primary to-primary-light text-white rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden shadow-elevated">
           <div className="relative z-10 max-w-2xl mx-auto space-y-4">
             <span className="inline-block text-xs font-bold uppercase tracking-widest text-accent bg-white/10 px-4 py-1 rounded-full">
-              {lang === 'es' ? 'La Experiencia en Persona' : 'Live the Experience'}
+              {activeSettings[`blog_detail_cta_badge_${lang}`] || (lang === 'es' ? 'La Experiencia en Persona' : 'Live the Experience')}
             </span>
             <h3 className="text-2xl sm:text-3xl font-display font-bold text-white">
-              {lang === 'es'
+              {activeSettings[`blog_detail_cta_title_${lang}`] || (lang === 'es'
                 ? '¿Listo para Saborear la Auténtica Paella en Valencia?'
-                : 'Ready to Taste Authentic Paella Over Orange Wood in Valencia?'}
+                : 'Ready to Taste Authentic Paella Over Orange Wood in Valencia?')}
             </h3>
             <p className="text-sm sm:text-base text-gray-200 leading-relaxed font-body">
-              {lang === 'es'
+              {activeSettings[`blog_detail_cta_desc_${lang}`] || (lang === 'es'
                 ? 'No te limites a leerlo. Únete a nuestro acogedor taller gastronómico, practica español con nosotros y rasca tu propia cucharada de socarrat.'
-                : 'Reading about paella is wonderful; tasting it fresh from the wood-fired pan while speaking Spanish and laughing with international friends is unforgettable.'}
+                : 'Reading about paella is wonderful; tasting it fresh from the wood-fired pan while speaking Spanish and laughing with international friends is unforgettable.')}
             </p>
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link to="/booking" className="btn-primary !px-8 !py-4 !text-base">
-                {lang === 'es' ? 'Reservar Mi Experiencia' : 'Book My Experience'}
+                {activeSettings[`blog_detail_cta_primary_${lang}`] || (lang === 'es' ? 'Reservar Mi Experiencia' : 'Book My Experience')}
               </Link>
               <Link
                 to="/blog"
                 className="px-6 py-4 rounded-xl border border-white/20 text-white hover:bg-white/10 text-sm font-semibold transition-colors"
               >
-                {lang === 'es' ? 'Más Artículos' : 'Explore More Stories'}
+                {activeSettings[`blog_detail_cta_secondary_${lang}`] || (lang === 'es' ? 'Más Artículos' : 'Explore More Stories')}
               </Link>
             </div>
           </div>

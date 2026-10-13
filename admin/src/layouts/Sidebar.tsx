@@ -18,6 +18,7 @@ import {
   Info,
   GraduationCap,
   Newspaper,
+  BookMarked,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -41,6 +42,7 @@ const CONTENT_PAGE_ITEMS = [
   { to: '/admin/testimonials-page', icon: MessageSquareQuote, label: 'Testimonials Page' },
   { to: '/admin/about-page', icon: Info, label: 'About Page' },
   { to: '/admin/language-test-page', icon: GraduationCap, label: 'Language Tests Page' },
+  { to: '/admin/blog-page', icon: BookMarked, label: 'Blog Page' },
 ];
 
 interface SidebarProps {
