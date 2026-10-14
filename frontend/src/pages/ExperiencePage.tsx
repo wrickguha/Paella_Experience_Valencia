@@ -403,6 +403,13 @@ export default function ExperiencePage() {
       : `/storage/${path}`;
   };
 
+  const getCategoryPrefix = (category: FrontendExperienceCategory) => {
+    if (category.slug === 'city') return 'experience_city';
+    if (category.slug === 'countryside') return 'experience_country';
+    const safeSlug = category.slug.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    return `experience_${safeSlug}`;
+  };
+
   const cityImage = settings.experience_city_image
     ? resolveImageUrl(settings.experience_city_image)
     : "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=800&auto=format&fit=crop";
@@ -414,23 +421,65 @@ export default function ExperiencePage() {
   const countryIcon = settings.experience_country_icon || '🌿';
 
   const getCategoryTitle = (category: FrontendExperienceCategory) => {
+    const prefix = getCategoryPrefix(category);
+    const safeSlug = category.slug.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const customTitle = settings[`${prefix}_title_${langSuffix}`]
+      || settings[`experience_${safeSlug}_title_${langSuffix}`]
+      || settings[`experience_cat_${category.id}_title_${langSuffix}`];
+
+    if (customTitle) return customTitle;
+
     if (category.slug === 'city') {
-      return settings[`experience_city_title_${langSuffix}`] || t('experience.categories.city.title', 'City Experiences');
+      return t('experience.categories.city.title', 'City Experiences');
     }
     if (category.slug === 'countryside') {
-      return settings[`experience_country_title_${langSuffix}`] || t('experience.categories.countryside.title', 'Countryside Experiences');
+      return t('experience.categories.countryside.title', 'Countryside Experiences');
     }
     return category.name;
   };
 
   const getCategoryDescription = (category: FrontendExperienceCategory) => {
+    const prefix = getCategoryPrefix(category);
+    const safeSlug = category.slug.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const customDesc = settings[`${prefix}_desc_${langSuffix}`]
+      || settings[`experience_${safeSlug}_desc_${langSuffix}`]
+      || settings[`experience_cat_${category.id}_desc_${langSuffix}`];
+
+    if (customDesc !== undefined && customDesc !== '') return customDesc;
+
     if (category.slug === 'city') {
-      return settings[`experience_city_desc_${langSuffix}`] || t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life');
+      return t('experience.categories.city.subtitle', 'Immersion in urban cooking studios, historical venues, and local life');
     }
     if (category.slug === 'countryside') {
-      return settings[`experience_country_desc_${langSuffix}`] || t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves');
+      return t('experience.categories.countryside.subtitle', 'Gatherings in quiet fincas, surrounded by nature and orange groves');
     }
     return '';
+  };
+
+  const getCategoryIcon = (category: FrontendExperienceCategory) => {
+    const prefix = getCategoryPrefix(category);
+    const safeSlug = category.slug.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const customIcon = settings[`${prefix}_icon`]
+      || settings[`experience_${safeSlug}_icon`]
+      || settings[`experience_cat_${category.id}_icon`];
+
+    if (customIcon) return customIcon;
+    if (category.slug === 'city') return cityIcon;
+    if (category.slug === 'countryside') return countryIcon;
+    return '📍';
+  };
+
+  const getCategoryImage = (category: FrontendExperienceCategory, firstLocation?: FrontendLocation) => {
+    const prefix = getCategoryPrefix(category);
+    const safeSlug = category.slug.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+    const customImage = settings[`${prefix}_image`]
+      || settings[`experience_${safeSlug}_image`]
+      || settings[`experience_cat_${category.id}_image`];
+
+    if (customImage) return resolveImageUrl(customImage);
+    if (category.slug === 'city') return cityImage;
+    if (category.slug === 'countryside') return countryImage;
+    return firstLocation?.hero_image || firstLocation?.image || cityImage;
   };
 
   useEffect(() => {
@@ -494,14 +543,11 @@ export default function ExperiencePage() {
             {categories.map((category) => {
               const categoryLocations = locations.filter((location) => location.category_id === category.id);
               const firstLocation = categoryLocations[0];
-              const categoryImage = category.slug === 'city'
-                ? cityImage
-                : category.slug === 'countryside'
-                  ? countryImage
-                  : firstLocation?.hero_image || firstLocation?.image || cityImage;
-              const categoryIcon = category.slug === 'city' ? cityIcon : category.slug === 'countryside' ? countryIcon : '📍';
+              const categoryImage = getCategoryImage(category, firstLocation);
+              const categoryIcon = getCategoryIcon(category);
               const categoryTitle = getCategoryTitle(category);
               const categoryDescription = getCategoryDescription(category);
+
 
               return (
                 <motion.div
