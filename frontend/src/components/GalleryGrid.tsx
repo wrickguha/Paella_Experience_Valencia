@@ -11,13 +11,20 @@ const galleryCache = new Map<string, { images: GalleryImage[]; categories: Galle
 
 // Real event photos — used as fallback when API returns no data
 const LOCAL_GALLERY: GalleryImage[] = [
-  { id: -1, src: '/storage/assets/images/casa-magnolia/Chef Gene.jpg', alt: 'Chef Gene presenting the paella at Casa Magnolia', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
-  { id: -2, src: '/storage/assets/images/casa-magnolia/Paella valenciana.jpg', alt: 'Traditional Paella Valenciana', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
-  { id: -3, src: '/storage/assets/images/casa-magnolia/Sobremesa.jpg', alt: 'Guests sharing stories after the meal', categoryId: null, categorySlug: 'people-and-moments', categoryName: 'People & Moments' },
-  { id: -4, src: '/storage/assets/images/casa-magnolia/Socarrat.jpg', alt: 'The perfect socarrat — crispy caramelised rice base', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
+  { id: -1, src: '/storage/gallery/chef-gene.jpg', alt: 'Chef Gene presenting the paella at Casa Magnolia', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
+  { id: -2, src: '/storage/gallery/paella-valenciana.jpg', alt: 'Traditional Paella Valenciana', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
+  { id: -3, src: '/storage/gallery/sobremesa.jpg', alt: 'Guests sharing stories after the meal', categoryId: null, categorySlug: 'people-and-moments', categoryName: 'People & Moments' },
+  { id: -4, src: '/storage/gallery/socarrat.jpg', alt: 'The perfect socarrat — crispy caramelised rice base', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
   { id: -5, src: '/storage/assets/images/speakeasy/GPTempDownload.jpg', alt: 'The Speakeasy paella experience', categoryId: null, categorySlug: 'the-experience', categoryName: 'The Experience' },
-  { id: -6, src: '/storage/assets/images/casa-magnolia/Paella 1.jpg', alt: 'Paella sizzling over open flame at Casa Magnolia', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
+  { id: -6, src: '/storage/gallery/paella-1.jpg', alt: 'Paella sizzling over open flame at Casa Magnolia', categoryId: null, categorySlug: 'paella-and-food', categoryName: 'Paella & Food' },
 ];
+
+const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  'paella-and-food': '/storage/gallery/paella-valenciana.jpg',
+  'people-and-moments': '/storage/gallery/sobremesa.jpg',
+  'places-and-atmosphere': '/storage/assets/images/speakeasy/GPTempDownload(2).jpg',
+  'the-experience': '/storage/assets/images/speakeasy/GPTempDownload.jpg',
+};
 
 const FALLBACK_CATEGORIES = [
   { slug: 'paella-and-food', en: 'Paella & Food', es: 'Paella y cocina' },
@@ -134,9 +141,22 @@ export default function GalleryGrid() {
             <img
               src={image.src}
               alt={image.alt}
-              loading={index === 0 ? 'eager' : 'lazy'}
+              loading="eager"
               fetchPriority={index === 0 ? 'high' : 'auto'}
-              onError={(event) => { event.currentTarget.style.display = 'none'; }}
+              decoding="async"
+              onError={(event) => {
+                const img = event.currentTarget;
+                const fallback = image.categorySlug
+                  ? CATEGORY_FALLBACK_IMAGES[image.categorySlug]
+                  : undefined;
+
+                if (fallback && img.dataset.fallbackApplied !== 'true') {
+                  img.dataset.fallbackApplied = 'true';
+                  img.src = fallback;
+                } else {
+                  img.style.display = 'none';
+                }
+              }}
               className="w-full h-full object-cover transition-transform duration-500
                          group-hover:scale-110"
             />
