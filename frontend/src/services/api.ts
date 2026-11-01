@@ -23,11 +23,13 @@ export type LocationId = string;
 
 export interface CalendarEvent {
   date: string;
+  endDate?: string;
   locationId: LocationId;
   locationNumericId: number;
   experienceId: number;
   locationName: string;
   time: string;
+  endTime?: string;
   spotsLeft: number;
   pricePerPerson: number;
   image: string;
@@ -57,11 +59,13 @@ interface ApiExperience {
 
 interface BackendCalendarEvent {
   date: string;
+  end_date?: string | null;
   location_id: number;
   location: string;
   experience_id: number | null;
   experience_price: number;
   start_time: string;
+  end_time: string;
   available_slots: number;
   is_available: boolean;
 }
@@ -133,11 +137,13 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         : galleryImages;
       return {
         date: e.date,
+        ...(e.end_date ? { endDate: e.end_date } : {}),
         locationId: slugFromName(e.location),
         locationNumericId: e.location_id,
         experienceId: e.experience_id ?? 0,
         locationName: e.location,
         time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
+        ...(e.end_date ? { endTime: e.end_time.substring(0, 5) } : {}),
         spotsLeft: e.available_slots,
         pricePerPerson: e.experience_price || loc?.price || 59,
         image: primaryImage,
@@ -153,6 +159,7 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
 export interface LocationSchedule {
   day_of_week: number | null;
   date: string | null;
+  end_date: string | null;
   start_time: string;
   end_time: string;
 }

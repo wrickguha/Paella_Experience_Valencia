@@ -17,7 +17,9 @@ interface SelectedEvent {
   locationNumericId: number;
   experienceId: number;
   date: string;
+  endDate?: string;
   time: string;
+  endTime?: string;
   pricePerPerson: number;
   locationName: string;
   features: string[];
@@ -62,7 +64,9 @@ export default function BookingPage() {
       locationNumericId: event.locationNumericId,
       experienceId: event.experienceId,
       date: event.date,
+      endDate: event.endDate,
       time: event.time,
+      endTime: event.endTime,
       pricePerPerson: event.pricePerPerson,
       locationName: event.locationName,
       features: event.features ?? [],
@@ -97,7 +101,9 @@ export default function BookingPage() {
                 locationNumericId: match.locationNumericId,
                 experienceId: match.experienceId,
                 date: match.date,
+                endDate: match.endDate,
                 time: match.time,
+                endTime: match.endTime,
                 pricePerPerson: match.pricePerPerson,
                 locationName: match.locationName,
                 features: match.features ?? [],
@@ -158,7 +164,9 @@ export default function BookingPage() {
         locationNumericId: selectedEvent.locationNumericId,
         experienceId: selectedEvent.experienceId,
         date: selectedEvent.date,
+        endDate: selectedEvent.endDate,
         time: selectedEvent.time,
+        endTime: selectedEvent.endTime,
         guests,
         total: selectedEvent.pricePerPerson * guests,
         pricePerPerson: selectedEvent.pricePerPerson,
@@ -189,6 +197,13 @@ export default function BookingPage() {
         day: 'numeric',
       })
     : '';
+  const formattedEndDate = selectedEvent?.endDate
+      ? new Date(`${selectedEvent.endDate}T00:00:00`).toLocaleDateString(undefined, {
+          weekday: 'short',
+          month: 'long',
+          day: 'numeric',
+        })
+      : '';
 
   return (
     <div className="section-padding bg-neutral-cream min-h-screen">
@@ -253,6 +268,7 @@ export default function BookingPage() {
                     </p>
                     <p className="text-neutral-gray text-xs mt-0.5">
                       {formattedDate} · {selectedEvent.time}
+                      {selectedEvent.endDate && ` – ${formattedEndDate} · ${selectedEvent.endTime}`}
                     </p>
                   </div>
                   <button

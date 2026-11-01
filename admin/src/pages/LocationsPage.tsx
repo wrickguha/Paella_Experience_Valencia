@@ -14,6 +14,7 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 interface ScheduleEntry {
   day_of_week: number | null;
   date?: string | null;
+  end_date?: string | null;
   start_time: string;
   end_time: string;
   total_slots?: number;
@@ -25,6 +26,15 @@ interface CustomDateEntry {
   start_time: string;
   end_time: string;
   total_slots?: number;
+  is_active: boolean;
+}
+
+interface RangeEventEntry {
+  date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  total_slots: number;
   is_active: boolean;
 }
 
@@ -86,6 +96,7 @@ const EMPTY: Partial<Location> = {
 
 const EMPTY_SCHEDULE: ScheduleEntry = { day_of_week: 1, start_time: '12:00', end_time: '16:00', total_slots: 12, is_active: true };
 const EMPTY_CUSTOM_DATE: CustomDateEntry = { date: '', start_time: '11:00', end_time: '20:00', total_slots: 12, is_active: true };
+const EMPTY_RANGE_EVENT: RangeEventEntry = { date: '', end_date: '', start_time: '21:00', end_time: '00:00', total_slots: 12, is_active: true };
 
 interface LocationsPageProps {
   isTab?: boolean;
@@ -105,6 +116,7 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
   const [deleting, setDeleting] = useState(false);
   const [features, setFeatures] = useState<FeatureEntry[]>([]);
   const [customDates, setCustomDates] = useState<CustomDateEntry[]>([]);
+  const [rangeEvent, setRangeEvent] = useState<RangeEventEntry>({ ...EMPTY_RANGE_EVENT });
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [galleryPreviews, setGalleryPreviews] = useState<{ id?: number; url: string; isNew?: boolean }[]>([]);
   const [removeGalleryIds, setRemoveGalleryIds] = useState<number[]>([]);
@@ -144,6 +156,7 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
     setEditing({ ...EMPTY, schedules: [], features: [] });
     setFeatures([]);
     setCustomDates([]);
+    setRangeEvent({ ...EMPTY_RANGE_EVENT });
     setGalleryFiles([]);
     setGalleryPreviews([]);
     setRemoveGalleryIds([]);
@@ -171,7 +184,7 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
         total_slots: s.total_slots ?? 12,
       }));
     const customDatesFromServer: CustomDateEntry[] = allSchedules
-      .filter((s) => s.date)
+      .filter((s) => s.date && loc.availability_type === 'custom')
       .map((s) => ({
         date: s.date as string,
         start_time: s.start_time,
@@ -179,9 +192,22 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
         total_slots: s.total_slots ?? 12,
         is_active: s.is_active,
       }));
+    const rangeSchedule = loc.availability_type === 'range'
+      ? allSchedules.find((s) => s.date)
+      : undefined;
     setEditing({ ...loc, schedules: weeklySchedules });
     setFeatures(loc.features || []);
     setCustomDates(customDatesFromServer);
+    setRangeEvent(rangeSchedule
+      ? {
+          date: rangeSchedule.date || '',
+          end_date: rangeSchedule.end_date || '',
+          start_time: rangeSchedule.start_time,
+          end_time: rangeSchedule.end_time,
+          total_slots: rangeSchedule.total_slots ?? 12,
+          is_active: rangeSchedule.is_active,
+        }
+      : { ...EMPTY_RANGE_EVENT });
     setGalleryFiles([]);
     setGalleryPreviews(
       (loc.gallery || []).map((g) => ({ id: g.id, url: g.image }))
@@ -202,10 +228,10 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
       fd.append('availability_type', editing.availability_type || 'weekly');
       fd.append('category_id', String(editing.category_id ?? ''));
       fd.append('is_active', editing.is_active ? '1' : '0');
-      // Combine weekly and custom date schedules into one array
-      const schedulesData =
-        editing.availability_type === 'custom'
-          ? customDates.map((cd) => ({ ...cd, day_of_week: null }))
+      const schedulesData = editing.availability_type === 'custom'
+        ? customDates.map((cd) => ({ ...cd, day_of_week: null }))
+        : editing.availability_type === 'range'
+          ? [{ ...rangeEvent, day_of_week: null }]
           : (editing.schedules || []);
       fd.append('schedules', JSON.stringify(schedulesData));
       // Experience fields
@@ -344,7 +370,9 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
           <Badge variant="info">{r.availability_type}</Badge>
           {r.schedules && r.schedules.length > 0 && (
             <p className="text-xs text-neutral-gray mt-0.5">
-              {r.schedules.map((s) => DAY_NAMES[s.day_of_week]?.slice(0, 3)).join(', ')}
+              {r.availability_type === 'range'
+                ? 'One-time event'
+                : r.schedules.map((s) => s.day_of_week == null ? '' : DAY_NAMES[s.day_of_week]?.slice(0, 3)).filter(Boolean).join(', ')}
             </p>
           )}
         </div>
@@ -415,7 +443,11 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
             onChange={(e) => {
               setEditing({ ...editing, availability_type: e.target.value });
             }}
-            options={[{ value: 'weekly', label: 'Weekly Schedule' }, { value: 'custom', label: 'Custom Dates' }]}
+            options={[
+              { value: 'weekly', label: 'Weekly Schedule' },
+              { value: 'custom', label: 'Custom Dates' },
+              { value: 'range', label: 'Date & Time Range' },
+            ]}
           />
           <FormSelect
             label="Category"
@@ -513,6 +545,55 @@ export default function LocationsPage({ isTab = false, onRegisterCreate, onRegis
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {editing.availability_type === 'range' && (
+            <div className="md:col-span-2 border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <CalendarDays className="w-4 h-4 text-primary" />
+                <p className="text-sm font-semibold text-neutral-dark">One-time Event Range</p>
+              </div>
+              <p className="text-sm text-neutral-gray mb-4">
+                This creates one bookable event. Guests select its start date and time.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <FormInput
+                  label="Starts on"
+                  type="date"
+                  value={rangeEvent.date}
+                  onChange={(e) => setRangeEvent({ ...rangeEvent, date: e.target.value })}
+                />
+                <FormInput
+                  label="Ends on"
+                  type="date"
+                  min={rangeEvent.date || undefined}
+                  value={rangeEvent.end_date}
+                  onChange={(e) => setRangeEvent({ ...rangeEvent, end_date: e.target.value })}
+                />
+                <FormInput
+                  label="Start time"
+                  type="time"
+                  value={rangeEvent.start_time}
+                  onChange={(e) => setRangeEvent({ ...rangeEvent, start_time: e.target.value })}
+                />
+                <FormInput
+                  label="End time"
+                  type="time"
+                  value={rangeEvent.end_time}
+                  onChange={(e) => setRangeEvent({ ...rangeEvent, end_time: e.target.value })}
+                />
+                <FormInput
+                  label="Available spots"
+                  type="number"
+                  min={1}
+                  value={rangeEvent.total_slots}
+                  onChange={(e) => setRangeEvent({
+                    ...rangeEvent,
+                    total_slots: parseInt(e.target.value, 10) || 1,
+                  })}
+                />
+              </div>
             </div>
           )}
 

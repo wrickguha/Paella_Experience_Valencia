@@ -19,7 +19,9 @@ interface StoredBooking {
   experienceId: number;
   locationName: string;
   date: string;
+  endDate?: string;
   time: string;
+  endTime?: string;
   guests: number;
   total: number;
   pricePerPerson: number;
@@ -303,11 +305,20 @@ export default function PaymentPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-neutral-gray">{t('booking.summary.date')}</span>
-                    <span className="text-neutral-dark font-medium">{formattedDate}</span>
+                    <span className="text-neutral-dark font-medium">
+                      {formattedDate}{stored.endDate && ` – ${new Date(`${stored.endDate}T00:00:00`).toLocaleDateString(undefined, {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}`}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-neutral-gray">{t('booking.summary.time')}</span>
-                    <span className="text-neutral-dark font-medium">{stored.time}</span>
+                    <span className="text-neutral-dark font-medium">
+                      {stored.time}{stored.endTime && ` – ${stored.endTime}`}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-neutral-gray">{t('booking.summary.guestCount')}</span>

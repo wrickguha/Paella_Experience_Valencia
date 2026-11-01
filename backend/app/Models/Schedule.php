@@ -13,6 +13,7 @@ class Schedule extends Model
     protected $fillable = [
         'location_id',
         'date',
+        'end_date',
         'day_of_week',
         'start_time',
         'end_time',
@@ -23,6 +24,7 @@ class Schedule extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'date' => 'date:Y-m-d',
+        'end_date' => 'date:Y-m-d',
     ];
 
     public function location(): BelongsTo

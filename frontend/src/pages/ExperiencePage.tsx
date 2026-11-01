@@ -30,6 +30,17 @@ function slugFromName(name: string): string {
 function formatAvailability(schedules: LocationSchedule[], availabilityType: string): string {
   if (schedules.length === 0) return availabilityType || 'Available';
 
+  if (availabilityType === 'range') {
+    const event = schedules.find((schedule) => schedule.date && schedule.end_date);
+    if (!event) return 'One-time event';
+    const formatDate = (date: string) => new Date(`${date}T00:00:00`).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+    return `${formatDate(event.date!)} – ${formatDate(event.end_date!)}`;
+  }
+
   // Custom date schedules have day_of_week = null and a specific date
   const isCustomDate = schedules.every((s) => s.day_of_week == null);
   if (isCustomDate) {

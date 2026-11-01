@@ -134,6 +134,7 @@ class CalendarService
             if ($slot !== null) {
                 $calendar->push([
                     'date'             => $dateStr,
+                    'end_date'         => $schedule->end_date?->format('Y-m-d'),
                     'location_id'      => $locationId,
                     'location'         => $location->name_en,
                     'experience_id'    => $experienceId,
@@ -149,6 +150,7 @@ class CalendarService
             } else {
                 $calendar->push([
                     'date'             => $dateStr,
+                    'end_date'         => $schedule->end_date?->format('Y-m-d'),
                     'location_id'      => $locationId,
                     'location'         => $location->name_en,
                     'experience_id'    => $experienceId,

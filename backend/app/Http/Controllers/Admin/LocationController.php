@@ -8,9 +8,11 @@ use App\Models\Experience;
 use App\Models\ExperienceFeature;
 use App\Models\Schedule;
 use App\Models\LocationImage;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class LocationController extends Controller
 {
@@ -76,6 +78,7 @@ class LocationController extends Controller
                     'id' => $s->id,
                     'day_of_week' => $s->day_of_week,
                     'date' => $s->date ? $s->date->format('Y-m-d') : null,
+                    'end_date' => $s->end_date ? $s->end_date->format('Y-m-d') : null,
                     'start_time' => substr($s->start_time, 0, 5),
                     'end_time' => substr($s->end_time, 0, 5),
                     'total_slots' => $s->total_slots ?? 12,
@@ -114,6 +117,7 @@ class LocationController extends Controller
                 'id' => $s->id,
                 'day_of_week' => $s->day_of_week,
                 'date' => $s->date ? $s->date->format('Y-m-d') : null,
+                'end_date' => $s->end_date ? $s->end_date->format('Y-m-d') : null,
                 'start_time' => substr($s->start_time, 0, 5),
                 'end_time' => substr($s->end_time, 0, 5),
                 'total_slots' => $s->total_slots ?? 12,
@@ -131,10 +135,14 @@ class LocationController extends Controller
             'description_es' => 'nullable|string',
             'address' => 'nullable|string|max:500',
             'maps_link' => 'nullable|string|max:1000',
-            'availability_type' => 'nullable|in:weekly,custom',
+            'availability_type' => 'nullable|in:weekly,custom,range',
             'category_id' => 'required|exists:experience_categories,id',
             'is_active' => 'nullable',
         ]);
+
+        if (($data['availability_type'] ?? null) === 'range') {
+            $this->validateRangeSchedule($request);
+        }
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
         $data['name_es'] = $data['name_es'] ?? '';
@@ -168,10 +176,14 @@ class LocationController extends Controller
             'description_es' => 'nullable|string',
             'address' => 'nullable|string|max:500',
             'maps_link' => 'nullable|string|max:1000',
-            'availability_type' => 'nullable|in:weekly,custom',
+            'availability_type' => 'nullable|in:weekly,custom,range',
             'category_id' => 'required|exists:experience_categories,id',
             'is_active' => 'nullable',
         ]);
+
+        if (($data['availability_type'] ?? null) === 'range') {
+            $this->validateRangeSchedule($request);
+        }
 
         $data['is_active'] = filter_var($request->input('is_active', true), FILTER_VALIDATE_BOOLEAN);
         $data['name_es'] = $data['name_es'] ?? '';
@@ -279,6 +291,7 @@ class LocationController extends Controller
 
             $location->schedules()->create([
                 'date' => $isCustomDate ? $s['date'] : null,
+                'end_date' => $s['end_date'] ?? null,
                 'day_of_week' => $isCustomDate ? null : (int) $s['day_of_week'],
                 'start_time' => $s['start_time'],
                 'end_time' => $s['end_time'],
@@ -306,6 +319,40 @@ class LocationController extends Controller
                 }
             }
         }
+    }
+
+    private function validateRangeSchedule(Request $request): void
+    {
+        $schedules = json_decode($request->input('schedules', '[]'), true);
+        $schedules = is_array($schedules) ? $schedules : [];
+
+        $validator = Validator::make(
+            ['schedules' => $schedules],
+            [
+                'schedules' => ['required', 'array', 'size:1'],
+                'schedules.0.date' => ['required', 'date_format:Y-m-d'],
+                'schedules.0.end_date' => ['required', 'date_format:Y-m-d', 'after_or_equal:schedules.0.date'],
+                'schedules.0.start_time' => ['required', 'date_format:H:i'],
+                'schedules.0.end_time' => ['required', 'date_format:H:i'],
+                'schedules.0.total_slots' => ['nullable', 'integer', 'min:1'],
+            ],
+        );
+
+        $validator->after(function ($validator) use ($schedules): void {
+            if ($validator->errors()->isNotEmpty() || count($schedules) !== 1) {
+                return;
+            }
+
+            $schedule = $schedules[0];
+            $start = Carbon::parse($schedule['date'] . ' ' . $schedule['start_time']);
+            $end = Carbon::parse($schedule['end_date'] . ' ' . $schedule['end_time']);
+
+            if ($end->lessThanOrEqualTo($start)) {
+                $validator->errors()->add('schedules.0.end_date', 'The event end must be after its start.');
+            }
+        });
+
+        $validator->validate();
     }
 
     private function syncGallery(Location $location, Request $request): void
