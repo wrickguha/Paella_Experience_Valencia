@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Newspaper,
   BookMarked,
+  Mail,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +33,7 @@ const MAIN_NAV_ITEMS = [
   { to: '/admin/testimonials', icon: Star, label: 'Testimonials' },
   { to: '/admin/blog', icon: Newspaper, label: 'Blog & Articles' },
   { to: '/admin/messages', icon: MessageSquare, label: 'Messages' },
+  { to: '/admin/email-templates', icon: Mail, label: 'Email Templates' },
   { to: '/admin/coupons', icon: Percent, label: 'Coupons' },
   { to: '/admin/settings', icon: Settings, label: 'Settings' },
 ];

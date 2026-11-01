@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use App\Models\Booking;
+use App\Services\EmailTemplateService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -21,10 +21,19 @@ class BookingConfirmation extends Mailable
 
     public function build()
     {
-        return $this->subject('Your Booking Confirmation - SpeakEasy Valencia')
-            ->view('emails.booking_confirmation')
-            ->with([
-                'booking' => $this->booking,
-            ]);
+        $templateService = app(EmailTemplateService::class);
+        $data = ['booking' => $this->booking];
+        $this->subject($templateService->subject(
+            'booking_confirmation',
+            'Your Booking Confirmation - SpeakEasy Valencia',
+            $data
+        ));
+
+        $body = $templateService->body('booking_confirmation', $data);
+        if ($body !== null) {
+            return $this->html($body);
+        }
+
+        return $this->view('emails.booking_confirmation')->with($data);
     }
 }

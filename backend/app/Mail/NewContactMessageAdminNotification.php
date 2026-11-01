@@ -3,8 +3,8 @@
 namespace App\Mail;
 
 use App\Models\ContactMessage;
+use App\Services\EmailTemplateService;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
@@ -21,10 +21,19 @@ class NewContactMessageAdminNotification extends Mailable
 
     public function build()
     {
-        return $this->subject('New Contact Message: ' . $this->contactMessage->subject)
-            ->view('emails.new_contact_message_admin_notification')
-            ->with([
-                'contactMessage' => $this->contactMessage,
-            ]);
+        $templateService = app(EmailTemplateService::class);
+        $data = ['contactMessage' => $this->contactMessage];
+        $this->subject($templateService->subject(
+            'new_contact_message_admin_notification',
+            'New Contact Message: '.$this->contactMessage->subject,
+            $data
+        ));
+
+        $body = $templateService->body('new_contact_message_admin_notification', $data);
+        if ($body !== null) {
+            return $this->html($body);
+        }
+
+        return $this->view('emails.new_contact_message_admin_notification')->with($data);
     }
 }

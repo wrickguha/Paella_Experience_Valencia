@@ -164,6 +164,14 @@ export const messagesApi = {
   unreadCount: () => api.get('/admin/messages/unread-count'),
 };
 
+// ── Email Templates ──
+export const emailTemplatesApi = {
+  list: () => api.get('/admin/email-templates'),
+  create: (data: object) => api.post('/admin/email-templates', data),
+  update: (id: number, data: object) => api.put(`/admin/email-templates/${id}`, data),
+  delete: (id: number) => api.delete(`/admin/email-templates/${id}`),
+};
+
 // ── Activities ──
 export const activitiesApi = {
   list: () => api.get('/admin/activities'),

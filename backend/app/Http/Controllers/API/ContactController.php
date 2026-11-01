@@ -20,14 +20,16 @@ class ContactController extends Controller
 
         $contactMessage = ContactMessage::create($validated);
 
-        try {
-            \Illuminate\Support\Facades\Mail::to('info@speakeasyvalencia.com')
-                ->send(new \App\Mail\NewContactMessageAdminNotification($contactMessage));
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('Admin contact message notification email failed', [
-                'message_id' => $contactMessage->id,
-                'error' => $e->getMessage(),
-            ]);
+        if (app(\App\Services\EmailTemplateService::class)->isEnabled('new_contact_message_admin_notification')) {
+            try {
+                \Illuminate\Support\Facades\Mail::to('info@speakeasyvalencia.com')
+                    ->send(new \App\Mail\NewContactMessageAdminNotification($contactMessage));
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Admin contact message notification email failed', [
+                    'message_id' => $contactMessage->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         return response()->json([

@@ -178,15 +178,17 @@ class StripeService
             ]);
 
             // Send booking confirmation email
-            try {
-                Mail::to($booking->email)->send(new BookingConfirmation($booking));
-                $booking->update(['confirmation_sent' => true]);
-            } catch (\Throwable $mailError) {
-                Log::error('Stripe booking confirmation email failed', [
-                    'booking' => $booking->reference,
-                    'email'   => $booking->email,
-                    'error'   => $mailError->getMessage(),
-                ]);
+            if (app(EmailTemplateService::class)->isEnabled('booking_confirmation')) {
+                try {
+                    Mail::to($booking->email)->send(new BookingConfirmation($booking));
+                    $booking->update(['confirmation_sent' => true]);
+                } catch (\Throwable $mailError) {
+                    Log::error('Stripe booking confirmation email failed', [
+                        'booking' => $booking->reference,
+                        'email'   => $booking->email,
+                        'error'   => $mailError->getMessage(),
+                    ]);
+                }
             }
 
             return [

@@ -119,7 +119,11 @@ class Booking extends Model
 
             if ($oldPaymentStatus !== 'paid' && $newPaymentStatus === 'paid') {
                 // 1. Send confirmation email to customer
-                if (!empty($booking->email) && !$booking->confirmation_sent) {
+                if (
+                    !empty($booking->email)
+                    && !$booking->confirmation_sent
+                    && app(\App\Services\EmailTemplateService::class)->isEnabled('booking_confirmation')
+                ) {
                     try {
                         \Illuminate\Support\Facades\Mail::to($booking->email)
                             ->send(new BookingConfirmation($booking));
@@ -133,14 +137,16 @@ class Booking extends Model
                 }
 
                 // 2. Send notification email to admin
-                try {
-                    \Illuminate\Support\Facades\Mail::to('Info@speakeasyvalencia.com')
-                        ->send(new NewBookingAdminNotification($booking));
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Admin booking notification email failed', [
-                        'booking' => $booking->reference,
-                        'error' => $e->getMessage(),
-                    ]);
+                if (app(\App\Services\EmailTemplateService::class)->isEnabled('new_booking_admin_notification')) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to('Info@speakeasyvalencia.com')
+                            ->send(new NewBookingAdminNotification($booking));
+                    } catch (\Throwable $e) {
+                        \Illuminate\Support\Facades\Log::error('Admin booking notification email failed', [
+                            'booking' => $booking->reference,
+                            'error' => $e->getMessage(),
+                        ]);
+                    }
                 }
             }
         });

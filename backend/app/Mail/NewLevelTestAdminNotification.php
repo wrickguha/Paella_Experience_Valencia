@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Services\EmailTemplateService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -19,14 +20,25 @@ class NewLevelTestAdminNotification extends Mailable
 
     public function build()
     {
-        return $this->subject('New Level Test Request: ' . $this->data['name'])
-            ->view('emails.new_level_test_admin_notification')
-            ->with([
-                'name' => $this->data['name'],
-                'email' => $this->data['email'],
-                'language_type' => $this->data['language_type'],
-                'skill_level' => $this->data['skill_level'] ?? 'Not selected',
-                'audio_url' => $this->data['audio_url'] ?? null,
-            ]);
+        $data = [
+            'name' => $this->data['name'],
+            'email' => $this->data['email'],
+            'language_type' => $this->data['language_type'],
+            'skill_level' => $this->data['skill_level'] ?? 'Not selected',
+            'audio_url' => $this->data['audio_url'] ?? null,
+        ];
+        $templateService = app(EmailTemplateService::class);
+        $this->subject($templateService->subject(
+            'new_level_test_admin_notification',
+            'New Level Test Request: '.$data['name'],
+            $data
+        ));
+
+        $body = $templateService->body('new_level_test_admin_notification', $data);
+        if ($body !== null) {
+            return $this->html($body);
+        }
+
+        return $this->view('emails.new_level_test_admin_notification')->with($data);
     }
 }

@@ -57,16 +57,18 @@ class PaymentController extends Controller
                 });
 
                 // Send booking confirmation email
-                try {
-                    \Illuminate\Support\Facades\Mail::to($booking->email)
-                        ->send(new \App\Mail\BookingConfirmation($booking));
-                    $booking->update(['confirmation_sent' => true]);
-                } catch (\Throwable $mailError) {
-                    Log::error('Free booking confirmation email failed', [
-                        'booking' => $booking->reference,
-                        'email'   => $booking->email,
-                        'error'   => $mailError->getMessage(),
-                    ]);
+                if (app(\App\Services\EmailTemplateService::class)->isEnabled('booking_confirmation')) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($booking->email)
+                            ->send(new \App\Mail\BookingConfirmation($booking));
+                        $booking->update(['confirmation_sent' => true]);
+                    } catch (\Throwable $mailError) {
+                        Log::error('Free booking confirmation email failed', [
+                            'booking' => $booking->reference,
+                            'email'   => $booking->email,
+                            'error'   => $mailError->getMessage(),
+                        ]);
+                    }
                 }
 
                 return response()->json([
@@ -332,15 +334,17 @@ class PaymentController extends Controller
                 ]);
             });
 
-            try {
-                \Illuminate\Support\Facades\Mail::to($booking->email)
-                    ->send(new \App\Mail\BookingConfirmation($booking));
-                $booking->update(['confirmation_sent' => true]);
-            } catch (\Throwable $mailError) {
-                Log::error('Free booking confirmation email failed', [
-                    'booking' => $booking->reference,
-                    'error'   => $mailError->getMessage(),
-                ]);
+            if (app(\App\Services\EmailTemplateService::class)->isEnabled('booking_confirmation')) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($booking->email)
+                        ->send(new \App\Mail\BookingConfirmation($booking));
+                    $booking->update(['confirmation_sent' => true]);
+                } catch (\Throwable $mailError) {
+                    Log::error('Free booking confirmation email failed', [
+                        'booking' => $booking->reference,
+                        'error'   => $mailError->getMessage(),
+                    ]);
+                }
             }
 
             return response()->json([

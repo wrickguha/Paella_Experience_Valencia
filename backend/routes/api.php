@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageCo
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\Admin\LanguageSessionController as AdminLanguageSessionController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
+use App\Http\Controllers\Admin\EmailTemplateController as AdminEmailTemplateController;
 use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\Admin\BlogPostController as AdminBlogPostController;
 use App\Http\Controllers\Admin\BlogCategoryController as AdminBlogCategoryController;
@@ -220,6 +221,12 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
     Route::get('/settings', [AdminSettingController::class, 'index']);
     Route::put('/settings', [AdminSettingController::class, 'update']);
     Route::post('/settings', [AdminSettingController::class, 'update']);
+
+    // Email templates
+    Route::get('/email-templates', [AdminEmailTemplateController::class, 'index']);
+    Route::post('/email-templates', [AdminEmailTemplateController::class, 'store']);
+    Route::put('/email-templates/{emailTemplate}', [AdminEmailTemplateController::class, 'update']);
+    Route::delete('/email-templates/{emailTemplate}', [AdminEmailTemplateController::class, 'destroy']);
 
     // Coupons
     Route::get('/coupons', [AdminCouponController::class, 'index']);
