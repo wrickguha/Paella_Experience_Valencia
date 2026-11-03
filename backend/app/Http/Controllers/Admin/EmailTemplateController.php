@@ -8,6 +8,7 @@ use App\Models\ContactMessage;
 use App\Models\EmailTemplate;
 use App\Models\Experience;
 use App\Models\Location;
+use App\Services\EmailTemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -18,9 +19,12 @@ class EmailTemplateController extends Controller
         return EmailTemplate::orderByDesc('is_system')->orderBy('name')->get();
     }
 
-    public function preview(EmailTemplate $emailTemplate)
+    public function preview(Request $request, EmailTemplate $emailTemplate, EmailTemplateService $templateService)
     {
         abort_unless($emailTemplate->is_system, 404);
+        $bodyText = $request->query->has('body_text')
+            ? (string) $request->query('body_text', '')
+            : $emailTemplate->body_text;
 
         if (in_array($emailTemplate->key, ['booking_confirmation', 'new_booking_admin_notification'], true)) {
             $booking = new Booking([
@@ -45,7 +49,10 @@ class EmailTemplateController extends Controller
                 ? 'emails.booking_confirmation'
                 : 'emails.new_booking_admin_notification';
 
-            return response()->view($view, compact('booking'));
+            return response()->view($view, [
+                'booking' => $booking,
+                'emailBodyText' => $templateService->renderBodyText($bodyText, ['booking' => $booking]),
+            ]);
         }
 
         if ($emailTemplate->key === 'new_contact_message_admin_notification') {
@@ -56,17 +63,23 @@ class EmailTemplateController extends Controller
                 'message' => 'Hello! Could you please share more details about the class?',
             ]);
 
-            return response()->view('emails.new_contact_message_admin_notification', compact('contactMessage'));
+            return response()->view('emails.new_contact_message_admin_notification', [
+                'contactMessage' => $contactMessage,
+                'emailBodyText' => $templateService->renderBodyText($bodyText, ['contactMessage' => $contactMessage]),
+            ]);
         }
 
         if ($emailTemplate->key === 'new_level_test_admin_notification') {
-            return response()->view('emails.new_level_test_admin_notification', [
+            $data = [
                 'name' => 'Alex Rivera',
                 'email' => 'alex@example.com',
                 'language_type' => 'Spanish',
                 'skill_level' => 'Intermediate',
                 'audio_url' => null,
-            ]);
+            ];
+            $data['emailBodyText'] = $templateService->renderBodyText($bodyText, $data);
+
+            return response()->view('emails.new_level_test_admin_notification', $data);
         }
 
         abort(404);
@@ -78,7 +91,7 @@ class EmailTemplateController extends Controller
             'key' => ['required', 'string', 'alpha_dash:ascii', 'max:100', Rule::unique('email_templates', 'key')],
             'name' => ['required', 'string', 'max:120'],
             'subject' => ['required', 'string', 'max:255'],
-            'body_html' => ['required', 'string', 'max:65535'],
+            'body_text' => ['required', 'string', 'max:65535'],
         ]);
 
         $data['available_variables'] = [];
@@ -102,7 +115,7 @@ class EmailTemplateController extends Controller
                 ],
             'name' => ['required', 'string', 'max:120'],
             'subject' => ['required', 'string', 'max:255'],
-            'body_html' => [$emailTemplate->is_system ? 'nullable' : 'required', 'string', 'max:65535'],
+            'body_text' => [$emailTemplate->is_system ? 'nullable' : 'required', 'string', 'max:65535'],
             'is_active' => [$emailTemplate->is_system ? 'required' : 'nullable', 'boolean'],
         ]);
 

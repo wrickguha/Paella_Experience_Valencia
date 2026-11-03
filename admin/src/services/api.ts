@@ -167,7 +167,8 @@ export const messagesApi = {
 // ── Email Templates ──
 export const emailTemplatesApi = {
   list: () => api.get('/admin/email-templates'),
-  preview: (id: number) => api.get(`/admin/email-templates/${id}/preview`, { responseType: 'text' }),
+  preview: (id: number, bodyText: string) =>
+    api.get(`/admin/email-templates/${id}/preview`, { params: { body_text: bodyText }, responseType: 'text' }),
   create: (data: object) => api.post('/admin/email-templates', data),
   update: (id: number, data: object) => api.put(`/admin/email-templates/${id}`, data),
   delete: (id: number) => api.delete(`/admin/email-templates/${id}`),

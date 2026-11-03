@@ -29,10 +29,7 @@ class BookingConfirmation extends Mailable
             $data
         ));
 
-        $body = $templateService->body('booking_confirmation', $data);
-        if ($body !== null) {
-            return $this->html($body);
-        }
+        $data['emailBodyText'] = $templateService->bodyText('booking_confirmation', $data);
 
         return $this->view('emails.booking_confirmation')->with($data);
     }

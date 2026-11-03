@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Code2, Eye, FileText, Mail, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react';
+import { Eye, FileText, Mail, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { emailTemplatesApi } from '@/services/api';
 import PageHeader, { Badge, Button, Card, EmptyState, Spinner } from '@/components/ui';
@@ -13,7 +13,7 @@ interface EmailTemplate {
   key: string;
   name: string;
   subject: string;
-  body_html: string | null;
+  body_text: string | null;
   available_variables: string[];
   is_active: boolean;
   is_system: boolean;
@@ -24,7 +24,7 @@ interface TemplateDraft {
   key: string;
   name: string;
   subject: string;
-  body_html: string;
+  body_text: string;
   is_active: boolean;
   is_system: boolean;
   available_variables: string[];
@@ -34,54 +34,11 @@ const EMPTY_DRAFT: TemplateDraft = {
   key: '',
   name: '',
   subject: '',
-  body_html: '',
+  body_text: '',
   is_active: false,
   is_system: false,
   available_variables: [],
 };
-
-const PREVIEW_VALUES: Record<string, string> = {
-  'booking.first_name': 'Alex',
-  'booking.last_name': 'Rivera',
-  'booking.email': 'alex@example.com',
-  'booking.phone': '+34 600 123 456',
-  'booking.reference': 'PEV-2026-001',
-  'booking.location.name_en': 'Valencia Kitchen',
-  'booking.experience.title_en': 'Paella cooking experience',
-  'booking.date': 'November 11, 2026',
-  'booking.time': '18:30',
-  'booking.guests': '2',
-  'booking.total_price': '90.00',
-  'booking.coupon_code': 'VALENCIA10',
-  'booking.discount_percent': '10',
-  'booking.language_preference': 'English',
-  'booking.notes': 'Vegetarian menu, please.',
-  'contactMessage.name': 'Alex Rivera',
-  'contactMessage.email': 'alex@example.com',
-  'contactMessage.subject': 'Question about the paella class',
-  'contactMessage.message': 'Hello! Could you please share more details about the class?',
-  name: 'Alex Rivera',
-  email: 'alex@example.com',
-  language_type: 'Spanish',
-  skill_level: 'Intermediate',
-  audio_url: 'https://speakeasyvalencia.com/sample-audio.mp3',
-};
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function renderPreviewBody(body: string): string {
-  return body.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (placeholder, key: string) => {
-    const value = PREVIEW_VALUES[key];
-    return value ? escapeHtml(value) : placeholder;
-  });
-}
 
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -122,7 +79,7 @@ export default function EmailTemplatesPage() {
   }, [fetchTemplates]);
 
   useEffect(() => {
-    if (!modalOpen || !draft.is_system || draft.body_html || !draft.id) {
+    if (!modalOpen || !draft.is_system || !draft.id) {
       setBuiltInPreview('');
       setPreviewLoading(false);
       return;
@@ -130,7 +87,7 @@ export default function EmailTemplatesPage() {
 
     let active = true;
     setPreviewLoading(true);
-    emailTemplatesApi.preview(draft.id)
+    emailTemplatesApi.preview(draft.id, draft.body_text || '')
       .then((response) => {
         if (active) setBuiltInPreview(response.data);
       })
@@ -144,7 +101,7 @@ export default function EmailTemplatesPage() {
     return () => {
       active = false;
     };
-  }, [modalOpen, draft.body_html, draft.id, draft.is_system]);
+  }, [modalOpen, draft.body_text, draft.id, draft.is_system]);
 
   const openCreate = () => {
     setDraft({ ...EMPTY_DRAFT });
@@ -155,7 +112,7 @@ export default function EmailTemplatesPage() {
   const openEdit = (template: EmailTemplate) => {
     setDraft({
       ...template,
-      body_html: template.body_html || '',
+      body_text: template.body_text || '',
     });
     setEditorView('edit');
     setModalOpen(true);
@@ -186,7 +143,7 @@ export default function EmailTemplatesPage() {
         key: template.key,
         name: template.name,
         subject: template.subject,
-        body_html: template.body_html,
+        body_text: template.body_text,
         is_active: !template.is_active,
       });
       toast.success(`Template ${template.is_active ? 'paused' : 'activated'}.`);
@@ -259,7 +216,7 @@ export default function EmailTemplatesPage() {
                   <p className="mt-1 text-xs text-neutral-gray">{template.key}</p>
                   <p className="mt-3 truncate text-sm text-neutral-dark">{template.subject}</p>
                   <p className="mt-1 text-xs text-neutral-gray">
-                    {template.body_html ? 'Custom HTML body' : 'Using the built-in email design'}
+                    {template.body_text ? 'Custom message' : 'Using the built-in email design'}
                   </p>
                 </div>
               </div>
@@ -359,7 +316,7 @@ export default function EmailTemplatesPage() {
                   editorView === 'edit' ? 'border-primary text-primary' : 'border-transparent text-neutral-gray hover:text-neutral-dark'
                 }`}
               >
-                <Code2 className="h-4 w-4" /> Edit HTML
+                <FileText className="h-4 w-4" /> Edit message
               </button>
               <button
                 type="button"
@@ -372,14 +329,21 @@ export default function EmailTemplatesPage() {
               </button>
             </div>
             {editorView === 'edit' ? (
-              <FormTextarea
-                label="HTML email body"
-                value={draft.body_html}
-                onChange={(event) => setDraft({ ...draft, body_html: event.target.value })}
-                placeholder={draft.is_system ? 'Leave blank to keep the current built-in design.' : '<p>Your email content...</p>'}
-                rows={12}
-                required={!draft.is_system}
-              />
+              <>
+                <FormTextarea
+                  label="Email message"
+                  value={draft.body_text}
+                  onChange={(event) => setDraft({ ...draft, body_text: event.target.value })}
+                  placeholder={draft.is_system ? 'Leave blank to use the default message.' : 'Write your email message...'}
+                  rows={12}
+                  required={!draft.is_system}
+                />
+                <p className="mt-1 text-xs text-neutral-gray">
+                  Plain text only. {draft.is_system
+                    ? 'This replaces the introductory message; the email design and booking details stay the same.'
+                    : 'HTML and styling cannot be edited.'}
+                </p>
+              </>
             ) : (
               <div>
                 <div className="mb-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
@@ -390,13 +354,17 @@ export default function EmailTemplatesPage() {
                   <div className="flex h-[600px] items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
                     <Spinner />
                   </div>
-                ) : (
+                ) : draft.is_system ? (
                   <iframe
                     title="Email preview"
                     sandbox=""
-                    srcDoc={draft.body_html ? renderPreviewBody(draft.body_html) : builtInPreview}
+                    srcDoc={builtInPreview}
                     className="h-[600px] w-full rounded-lg border border-gray-200 bg-white"
                   />
+                ) : (
+                  <div className="min-h-48 whitespace-pre-wrap rounded-lg border border-gray-200 bg-white p-6 text-sm leading-6 text-neutral-dark">
+                    {draft.body_text || 'Enter a message to preview it.'}
+                  </div>
                 )}
                 <p className="mt-2 text-xs text-neutral-gray">
                   Preview uses sample data. Your email will use the recipient’s actual details.

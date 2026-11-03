@@ -19,7 +19,11 @@
                     Hi Admin,
                 </p>
                 <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #475569;">
+                    @if($emailBodyText)
+                    <span style="white-space: pre-line;">{{ $emailBodyText }}</span>
+                    @else
                     You have received a new contact message through the website. Below are the submission details.
+                    @endif
                 </p>
 
                 <!-- Detail Table -->

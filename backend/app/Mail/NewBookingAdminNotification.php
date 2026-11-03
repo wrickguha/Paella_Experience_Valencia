@@ -29,10 +29,7 @@ class NewBookingAdminNotification extends Mailable
             $data
         ));
 
-        $body = $templateService->body('new_booking_admin_notification', $data);
-        if ($body !== null) {
-            return $this->html($body);
-        }
+        $data['emailBodyText'] = $templateService->bodyText('new_booking_admin_notification', $data);
 
         return $this->view('emails.new_booking_admin_notification')->with($data);
     }

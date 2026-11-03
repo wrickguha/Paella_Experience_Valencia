@@ -29,10 +29,7 @@ class NewContactMessageAdminNotification extends Mailable
             $data
         ));
 
-        $body = $templateService->body('new_contact_message_admin_notification', $data);
-        if ($body !== null) {
-            return $this->html($body);
-        }
+        $data['emailBodyText'] = $templateService->bodyText('new_contact_message_admin_notification', $data);
 
         return $this->view('emails.new_contact_message_admin_notification')->with($data);
     }

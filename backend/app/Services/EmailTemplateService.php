@@ -18,23 +18,28 @@ class EmailTemplateService
     {
         $template = EmailTemplate::where('key', $key)->first();
 
-        return $this->replaceVariables($template?->subject ?: $fallback, $data, false);
+        return $this->replaceVariables($template?->subject ?: $fallback, $data);
     }
 
-    public function body(string $key, array $data): ?string
+    public function bodyText(string $key, array $data): ?string
     {
         $template = EmailTemplate::where('key', $key)->first();
 
-        if (! $template || ! $template->body_html) {
+        return $this->renderBodyText($template?->body_text, $data);
+    }
+
+    public function renderBodyText(?string $content, array $data): ?string
+    {
+        if ($content === null || trim($content) === '') {
             return null;
         }
 
-        return $this->replaceVariables($template->body_html, $data, true);
+        return $this->replaceVariables($content, $data);
     }
 
-    private function replaceVariables(string $content, array $data, bool $escapeHtml): string
+    private function replaceVariables(string $content, array $data): string
     {
-        return preg_replace_callback('/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/', function (array $matches) use ($data, $escapeHtml) {
+        return preg_replace_callback('/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/', function (array $matches) use ($data) {
             $value = data_get($data, $matches[1]);
 
             if ($value === null || is_array($value) || is_object($value) && ! $value instanceof DateTimeInterface) {
@@ -46,10 +51,6 @@ class EmailTemplateService
             }
 
             $value = (string) $value;
-            if ($escapeHtml) {
-                return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            }
-
             return str_replace(["\r", "\n"], ' ', $value);
         }, $content) ?? $content;
     }

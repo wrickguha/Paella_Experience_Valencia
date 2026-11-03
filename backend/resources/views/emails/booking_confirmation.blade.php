@@ -17,7 +17,11 @@
             <div style="padding: 32px 32px 40px 32px;">
                 <h2 style="color: #0f172a; font-size: 20px; font-weight: 700; margin-top: 0; margin-bottom: 12px; letter-spacing: -0.01em;">Hi {{ $booking->first_name }},</h2>
                 <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px; color: #475569;">
+                    @if($emailBodyText)
+                    <span style="white-space: pre-line;">{{ $emailBodyText }}</span>
+                    @else
                     Thank you for booking your reservation with <strong>SpeakEasy Valencia</strong>. We are thrilled to host you! Below is your official invitation and confirmation summary for the upcoming experience.
+                    @endif
                 </p>
 
                 <!-- Booking Reference Chip -->

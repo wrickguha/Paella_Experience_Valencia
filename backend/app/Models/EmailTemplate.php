@@ -10,10 +10,14 @@ class EmailTemplate extends Model
         'key',
         'name',
         'subject',
-        'body_html',
+        'body_text',
         'available_variables',
         'is_active',
         'is_system',
+    ];
+
+    protected $hidden = [
+        'body_html',
     ];
 
     protected function casts(): array

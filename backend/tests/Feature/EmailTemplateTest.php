@@ -36,10 +36,12 @@ class EmailTemplateTest extends TestCase
             'key' => 'follow-up',
             'name' => 'Follow-up',
             'subject' => 'Thanks for visiting',
-            'body_html' => '<p>We hope to see you again.</p>',
+            'body_text' => 'We hope to see you again.',
         ])->assertCreated()
             ->assertJsonPath('is_system', false)
-            ->assertJsonPath('is_active', false);
+            ->assertJsonPath('is_active', false)
+            ->assertJsonPath('body_text', 'We hope to see you again.')
+            ->assertJsonMissingPath('body_html');
 
         $id = $created->json('id');
 
@@ -47,7 +49,7 @@ class EmailTemplateTest extends TestCase
             'key' => 'follow-up',
             'name' => 'Updated follow-up',
             'subject' => 'A note from SpeakEasy',
-            'body_html' => '<p>Come back soon.</p>',
+            'body_text' => 'Come back soon.',
         ])->assertOk()
             ->assertJsonPath('name', 'Updated follow-up');
 
@@ -66,7 +68,7 @@ class EmailTemplateTest extends TestCase
             'key' => $template->key,
             'name' => $template->name,
             'subject' => 'Your booking is ready',
-            'body_html' => null,
+            'body_text' => null,
             'is_active' => false,
         ])->assertOk()
             ->assertJsonPath('is_active', false);
@@ -98,12 +100,26 @@ class EmailTemplateTest extends TestCase
             ->assertSee('PEV-2026-001');
     }
 
-    public function test_template_variables_are_replaced_and_html_escaped(): void
+    public function test_preview_uses_plain_text_inside_the_existing_email_design(): void
+    {
+        Sanctum::actingAs($this->admin);
+        $template = EmailTemplate::where('key', 'booking_confirmation')->firstOrFail();
+
+        $this->get("/api/admin/email-templates/{$template->id}/preview?body_text=".urlencode("Hello {{ booking.first_name }}\nThanks!"))
+            ->assertOk()
+            ->assertSee('Booking Confirmed!')
+            ->assertSee('Hello Alex')
+            ->assertSee('Thanks!')
+            ->assertSee('PEV-2026-001')
+            ->assertDontSee('<img');
+    }
+
+    public function test_template_variables_are_replaced_in_plain_text(): void
     {
         $template = EmailTemplate::where('key', 'booking_confirmation')->firstOrFail();
         $template->update([
             'subject' => 'Booking {{ booking.reference }}',
-            'body_html' => '<p>Hello {{ booking.first_name }}</p>',
+            'body_text' => 'Hello {{ booking.first_name }}',
         ]);
 
         $renderer = app(EmailTemplateService::class);
@@ -116,8 +132,8 @@ class EmailTemplateTest extends TestCase
 
         $this->assertSame('Booking PEV-123', $renderer->subject('booking_confirmation', 'Fallback', $data));
         $this->assertSame(
-            '<p>Hello &lt;img src=x onerror=alert(1)&gt;</p>',
-            $renderer->body('booking_confirmation', $data)
+            'Hello <img src=x onerror=alert(1)>',
+            $renderer->bodyText('booking_confirmation', $data)
         );
     }
 
@@ -125,7 +141,7 @@ class EmailTemplateTest extends TestCase
     {
         EmailTemplate::where('key', 'new_level_test_admin_notification')->update([
             'subject' => 'New request from {{ name }}',
-            'body_html' => '<p>Language: {{ language_type }}</p>',
+            'body_text' => 'Language: {{ language_type }}',
         ]);
 
         $mail = new NewLevelTestAdminNotification([
@@ -134,7 +150,26 @@ class EmailTemplateTest extends TestCase
             'language_type' => 'Spanish',
         ]);
 
-        $this->assertStringContainsString('<p>Language: Spanish</p>', $mail->render());
+        $rendered = $mail->render();
+        $this->assertStringContainsString('Language: Spanish', $rendered);
+        $this->assertStringContainsString('New Level Test Request!', $rendered);
         $this->assertSame('New request from Alex', $mail->subject);
+    }
+
+    public function test_mailable_escapes_html_in_text_content(): void
+    {
+        EmailTemplate::where('key', 'new_level_test_admin_notification')->update([
+            'body_text' => 'Message from {{ name }}',
+        ]);
+
+        $mail = new NewLevelTestAdminNotification([
+            'name' => '<img src=x onerror=alert(1)>',
+            'email' => 'alex@example.com',
+            'language_type' => 'Spanish',
+        ]);
+
+        $rendered = $mail->render();
+        $this->assertStringContainsString('Message from &lt;img src=x onerror=alert(1)&gt;', $rendered);
+        $this->assertStringNotContainsString('<img src=x', $rendered);
     }
 }
