@@ -224,6 +224,7 @@ Route::middleware(['auth:sanctum', 'admin'])->prefix('admin')->group(function ()
 
     // Email templates
     Route::get('/email-templates', [AdminEmailTemplateController::class, 'index']);
+    Route::get('/email-templates/{emailTemplate}/preview', [AdminEmailTemplateController::class, 'preview']);
     Route::post('/email-templates', [AdminEmailTemplateController::class, 'store']);
     Route::put('/email-templates/{emailTemplate}', [AdminEmailTemplateController::class, 'update']);
     Route::delete('/email-templates/{emailTemplate}', [AdminEmailTemplateController::class, 'destroy']);

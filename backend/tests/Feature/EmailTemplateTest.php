@@ -86,6 +86,18 @@ class EmailTemplateTest extends TestCase
         $this->getJson('/api/admin/email-templates')->assertUnauthorized();
     }
 
+    public function test_admin_can_preview_the_built_in_email_design(): void
+    {
+        Sanctum::actingAs($this->admin);
+        $template = EmailTemplate::where('key', 'booking_confirmation')->firstOrFail();
+
+        $this->get("/api/admin/email-templates/{$template->id}/preview")
+            ->assertOk()
+            ->assertSee('Booking Confirmed!')
+            ->assertSee('Alex')
+            ->assertSee('PEV-2026-001');
+    }
+
     public function test_template_variables_are_replaced_and_html_escaped(): void
     {
         $template = EmailTemplate::where('key', 'booking_confirmation')->firstOrFail();

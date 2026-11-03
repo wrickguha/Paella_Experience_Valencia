@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FileText, Mail, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react';
+import { Code2, Eye, FileText, Mail, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { emailTemplatesApi } from '@/services/api';
 import PageHeader, { Badge, Button, Card, EmptyState, Spinner } from '@/components/ui';
@@ -40,6 +40,49 @@ const EMPTY_DRAFT: TemplateDraft = {
   available_variables: [],
 };
 
+const PREVIEW_VALUES: Record<string, string> = {
+  'booking.first_name': 'Alex',
+  'booking.last_name': 'Rivera',
+  'booking.email': 'alex@example.com',
+  'booking.phone': '+34 600 123 456',
+  'booking.reference': 'PEV-2026-001',
+  'booking.location.name_en': 'Valencia Kitchen',
+  'booking.experience.title_en': 'Paella cooking experience',
+  'booking.date': 'November 11, 2026',
+  'booking.time': '18:30',
+  'booking.guests': '2',
+  'booking.total_price': '90.00',
+  'booking.coupon_code': 'VALENCIA10',
+  'booking.discount_percent': '10',
+  'booking.language_preference': 'English',
+  'booking.notes': 'Vegetarian menu, please.',
+  'contactMessage.name': 'Alex Rivera',
+  'contactMessage.email': 'alex@example.com',
+  'contactMessage.subject': 'Question about the paella class',
+  'contactMessage.message': 'Hello! Could you please share more details about the class?',
+  name: 'Alex Rivera',
+  email: 'alex@example.com',
+  language_type: 'Spanish',
+  skill_level: 'Intermediate',
+  audio_url: 'https://speakeasyvalencia.com/sample-audio.mp3',
+};
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function renderPreviewBody(body: string): string {
+  return body.replace(/\{\{\s*([a-zA-Z0-9_.]+)\s*\}\}/g, (placeholder, key: string) => {
+    const value = PREVIEW_VALUES[key];
+    return value ? escapeHtml(value) : placeholder;
+  });
+}
+
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { message?: string; errors?: Record<string, string[]> } | undefined;
@@ -56,6 +99,9 @@ export default function EmailTemplatesPage() {
   const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [draft, setDraft] = useState<TemplateDraft>(EMPTY_DRAFT);
+  const [editorView, setEditorView] = useState<'edit' | 'preview'>('edit');
+  const [builtInPreview, setBuiltInPreview] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<EmailTemplate | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -75,8 +121,34 @@ export default function EmailTemplatesPage() {
     void fetchTemplates();
   }, [fetchTemplates]);
 
+  useEffect(() => {
+    if (!modalOpen || !draft.is_system || draft.body_html || !draft.id) {
+      setBuiltInPreview('');
+      setPreviewLoading(false);
+      return;
+    }
+
+    let active = true;
+    setPreviewLoading(true);
+    emailTemplatesApi.preview(draft.id)
+      .then((response) => {
+        if (active) setBuiltInPreview(response.data);
+      })
+      .catch((error: unknown) => {
+        if (active) toast.error(`Could not load email preview: ${getErrorMessage(error)}`);
+      })
+      .finally(() => {
+        if (active) setPreviewLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [modalOpen, draft.body_html, draft.id, draft.is_system]);
+
   const openCreate = () => {
     setDraft({ ...EMPTY_DRAFT });
+    setEditorView('edit');
     setModalOpen(true);
   };
 
@@ -85,6 +157,7 @@ export default function EmailTemplatesPage() {
       ...template,
       body_html: template.body_html || '',
     });
+    setEditorView('edit');
     setModalOpen(true);
   };
 
@@ -277,14 +350,60 @@ export default function EmailTemplatesPage() {
             maxLength={255}
             required
           />
-          <FormTextarea
-            label="HTML email body"
-            value={draft.body_html}
-            onChange={(event) => setDraft({ ...draft, body_html: event.target.value })}
-            placeholder={draft.is_system ? 'Leave blank to keep the current built-in design.' : '<p>Your email content...</p>'}
-            rows={12}
-            required={!draft.is_system}
-          />
+          <div>
+            <div className="mb-3 flex items-center gap-2 border-b border-gray-200">
+              <button
+                type="button"
+                onClick={() => setEditorView('edit')}
+                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+                  editorView === 'edit' ? 'border-primary text-primary' : 'border-transparent text-neutral-gray hover:text-neutral-dark'
+                }`}
+              >
+                <Code2 className="h-4 w-4" /> Edit HTML
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorView('preview')}
+                className={`flex items-center gap-2 border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
+                  editorView === 'preview' ? 'border-primary text-primary' : 'border-transparent text-neutral-gray hover:text-neutral-dark'
+                }`}
+              >
+                <Eye className="h-4 w-4" /> Preview email
+              </button>
+            </div>
+            {editorView === 'edit' ? (
+              <FormTextarea
+                label="HTML email body"
+                value={draft.body_html}
+                onChange={(event) => setDraft({ ...draft, body_html: event.target.value })}
+                placeholder={draft.is_system ? 'Leave blank to keep the current built-in design.' : '<p>Your email content...</p>'}
+                rows={12}
+                required={!draft.is_system}
+              />
+            ) : (
+              <div>
+                <div className="mb-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
+                  <p className="text-xs font-medium uppercase tracking-wide text-neutral-gray">Subject</p>
+                  <p className="mt-1 font-medium text-neutral-dark">{draft.subject || 'No subject'}</p>
+                </div>
+                {previewLoading ? (
+                  <div className="flex h-[600px] items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+                    <Spinner />
+                  </div>
+                ) : (
+                  <iframe
+                    title="Email preview"
+                    sandbox=""
+                    srcDoc={draft.body_html ? renderPreviewBody(draft.body_html) : builtInPreview}
+                    className="h-[600px] w-full rounded-lg border border-gray-200 bg-white"
+                  />
+                )}
+                <p className="mt-2 text-xs text-neutral-gray">
+                  Preview uses sample data. Your email will use the recipient’s actual details.
+                </p>
+              </div>
+            )}
+          </div>
           {draft.available_variables.length > 0 && (
             <div className="rounded-lg bg-gray-50 p-3">
               <p className="mb-2 text-xs font-semibold text-neutral-dark">Placeholders you can use</p>

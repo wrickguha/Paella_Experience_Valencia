@@ -3,7 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\ContactMessage;
 use App\Models\EmailTemplate;
+use App\Models\Experience;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -12,6 +16,60 @@ class EmailTemplateController extends Controller
     public function index()
     {
         return EmailTemplate::orderByDesc('is_system')->orderBy('name')->get();
+    }
+
+    public function preview(EmailTemplate $emailTemplate)
+    {
+        abort_unless($emailTemplate->is_system, 404);
+
+        if (in_array($emailTemplate->key, ['booking_confirmation', 'new_booking_admin_notification'], true)) {
+            $booking = new Booking([
+                'reference' => 'PEV-2026-001',
+                'first_name' => 'Alex',
+                'last_name' => 'Rivera',
+                'email' => 'alex@example.com',
+                'phone' => '+34 600 123 456',
+                'date' => now()->addWeek()->toDateString(),
+                'time' => '18:30',
+                'guests' => 2,
+                'coupon_code' => 'VALENCIA10',
+                'discount_percent' => 10,
+                'total_price' => 90,
+                'language_preference' => 'English',
+                'notes' => 'Vegetarian menu, please.',
+            ]);
+            $booking->setRelation('location', new Location(['name_en' => 'Valencia Kitchen']));
+            $booking->setRelation('experience', new Experience(['title_en' => 'Paella cooking experience']));
+
+            $view = $emailTemplate->key === 'booking_confirmation'
+                ? 'emails.booking_confirmation'
+                : 'emails.new_booking_admin_notification';
+
+            return response()->view($view, compact('booking'));
+        }
+
+        if ($emailTemplate->key === 'new_contact_message_admin_notification') {
+            $contactMessage = new ContactMessage([
+                'name' => 'Alex Rivera',
+                'email' => 'alex@example.com',
+                'subject' => 'Question about the paella class',
+                'message' => 'Hello! Could you please share more details about the class?',
+            ]);
+
+            return response()->view('emails.new_contact_message_admin_notification', compact('contactMessage'));
+        }
+
+        if ($emailTemplate->key === 'new_level_test_admin_notification') {
+            return response()->view('emails.new_level_test_admin_notification', [
+                'name' => 'Alex Rivera',
+                'email' => 'alex@example.com',
+                'language_type' => 'Spanish',
+                'skill_level' => 'Intermediate',
+                'audio_url' => null,
+            ]);
+        }
+
+        abort(404);
     }
 
     public function store(Request $request)
