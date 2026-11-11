@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'framer-motion';
-import { FiImage as ImageIcon } from 'react-icons/fi';
+import { AnimatePresence, motion } from 'framer-motion';
+import { FiChevronLeft, FiChevronRight, FiImage as ImageIcon } from 'react-icons/fi';
 import SectionWrapper from './SectionWrapper';
 import { fetchGallery, fetchGalleryCategories } from '@/services/api';
 import type { GalleryCategory, GalleryImage } from '@/services/api';
@@ -38,6 +38,7 @@ export default function GalleryGrid() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [categories, setCategories] = useState<GalleryCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState('');
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const lang = i18n.language.startsWith('es') ? 'es' : 'en';
 
   useEffect(() => {
@@ -74,6 +75,21 @@ export default function GalleryGrid() {
   const visibleImages = activeCategory
     ? images.filter((image) => image.categorySlug === activeCategory)
     : images;
+  const currentImageIndex = visibleImages.length > 0 ? activeImageIndex % visibleImages.length : 0;
+  const currentImage = visibleImages[currentImageIndex];
+
+  const showPreviousImage = () => {
+    setActiveImageIndex((index) => (index - 1 + visibleImages.length) % visibleImages.length);
+  };
+
+  const showNextImage = () => {
+    setActiveImageIndex((index) => (index + 1) % visibleImages.length);
+  };
+
+  const selectCategory = (category: string) => {
+    setActiveCategory(category);
+    setActiveImageIndex(0);
+  };
 
   return (
     <SectionWrapper className="bg-neutral-cream">
@@ -92,7 +108,7 @@ export default function GalleryGrid() {
       <div className="flex gap-2.5 overflow-x-auto pb-3 mb-7 sm:mb-9 justify-start sm:justify-center" role="group" aria-label={lang === 'es' ? 'Filtrar por categoría' : 'Filter by category'}>
         <button
           type="button"
-          onClick={() => setActiveCategory('')}
+          onClick={() => selectCategory('')}
           aria-pressed={!activeCategory}
           className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
             !activeCategory ? 'bg-primary text-white shadow-md' : 'bg-white text-neutral-dark hover:bg-primary/10'
@@ -105,7 +121,7 @@ export default function GalleryGrid() {
           <button
             key={category.id}
             type="button"
-            onClick={() => setActiveCategory(category.slug)}
+            onClick={() => selectCategory(category.slug)}
             aria-pressed={activeCategory === category.slug}
             className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors ${
               activeCategory === category.slug ? 'bg-primary text-white shadow-md' : 'bg-white text-neutral-dark hover:bg-primary/10'
@@ -122,59 +138,109 @@ export default function GalleryGrid() {
           <ImageIcon className="mx-auto mb-3 text-primary/60" size={30} aria-hidden="true" />
           <p>{lang === 'es' ? 'Aún no hay imágenes en esta categoría.' : 'No images in this category yet.'}</p>
         </div>
-      ) : (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-[minmax(13rem,1fr)] gap-4 sm:gap-5">
-        {visibleImages.map((image, index) => (
-          <motion.div
-            key={image.id}
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: Math.min(index, 5) * 0.06, duration: 0.45 }}
-            className={`relative overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] group ${
-              index === 0 ? 'sm:col-span-2 sm:row-span-2 min-h-[23rem] sm:min-h-[31rem]' : 'aspect-[4/3] sm:aspect-auto min-h-[14rem]'
-            }`}
+      ) : currentImage ? (
+        <div className="mx-auto max-w-5xl">
+          <div
+            className="relative aspect-[4/3] max-h-[34rem] min-h-[22rem] overflow-hidden rounded-[1.5rem] bg-neutral-sand shadow-xl sm:aspect-[16/9] sm:rounded-[2rem]"
+            aria-roledescription={lang === 'es' ? 'carrusel' : 'carousel'}
+            aria-label={lang === 'es' ? 'Galería de fotos' : 'Photo gallery'}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-neutral-sand to-neutral-cream flex items-center justify-center">
-              <ImageIcon className="text-primary/30" size={36} aria-hidden="true" />
-            </div>
-            <img
-              src={image.src}
-              alt={image.alt}
-              loading="eager"
-              fetchPriority={index === 0 ? 'high' : 'auto'}
-              decoding="async"
-              onError={(event) => {
-                const img = event.currentTarget;
-                const fallback = image.categorySlug
-                  ? CATEGORY_FALLBACK_IMAGES[image.categorySlug]
-                  : undefined;
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={currentImage.id}
+                initial={{ opacity: 0, x: 28 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -28 }}
+                transition={{ duration: 0.3 }}
+                className="absolute inset-0"
+                role="group"
+                aria-roledescription={lang === 'es' ? 'diapositiva' : 'slide'}
+                aria-label={`${currentImageIndex + 1} ${lang === 'es' ? 'de' : 'of'} ${visibleImages.length}`}
+              >
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 via-neutral-sand to-neutral-cream">
+                  <ImageIcon className="text-primary/30" size={36} aria-hidden="true" />
+                </div>
+                <img
+                  src={currentImage.src}
+                  alt={currentImage.alt}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  onError={(event) => {
+                    const img = event.currentTarget;
+                    const fallback = currentImage.categorySlug
+                      ? CATEGORY_FALLBACK_IMAGES[currentImage.categorySlug]
+                      : undefined;
 
-                if (fallback && img.dataset.fallbackApplied !== 'true') {
-                  img.dataset.fallbackApplied = 'true';
-                  img.src = fallback;
-                } else {
-                  img.style.display = 'none';
-                }
-              }}
-              className="w-full h-full object-cover transition-transform duration-500
-                         group-hover:scale-110"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
-              {image.categoryName && (
-                <span className="inline-flex rounded-full bg-white/20 backdrop-blur-md px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-white mb-2">
-                  {image.categoryName}
+                    if (fallback && img.dataset.fallbackApplied !== 'true') {
+                      img.dataset.fallbackApplied = 'true';
+                      img.src = fallback;
+                    } else {
+                      img.style.display = 'none';
+                    }
+                  }}
+                  className="h-full w-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
+                  {currentImage.categoryName && (
+                    <span className="mb-2 inline-flex rounded-full bg-white/20 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
+                      {currentImage.categoryName}
+                    </span>
+                  )}
+                  <p className="max-w-3xl font-heading text-lg font-bold leading-snug text-white sm:text-2xl">
+                    {currentImage.alt}
+                  </p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+
+            {visibleImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={showPreviousImage}
+                  aria-label={lang === 'es' ? 'Imagen anterior' : 'Previous image'}
+                  className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-dark shadow-lg transition hover:scale-105 hover:bg-white sm:left-5 sm:h-12 sm:w-12"
+                >
+                  <FiChevronLeft size={24} aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={showNextImage}
+                  aria-label={lang === 'es' ? 'Imagen siguiente' : 'Next image'}
+                  className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-neutral-dark shadow-lg transition hover:scale-105 hover:bg-white sm:right-5 sm:h-12 sm:w-12"
+                >
+                  <FiChevronRight size={24} aria-hidden="true" />
+                </button>
+                <span
+                  className="absolute right-4 top-4 rounded-full bg-black/45 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm"
+                  aria-live="polite"
+                >
+                  {currentImageIndex + 1} / {visibleImages.length}
                 </span>
-              )}
-              <p className="text-white font-heading font-bold text-sm sm:text-base leading-snug">
-                {image.alt}
-              </p>
+              </>
+            )}
+          </div>
+
+          {visibleImages.length > 1 && (
+            <div className="mt-5 flex items-center justify-center gap-2" role="group" aria-label={lang === 'es' ? 'Seleccionar imagen' : 'Choose image'}>
+              {visibleImages.map((image, index) => (
+                <button
+                  key={image.id}
+                  type="button"
+                  onClick={() => setActiveImageIndex(index)}
+                  aria-label={`${lang === 'es' ? 'Mostrar imagen' : 'Show image'} ${index + 1}`}
+                  aria-current={index === currentImageIndex ? 'true' : undefined}
+                  className={`h-2.5 rounded-full transition-all ${
+                    index === currentImageIndex ? 'w-8 bg-primary' : 'w-2.5 bg-neutral-sand hover:bg-primary/50'
+                  }`}
+                />
+              ))}
             </div>
-          </motion.div>
-        ))}
-      </div>
-      )}
+          )}
+        </div>
+      ) : null}
     </SectionWrapper>
   );
 }
