@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useScrollToTop } from '@/hooks/useScrollReveal';
 import { useAuth } from '@/context/AuthContext';
 import { fetchCalendarMonthCached } from '@/hooks/useCalendarMonth';
-import type { CalendarEvent, LocationId } from '@/services/api';
+import { fetchLocations, slugFromName, type CalendarEvent, type LocationId } from '@/services/api';
 import AvailabilityCalendar from '@/components/booking/AvailabilityCalendar';
 import EventDetailModal from '@/components/booking/EventDetailModal';
 import GuestSelector from '@/components/booking/GuestSelector';
@@ -47,6 +47,7 @@ export default function BookingPage() {
   const [customerPhone, setCustomerPhone] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [prefillLoading, setPrefillLoading] = useState(false);
+  const [rangeBookingStatus, setRangeBookingStatus] = useState<'unavailable' | 'error' | null>(null);
 
   const handleDateSelect = useCallback((date: string, events: CalendarEvent[]) => {
     // If prefill location, filter events to that location
@@ -75,51 +76,89 @@ export default function BookingPage() {
     setStep('guests');
   }, []);
 
-  // Load prefilled event from query parameters if present (e.g. from homepage events)
+  // Resolve prefilled events; range availability goes directly to guest details without the calendar.
   useEffect(() => {
     const prefillDate = searchParams.get('date');
     const prefillTime = searchParams.get('time');
 
-    if (prefillLocation && prefillDate) {
-      const parts = prefillDate.split('-');
-      if (parts.length === 3) {
-        const year = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // 0-indexed for fetchCalendarMonth
-        
-        setPrefillLoading(true);
-        fetchCalendarMonthCached(year, month)
-          .then((events) => {
-            const match = events.find(
-              (e) =>
-                e.locationId === prefillLocation &&
-                e.date === prefillDate &&
-                (!prefillTime || e.time === prefillTime)
-            );
-            if (match) {
-              setSelectedEvent({
-                locationId: match.locationId,
-                locationNumericId: match.locationNumericId,
-                experienceId: match.experienceId,
-                date: match.date,
-                endDate: match.endDate,
-                time: match.time,
-                endTime: match.endTime,
-                pricePerPerson: match.pricePerPerson,
-                locationName: match.locationName,
-                features: match.features ?? [],
-              });
-              setStep('guests');
-            }
-          })
-          .catch((err) => {
-            console.error('Error prefilling event:', err);
-          })
-          .finally(() => {
-            setPrefillLoading(false);
-          });
-      }
+    setRangeBookingStatus(null);
+    if (!prefillLocation) {
+      setPrefillLoading(false);
+      return;
     }
-  }, [prefillLocation, searchParams]);
+
+    let cancelled = false;
+    let isRangeLocation = false;
+    setPrefillLoading(true);
+
+    const loadPrefilledEvent = async () => {
+      try {
+        if (prefillDate) {
+          const parts = prefillDate.split('-');
+          if (parts.length !== 3) return;
+
+          const year = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1; // 0-indexed for fetchCalendarMonth
+          const events = await fetchCalendarMonthCached(year, month);
+          if (cancelled) return;
+
+          const match = events.find(
+            (event) =>
+              event.locationId === prefillLocation &&
+              event.date === prefillDate &&
+              (!prefillTime || event.time === prefillTime),
+          );
+          if (match) handleBookEvent(match);
+          return;
+        }
+
+        const locations = await fetchLocations();
+        if (cancelled) return;
+
+        const location = locations.find((item) => slugFromName(item.name) === prefillLocation);
+        if (location?.availability_type !== 'range') return;
+        isRangeLocation = true;
+
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        const schedule = location.schedules
+          .filter((item) => item.date && item.end_date && item.date >= today)
+          .sort((a, b) => a.date!.localeCompare(b.date!))[0];
+
+        if (!schedule?.date) {
+          setRangeBookingStatus('unavailable');
+          return;
+        }
+
+        const [year, month] = schedule.date.split('-').map(Number);
+        const events = await fetchCalendarMonthCached(year, month - 1);
+        if (cancelled) return;
+
+        const event = events.find(
+          (item) =>
+            item.locationNumericId === location.id &&
+            item.date === schedule.date &&
+            item.time === schedule.start_time.substring(0, 5),
+        );
+        if (event) {
+          handleBookEvent(event);
+        } else {
+          setRangeBookingStatus('unavailable');
+        }
+      } catch (err) {
+        console.error('Error prefilling event:', err);
+        if (isRangeLocation && !cancelled) setRangeBookingStatus('error');
+      } finally {
+        if (!cancelled) setPrefillLoading(false);
+      }
+    };
+
+    void loadPrefilledEvent();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [prefillLocation, searchParams, handleBookEvent]);
 
   useEffect(() => {
     if (user) {
@@ -240,10 +279,22 @@ export default function BookingPage() {
               exit={{ opacity: 0, x: -40 }}
               transition={{ duration: 0.3 }}
             >
-              <AvailabilityCalendar
-                selectedDate={selectedDate}
-                onSelectDate={handleDateSelect}
-              />
+              {rangeBookingStatus ? (
+                <div className="max-w-md mx-auto rounded-2xl bg-white p-8 text-center shadow-card">
+                  <p className="text-neutral-gray">
+                    {t(
+                      rangeBookingStatus === 'error'
+                        ? 'booking.calendar.rangeError'
+                        : 'booking.calendar.rangeUnavailable',
+                    )}
+                  </p>
+                </div>
+              ) : (
+                <AvailabilityCalendar
+                  selectedDate={selectedDate}
+                  onSelectDate={handleDateSelect}
+                />
+              )}
             </motion.div>
           )}
 

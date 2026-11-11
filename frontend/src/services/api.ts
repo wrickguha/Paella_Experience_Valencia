@@ -88,7 +88,7 @@ async function getExperiences(): Promise<ApiExperience[]> {
   return _experienceCache;
 }
 
-function slugFromName(name: string): string {
+export function slugFromName(name: string): string {
   const normalized = name.toLowerCase().trim();
   if (normalized === 'bloom gallery') return 'bloom';
   if (normalized === 'casa magnolia' || normalized === 'casa mangolia') return 'magnolia';

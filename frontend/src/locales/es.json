@@ -517,6 +517,8 @@
       "title": "Elige Tu Fecha",
       "subtitle": "Selecciona una fecha para ver experiencias disponibles",
       "noAvailability": "No hay disponibilidad para esta fecha",
+      "rangeUnavailable": "Este evento ya no está disponible para reservar.",
+      "rangeError": "No se pudo cargar este evento. Inténtalo de nuevo más tarde.",
       "spotsLeft": "Solo {{count}} plazas disponibles",
       "available": "Disponible",
       "bloomLabel": "Bloom",

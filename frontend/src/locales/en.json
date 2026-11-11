@@ -600,6 +600,8 @@
       "title": "Choose Your Date",
       "subtitle": "Select a date to see available experiences",
       "noAvailability": "No availability for this date",
+      "rangeUnavailable": "This event is no longer available for booking.",
+      "rangeError": "We couldn't load this event. Please try again later.",
       "spotsLeft": "Only {{count}} spots left",
       "available": "Available",
       "bloomLabel": "Bloom",
