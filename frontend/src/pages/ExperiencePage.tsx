@@ -301,7 +301,7 @@ function ModalLocationDetails({
 
           {location.is_active !== false && location.experience_is_active !== false ? (
             <Link
-              to={`/booking?location=${locationSlug}`}
+              to={`/booking?location=${locationSlug}&locationId=${location.id}`}
               className="btn-primary !px-6 !py-3 text-xs sm:text-sm font-semibold whitespace-nowrap shadow-md hover:shadow-lg text-center"
             >
               {ctaBtnText}

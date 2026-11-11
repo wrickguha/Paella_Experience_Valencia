@@ -34,8 +34,10 @@ export default function BookingPage() {
 
   // Pre-fill from URL params (from experience page CTAs)
   const prefillLocation = searchParams.get('location') as LocationId | null;
+  const prefillLocationId = Number(searchParams.get('locationId'));
 
   const [step, setStep] = useState<PageStep>('calendar');
+  const [isRangeBooking, setIsRangeBooking] = useState(false);
   const [selectedDate, setSelectedDate] = useState('');
   const [modalEvents, setModalEvents] = useState<CalendarEvent[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
@@ -46,7 +48,7 @@ export default function BookingPage() {
   const [customerEmail, setCustomerEmail] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [prefillLoading, setPrefillLoading] = useState(false);
+  const [prefillLoading, setPrefillLoading] = useState(Boolean(prefillLocation));
   const [rangeBookingStatus, setRangeBookingStatus] = useState<'unavailable' | 'error' | null>(null);
 
   const handleDateSelect = useCallback((date: string, events: CalendarEvent[]) => {
@@ -82,6 +84,7 @@ export default function BookingPage() {
     const prefillTime = searchParams.get('time');
 
     setRangeBookingStatus(null);
+    setIsRangeBooking(false);
     if (!prefillLocation) {
       setPrefillLoading(false);
       return;
@@ -115,9 +118,11 @@ export default function BookingPage() {
         const locations = await fetchLocations();
         if (cancelled) return;
 
-        const location = locations.find((item) => slugFromName(item.name) === prefillLocation);
+        const location = locations.find((item) => item.id === prefillLocationId)
+          ?? locations.find((item) => slugFromName(item.name) === prefillLocation);
         if (location?.availability_type !== 'range') return;
         isRangeLocation = true;
+        setIsRangeBooking(true);
 
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -158,7 +163,7 @@ export default function BookingPage() {
     return () => {
       cancelled = true;
     };
-  }, [prefillLocation, searchParams, handleBookEvent]);
+  }, [prefillLocation, prefillLocationId, searchParams, handleBookEvent]);
 
   useEffect(() => {
     if (user) {
@@ -322,12 +327,14 @@ export default function BookingPage() {
                       {selectedEvent.endDate && ` – ${formattedEndDate} · ${selectedEvent.endTime}`}
                     </p>
                   </div>
-                  <button
-                    onClick={handleBackToCalendar}
-                    className="text-xs text-primary font-medium hover:underline"
-                  >
-                    {t('booking.summary.edit')}
-                  </button>
+                  {!isRangeBooking && (
+                    <button
+                      onClick={handleBackToCalendar}
+                      className="text-xs text-primary font-medium hover:underline"
+                    >
+                      {t('booking.summary.edit')}
+                    </button>
+                  )}
                 </div>
                 {/* Features / Facilities */}
                 {selectedEvent.features && selectedEvent.features.length > 0 && (
