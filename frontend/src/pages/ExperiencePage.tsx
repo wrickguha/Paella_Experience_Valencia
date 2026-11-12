@@ -7,6 +7,7 @@ import {
   fetchExperienceCategories,
   fetchLocations,
   fetchSettings,
+  to12Hour,
   type FrontendExperienceCategory,
   type FrontendLocation,
   type LocationSchedule,
@@ -64,9 +65,7 @@ function formatAvailability(schedules: LocationSchedule[], availabilityType: str
 function formatTime(schedules: LocationSchedule[]): string {
   if (schedules.length === 0) return '';
   const s = schedules[0];
-  const start = s.start_time.substring(0, 5);
-  const end = s.end_time.substring(0, 5);
-  return `${start} – ${end}`;
+  return `${to12Hour(s.start_time)} – ${to12Hour(s.end_time)}`;
 }
 
 function cleanImageUrl(url: string | null): string {

@@ -157,9 +157,6 @@ export default function GalleryGrid() {
                 aria-roledescription={lang === 'es' ? 'diapositiva' : 'slide'}
                 aria-label={`${currentImageIndex + 1} ${lang === 'es' ? 'de' : 'of'} ${visibleImages.length}`}
               >
-                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 via-neutral-sand to-neutral-cream">
-                  <ImageIcon className="text-primary/30" size={36} aria-hidden="true" />
-                </div>
                 <img
                   src={currentImage.src}
                   alt={currentImage.alt}

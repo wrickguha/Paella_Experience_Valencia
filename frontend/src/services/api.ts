@@ -2,6 +2,15 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
+/** Converts a 24-hour time string (e.g. "17:00" or "17:00:00") to 12-hour AM/PM format. */
+export function to12Hour(time24: string): string {
+  const [hourStr, minute] = time24.substring(0, 5).split(':');
+  const hour = parseInt(hourStr, 10);
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minute} ${period}`;
+}
+
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -142,8 +151,8 @@ export async function fetchCalendarMonth(year: number, month: number): Promise<C
         locationNumericId: e.location_id,
         experienceId: e.experience_id ?? 0,
         locationName: e.location,
-        time: e.start_time.substring(0, 5), // "12:00:00" → "12:00"
-        ...(e.end_date ? { endTime: e.end_time.substring(0, 5) } : {}),
+        time: to12Hour(e.start_time), // "17:00:00" → "5:00 PM"
+        ...(e.end_date ? { endTime: to12Hour(e.end_time) } : {}),
         spotsLeft: e.available_slots,
         pricePerPerson: e.experience_price || loc?.price || 59,
         image: primaryImage,
